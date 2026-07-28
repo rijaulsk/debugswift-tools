@@ -1,0 +1,102 @@
+/* THE TOOL REGISTRY — the reason this is one repo and not seven.
+ *
+ * Adding a tool is two moves: an entry here, and a route folder named for its
+ * slug. The hub page, the sitemap, and the cross-links between tools all read
+ * from this array, and NOTHING in the main marketing repo has to change. That
+ * property is the whole argument for the single-repo shape recorded in
+ * E:\debugswift\debugswift-assets\tools-repo-spec.md — do not break it by
+ * hand-listing tools anywhere else.
+ *
+ * `status` is load-bearing and it is an honesty mechanism. Only "live" tools get
+ * a route, a link, and a sitemap entry. "planned" tools render as plain text on
+ * the hub — named, not linked — because a link to a page that does not exist is
+ * a lie a visitor discovers by clicking. Do not add a route for a planned tool
+ * without flipping its status, and do not flip its status before the route
+ * works end to end.
+ *
+ * Menu and order are locked by the brief (§5) and by the tools-repo spec: the
+ * website audit ships FIRST because it is the best capture and it matches the
+ * automation spearhead. Do not reorder to put a cheaper tool first. */
+
+export type ToolStatus = "live" | "planned";
+
+export type Tool = {
+  /** URL segment. Lives at debugswift.com/tools/<slug>. Never rename a live
+   *  one — that discards whatever the page has earned. */
+  slug: string;
+  name: string;
+  /** Hub card line and the source of the page's meta description. One sentence,
+   *  says what the tool DOES, never what it will do for your business. */
+  oneLiner: string;
+  status: ToolStatus;
+  /** Slug of the main-site service this tool feeds. Every tool page links to
+   *  its service page — that internal link is half the point of the tools
+   *  existing (SEO architecture: tools ↔ blog ↔ service pages). */
+  relatedService: string;
+};
+
+export const tools: Tool[] = [
+  {
+    slug: "website-audit",
+    name: "Website Audit",
+    oneLiner:
+      "Checks a page for the technical and on-page basics search engines and customers both rely on.",
+    status: "live",
+    relatedService: "seo-local-lead-gen",
+  },
+  {
+    slug: "meta-generator",
+    name: "Meta & Headline Generator",
+    oneLiner: "Writes title tags and meta descriptions that fit the space Google gives them.",
+    status: "planned",
+    relatedService: "seo-local-lead-gen",
+  },
+  {
+    slug: "quote-generator",
+    name: "Invoice & Quote Generator",
+    oneLiner: "Fills a clean, printable quote or invoice without a spreadsheet.",
+    status: "planned",
+    relatedService: "business-process-automation",
+  },
+  {
+    slug: "brand-kit",
+    name: "Brand Kit Generator",
+    oneLiner: "Turns one colour and one typeface into a usable starter palette and type scale.",
+    status: "planned",
+    relatedService: "brand-design-systems",
+  },
+  {
+    slug: "qr-generator",
+    name: "QR Generator",
+    oneLiner: "Makes a print-quality QR code for a link, a phone number, or a WhatsApp chat.",
+    status: "planned",
+    relatedService: "conversion-websites",
+  },
+  {
+    slug: "image-compressor",
+    name: "Image Compressor",
+    oneLiner: "Shrinks photos in the browser so a page stops waiting on them.",
+    status: "planned",
+    relatedService: "web-app-development",
+  },
+  {
+    slug: "cost-estimator",
+    name: "Cost Estimator",
+    oneLiner: "Works out a rough build range from what you actually need, before you talk to anyone.",
+    status: "planned",
+    relatedService: "technical-consulting",
+  },
+];
+
+export const liveTools = tools.filter((t) => t.status === "live");
+
+export function getTool(slug: string): Tool | undefined {
+  return tools.find((t) => t.slug === slug);
+}
+
+/** Live tools other than the one given — the "while you're here" row at the
+ *  bottom of each tool page. Returns [] while only one tool exists, and the
+ *  caller must render nothing rather than an empty heading. */
+export function otherLiveTools(slug: string): Tool[] {
+  return liveTools.filter((t) => t.slug !== slug);
+}

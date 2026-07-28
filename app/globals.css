@@ -1,0 +1,337 @@
+@import "tailwindcss";
+
+/*
+ * DebugSwift design tokens — single source of truth.
+ * Every value below is copied verbatim from docs/design-system-v1-1.md §1–§3.
+ * Components consume these tokens; raw hexes never appear outside this file.
+ */
+@theme {
+  /* Wipe Tailwind's default palette: only DebugSwift tokens may compile. */
+  --color-*: initial;
+
+  /* Indigo — primary ramp */
+  --color-indigo-50: #f1f3fe;
+  --color-indigo-100: #e2e6ff;
+  --color-indigo-200: #c9d1ff;
+  --color-indigo-300: #abb6fe;
+  --color-indigo-400: #8792fe;
+  --color-indigo-500: #6467f2;
+  --color-indigo-600: #5251da;
+  --color-indigo-700: #423eba;
+  --color-indigo-800: #332e96;
+  --color-indigo-900: #22206b;
+
+  /* Clay — warm accent ramp (CTA only, ≤2% of any view) */
+  --color-clay-50: #fff0e9;
+  --color-clay-100: #ffe1d4;
+  --color-clay-200: #fec6ad;
+  --color-clay-300: #faa47d;
+  --color-clay-400: #f38e60;
+  --color-clay-500: #e87d4a;
+  --color-clay-600: #c55e29;
+  --color-clay-700: #9f440f;
+  --color-clay-800: #7b3000;
+  --color-clay-900: #571f00;
+
+  /* Warm neutrals */
+  --color-cream: #f7f3eb;
+  --color-sand: #ece7df;
+  --color-mist: #d8d4cd;
+  --color-stone: #a8a49e;
+  --color-slate: #5e5a53;
+  --color-charcoal: #3c3730;
+  --color-ink: #221d17;
+  --color-paper: #ffffff;
+
+  /* Semantic (UI states only) */
+  --color-success-500: #2a9754;
+  --color-success-100: #d1f2d8;
+  --color-success-700: #046732;
+  --color-warning-500: #a77601;
+  --color-warning-100: #fbe5c1;
+  --color-warning-700: #704e03;
+  --color-danger-500: #da4053;
+  --color-danger-100: #fedfdf;
+  --color-danger-700: #9f0a2e;
+  --color-info-500: #6467f2;
+  --color-info-100: #e2e6ff;
+  --color-info-700: #423eba;
+
+  /* Dark mode (product surfaces only — marketing site stays cream) */
+  --color-dark-bg: #10121c;
+  --color-dark-surface: #1b1d29;
+  --color-dark-raised: #272936;
+
+  /* Typography — Satoshi only (§2) */
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: 4.5rem; /* 72px */
+  --text-display--line-height: 4.75rem; /* 76px */
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 900;
+  --text-display-mobile: 2.75rem; /* 44px */
+  --text-display-mobile--line-height: 3rem; /* 48px */
+  --text-display-mobile--letter-spacing: -0.02em;
+  --text-display-mobile--font-weight: 900;
+  --text-h1: 3.25rem; /* 52px */
+  --text-h1--line-height: 3.625rem; /* 58px */
+  --text-h1--font-weight: 700;
+  --text-h1-mobile: 2.25rem; /* 36px */
+  --text-h1-mobile--line-height: 2.75rem;
+  --text-h1-mobile--font-weight: 700;
+  --text-h2: 2.25rem; /* 36px */
+  --text-h2--line-height: 2.625rem; /* 42px */
+  --text-h2--font-weight: 700;
+  --text-h3: 1.5rem; /* 24px */
+  --text-h3--line-height: 2rem; /* 32px */
+  --text-h3--font-weight: 500;
+  --text-body: 1.125rem; /* 18px */
+  --text-body--line-height: 1.75rem; /* 28px */
+  --text-small: 0.9375rem; /* 15px */
+  --text-small--line-height: 1.375rem; /* 22px */
+  --text-eyebrow: 0.8125rem; /* 13px */
+  --text-eyebrow--line-height: 1rem; /* 16px */
+  --text-eyebrow--letter-spacing: 0.06em;
+  --text-eyebrow--font-weight: 500;
+
+  /* Components (§3) */
+  --radius-card: 14px;
+
+  /* v2 amendments (docs/design-system-v2.md) */
+  --container-canvas: 82.5rem; /* 1320px editorial canvas */
+  --text-display-xl: 5.5rem; /* 88px — homepage hero ≥1280px only */
+  --text-display-xl--line-height: 5.75rem; /* 92px */
+  --text-display-xl--letter-spacing: -0.025em;
+  --text-display-xl--font-weight: 900;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-slate);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background-color: var(--color-indigo-100);
+    color: var(--color-ink);
+  }
+
+  /* §4: respect prefers-reduced-motion — UI motion collapses to instant. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+
+  /* Redesign brief P2: visible focus for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--color-indigo-500);
+    outline-offset: 2px;
+  }
+
+  /* Mobile menu icon: the three swept wing strokes morph into an X (and back)
+   * by transitioning each path's `d` — Tailwind can't express `transition: d`,
+   * so it lives here. The middle stroke also fades as it collapses. The
+   * reduced-motion guard above snaps both to an instant swap; browsers without
+   * CSS `d`-transition support simply cut between states. */
+  .menu-stroke {
+    transition:
+      d 260ms ease-out,
+      opacity 200ms ease-out;
+  }
+
+  /* The chat mockup's last bubble fades in once on LOAD (never on scroll). */
+  @keyframes chat-in {
+    from {
+      opacity: 0;
+      translate: 0 6px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* Signature motion layer (owner-approved amendment to the "silent UI" rule).
+   * Deliberately NOT the scroll-triggered fade-up everyone ships — these are
+   * ambient/interaction motions only. All are disabled by the reduced-motion
+   * guard above. */
+
+  /* Deb's idle life: a slow, small vertical drift, as if hovering on air. */
+  @keyframes deb-float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -8px;
+    }
+  }
+
+  /* Typing indicator dots in the chat demo. */
+  @keyframes typing-dot {
+    0%,
+    60%,
+    100% {
+      opacity: 0.25;
+      translate: 0 0;
+    }
+    30% {
+      opacity: 1;
+      translate: 0 -2px;
+    }
+  }
+
+  /* The hero bug-ticket deck (components/BugTickets.tsx). Slot transforms sit
+   * in custom properties; the ticket-in keyframe starts from WHICHEVER back
+   * row the clicked card came from (--from-* inline vars mirror these
+   * values). Geometry contract: every card is
+   * absolutely positioned at top 88px; the back rows translate up by one 44px
+   * tab each, which puts the back slot's top edge at container top — the frame
+   * Deb perches on. The back slot stays rotate(0) and all scaling anchors to
+   * origin 50% 0 so that edge never moves. Colors come from the component's
+   * token classes; nothing here paints. */
+  .ticket-card {
+    position: absolute;
+    inset-inline: 0;
+    top: 88px;
+    transform-origin: 50% 0;
+    transform: translateY(var(--slot-y)) rotate(var(--slot-rot))
+      scale(var(--slot-s));
+    /* Incoming cards land with a slight overshoot — a card put down on a
+     * desk. The 80ms delay lets the outgoing card lift first, so the deal
+     * reads as cause → effect. Hover lift rides the independent `translate`
+     * property (no delay) so it composes with the slot transform. */
+    transition:
+      transform 0.5s cubic-bezier(0.3, 1.18, 0.42, 1) 80ms,
+      translate 0.2s ease-out,
+      background-color 0.45s linear,
+      border-color 0.2s ease-out;
+  }
+  .ticket-front {
+    --slot-y: 0px;
+    --slot-rot: -1.5deg;
+    --slot-s: 1;
+    z-index: 30;
+  }
+  .ticket-middle {
+    --slot-y: -44px;
+    --slot-rot: 2deg;
+    --slot-s: 0.97;
+    z-index: 20;
+  }
+  .ticket-back {
+    --slot-y: -88px;
+    --slot-rot: 0deg;
+    --slot-s: 0.94;
+    z-index: 10;
+  }
+  /* Invitation: a peeking tab lifts 3px under the pointer / keyboard focus. */
+  .ticket-middle:hover,
+  .ticket-middle:focus-within,
+  .ticket-back:hover,
+  .ticket-back:focus-within {
+    translate: 0 -3px;
+  }
+  .ticket-in {
+    animation: ticket-in 0.78s;
+  }
+  /* The deal — the CLICKED card is the star (owner's call). It slides up out
+   * of the stack from its old row (--from-* inline vars set by BugTickets,
+   * mirroring the slot classes) while still BEHIND every card that was in
+   * front of it — --from-z is 4 for a back deal (rearmost card, behind all)
+   * but 15 for a middle deal, because the middle card sits in FRONT of the
+   * back card in the deck and must not dip behind its tab on the way up —
+   * crests just
+   * above the back row's top edge (-142% is the minimum that clears it on
+   * the sm card — no higher, so it never parks in blank air), swaps to the
+   * top z at the crest while it overlaps nothing and is still moving — never
+   * mid-overlap, which is what made v1 pop — then drops onto the deck's
+   * front, pushing the rest back a row (they slide by transition, no
+   * keyframe). Pacing is fast-fast-slow: quick pull-out, a ~60ms crest (a
+   * beat, not a hold), then a rapid drop that bleeds off into a long soft
+   * landing on the front slot. Deb flies in front of the whole deck (she's
+   * outside its stacking context), so the card passes behind her, drifting
+   * left away from her perch. Runs only on click; the reduced-motion guard
+   * above collapses it to an instant cut. */
+  @keyframes ticket-in {
+    0% {
+      transform: translateY(var(--from-y, -88px)) rotate(var(--from-rot, 0deg))
+        scale(var(--from-s, 0.94));
+      z-index: var(--from-z, 4);
+      animation-timing-function: cubic-bezier(0.5, 0.1, 0.6, 0.95);
+    }
+    38% {
+      transform: translate(-18px, -142%) rotate(-5deg);
+      z-index: var(--from-z, 4);
+      animation-timing-function: linear;
+    }
+    46% {
+      transform: translate(-15px, -140%) rotate(-4.4deg);
+      z-index: 40;
+      animation-timing-function: cubic-bezier(0.2, 0.65, 0.25, 1);
+    }
+    100% {
+      transform: translateY(0) rotate(-1.5deg) scale(1);
+      z-index: 40;
+    }
+  }
+
+  /* Printed-ticket texture for the card stub: irregular bars in currentColor
+   * (stone). Decorative only — it encodes nothing. */
+  .ticket-barcode {
+    display: inline-block;
+    width: 62px;
+    height: 14px;
+    opacity: 0.7;
+    background: repeating-linear-gradient(
+      90deg,
+      currentColor 0 1px,
+      transparent 1px 3px,
+      currentColor 3px 4.5px,
+      transparent 4.5px 6px,
+      currentColor 6px 6.8px,
+      transparent 6.8px 10px
+    );
+  }
+
+  /* The form's success panel rising into place once. */
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      translate: 0 8px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* Site-wide grain: one 3% texture layer over cream (§3) — never per-component. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 300px 300px;
+  }
+}
