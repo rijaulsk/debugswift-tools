@@ -448,6 +448,72 @@ The picture was indistinguishable from a working code.
 
 ---
 
+## Image Compressor — `/tools/image-compressor`
+
+**Eyebrow:** Image Compressor
+
+**H1:** Photos are why the page is slow.
+
+**Lede:** A camera photo is often three or four megabytes. On a website it needs
+to be a few dozen kilobytes. Drop them here and they're resized and re-encoded
+on your own device — nothing is uploaded.
+
+**Drop zone:** Drop images here · Up to 20 at a time. They stay on your device.
+
+**Section title:** The biggest thing on most pages is a photo nobody resized.
+**Section lede:** Not a framework, not a tracking script — a product shot
+straight off a phone at full resolution, being downloaded in full and then
+displayed four hundred pixels wide.
+
+**Loss note (always on screen):** Re-encoding is lossy, so keep your originals —
+this is for the copy that goes on the website, not your only copy. The browser
+also drops all metadata in the process: that removes GPS coordinates from phone
+photos, which is usually a good thing, but it also removes the colour profile
+and any copyright field.
+
+**Closing CTA title:** Compressing images is the first fix, not the only one.
+**Closing CTA body:** If the page still drags once the photos are sensible,
+something further in is the cause — and guessing at it is expensive.
+
+### The "it got bigger" case — do not remove this
+
+When an input is already well optimised, re-encoding costs more than it saves.
+The row then reads **"already smaller than we can make it, so you get the
+original back"** and the download button hands over the ORIGINAL file, not the
+worse one.
+
+This is the honesty rule in its most tempting spot: every percentage on this
+page is measured on the real output blob, and it would be trivially easy — and
+completely invisible to a user — to only ever show wins. Verified in the browser:
+a 4 KB optimised JPEG takes this path while a 662 KB image compresses to 7 KB.
+
+### FAQ
+
+**Q: Do my photos get uploaded?**
+A: No. The compressing happens inside this page — your browser decodes, resizes
+and re-encodes the file, and nothing is sent. The only network request the page
+makes is the same anonymous page-view counter as every other page on this site,
+and it happens whether or not you add an image.
+
+**Q: Why did one of my images get bigger?**
+A: Because it was already well compressed, and re-encoding an optimised file
+usually costs more than it saves. When that happens the tool says so on the row
+and gives you the original back rather than a worse version of it.
+
+**Q: What gets lost?**
+A: Quality, a little, because re-encoding is always lossy — so keep your
+originals; this is for the copy that goes on the site. All metadata goes too:
+EXIF, camera settings, the colour profile, any copyright field, and GPS
+coordinates. Losing the location out of a phone photo before it goes public is
+usually a win. Losing a colour profile can shift a wide-gamut photo slightly.
+
+**Q: WebP or JPEG?**
+A: WebP, unless something in your workflow refuses it. It's meaningfully smaller
+at the same visual quality and every current browser reads it. JPEG is there for
+older software and for anyone who needs maximum compatibility.
+
+---
+
 ## Not in this file
 
 The eighteen check strings — each check's `found`, `why` and `fix` — live in

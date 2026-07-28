@@ -79,8 +79,9 @@ export const tools: Tool[] = [
   {
     slug: "image-compressor",
     name: "Image Compressor",
-    oneLiner: "Shrinks photos in the browser so a page stops waiting on them.",
-    status: "planned",
+    oneLiner:
+      "Shrinks photos on your own device so a page stops waiting on them. Nothing is uploaded.",
+    status: "live",
     relatedService: "web-app-development",
   },
   {
