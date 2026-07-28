@@ -70,9 +70,10 @@ export const tools: Tool[] = [
   },
   {
     slug: "qr-generator",
-    name: "QR Generator",
-    oneLiner: "Makes a print-quality QR code for a link, a phone number, or a WhatsApp chat.",
-    status: "planned",
+    name: "QR Code Generator",
+    oneLiner:
+      "Makes a vector QR code for a link, phone number or WhatsApp chat — with no redirect that can expire.",
+    status: "live",
     relatedService: "conversion-websites",
   },
   {

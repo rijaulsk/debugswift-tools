@@ -384,6 +384,70 @@ that pass.
 
 ---
 
+## QR Code Generator — `/tools/qr-generator`
+
+**Eyebrow:** QR Code Generator
+
+**H1:** A QR code that still works in five years.
+
+**Lede:** It encodes your link directly — no redirect through us, nothing to
+expire, nothing to start charging for. Download it as vector so it stays sharp
+from a business card to a shopfront.
+
+**Section title:** Most free QR codes point at someone else's website.
+**Section lede:** They encode a short link on their own domain that forwards to
+yours, which is how they offer scan counts. It also means your printed code
+depends on their company still existing, and still being free.
+
+**The honest trade, stated on the page:** we can't report scan numbers, because
+nothing routes through us and there is nothing to count. If you need numbers,
+encode a link you control that has its own analytics.
+
+**Standing advice, repeated twice on purpose:** scan the proof before it goes to
+print.
+
+**Closing CTA title:** The code is the easy bit.
+**Closing CTA body:** What happens in the ten seconds after someone scans it is
+what decides whether you hear from them.
+
+### FAQ
+
+**Q: Will the code stop working later?**
+A: No, and this is the one to check before using any QR generator. Plenty of
+free sites encode a link to their own domain that redirects to yours, so they
+can count scans — and if they change their pricing or shut down, every code you
+printed dies. Ours encodes your address directly. There's nothing in the middle,
+which also means we cannot tell you how many people scanned it.
+
+**Q: SVG or PNG?**
+A: SVG whenever the software will take it. It's vector, so it's sharp whether
+the code ends up two centimetres wide on a card or two metres on a van. The PNG
+is there for the software that still won't accept an SVG; it's 1024px, which is
+enough for a few inches at print resolution.
+
+**Q: Which error-correction level should I pick?**
+A: Medium for most printing. Higher levels let the code survive scratches and
+dirt, but they pack in more modules, so on a small print each module gets tinier
+and it can end up harder to scan rather than easier. Go high for outdoor or
+industrial surfaces, low only for screens.
+
+**Q: Why is there a white border around it?**
+A: That's the quiet zone, and scanners genuinely need it to find the code.
+Cropping it off is the single most common reason a printed QR won't read. Keep
+it, and keep good contrast — dark code on a light background, never the other
+way round.
+
+### Note for whoever maintains this
+
+The encoder is hand-written (`lib/qr/encode.ts`, no runtime dependency) and
+therefore carries a standing rule: **run `npm run check:qr` after touching it.**
+A wrong QR code does not look wrong. During development this encoder had correct
+data, correct Reed–Solomon parity, correct placement and a correct format value,
+and still scanned as nothing, because 15 bits were written in the wrong order.
+The picture was indistinguishable from a working code.
+
+---
+
 ## Not in this file
 
 The eighteen check strings — each check's `found`, `why` and `fix` — live in
