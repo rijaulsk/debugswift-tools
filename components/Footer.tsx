@@ -54,7 +54,8 @@ const socialIcon: Record<string, (p: { size?: number }) => React.ReactNode> = {
  * WhatsApp business number appears only as a link, never as digits. */
 export default function Footer() {
   return (
-    <footer className="bg-indigo-900">
+    /* TOOLS DIFFERENCE: print:hidden — see the note in Header.tsx. */
+    <footer className="bg-indigo-900 print:hidden">
       <div className="mx-auto w-full max-w-canvas px-6 pt-16 pb-10 text-center md:px-12 md:pt-20 md:text-left">
         <div className="grid gap-x-10 gap-y-12 md:grid-cols-[2fr_1fr_1fr_1.3fr]">
           <div>

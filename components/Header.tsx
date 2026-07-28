@@ -122,7 +122,11 @@ export default function Header() {
     "text-indigo-600 underline decoration-[1.5px] underline-offset-[6px]";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-mist bg-cream">
+    /* TOOLS DIFFERENCE: print:hidden. This app produces a document people
+     * actually print (the quote generator), and site chrome on a client-facing
+     * invoice looks like a mistake. The marketing and blog repos have nothing
+     * printable and don't carry this. */
+    <header className="sticky top-0 z-40 border-b border-mist bg-cream print:hidden">
       <div className="mx-auto flex w-full max-w-canvas items-center justify-between gap-8 px-6 py-4 md:px-12">
         {/* Lockup composed in HTML: debugswift.svg has live <text> nodes that
          * <img> can't render in Satoshi, so the wordmark is real text here.

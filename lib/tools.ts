@@ -54,9 +54,10 @@ export const tools: Tool[] = [
   },
   {
     slug: "quote-generator",
-    name: "Invoice & Quote Generator",
-    oneLiner: "Fills a clean, printable quote or invoice without a spreadsheet.",
-    status: "planned",
+    name: "Quote & Invoice Generator",
+    oneLiner:
+      "Fills a clean, printable quote or invoice and saves it as a PDF from your browser.",
+    status: "live",
     relatedService: "business-process-automation",
   },
   {

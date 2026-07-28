@@ -51,7 +51,8 @@ export default function StickyMobileBar() {
       aria-hidden={!shown}
       tabIndex={shown ? 0 : -1}
       onClick={() => void track("whatsapp_click", { location: "float-fab" })}
-      className={`fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full border-[1.5px] border-ink bg-cream px-4 py-3 font-medium text-ink transition-all duration-200 ease-out md:hidden ${
+      /* TOOLS DIFFERENCE: print:hidden — see the note in Header.tsx. */
+      className={`fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full border-[1.5px] border-ink bg-cream px-4 py-3 font-medium text-ink transition-all duration-200 ease-out md:hidden print:hidden ${
         shown
           ? "pointer-events-auto translate-y-0 opacity-100"
           : "pointer-events-none translate-y-3 opacity-0"

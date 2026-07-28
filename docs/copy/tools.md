@@ -165,8 +165,8 @@ they are.
 **Drafts heading:** Need a starting point?
 **Drafts body:** Fill these in and you'll get drafts built from the usual
 shapes — specific thing first, business name last, because the end of the line
-is what gets cut. There's no AI here and nothing is sent anywhere. Edit whatever
-you pick.
+is what gets cut. There's no AI here, and nothing you type is sent anywhere.
+Edit whatever you pick.
 
 **Section title:** Character counters get this wrong.
 **Section lede:** Not by a little. Two titles of identical length can differ by
@@ -200,19 +200,116 @@ the end of the line is what gets cut. It's formatting, not writing, and it's
 meant to be edited.
 
 **Q: Does anything I type get sent to you?**
-A: No. This tool runs entirely in your browser — there's no server request at
-all, which you can confirm in your browser's network tab. Paste in unpublished
-page copy if you want to.
+A: No. The tool runs entirely in your browser and makes no request that carries
+anything you typed — paste in unpublished page copy if you want to. Being exact,
+since we're inviting you to check: the page loads the same anonymous page-view
+counter as every other page on this site, so the network tab will show one
+script. It records that the page was opened and never sees these fields.
 
-🚩 **"Nothing is sent anywhere" / "no server request at all"** — true as built
-(the tool is one client component with no fetch). It stops being true the moment
-anyone adds analytics on the input, an autosave, or an AI draft button. If a
-future version calls a model, this answer and the H1 section both have to change
-in the same commit.
+⚠️ **CORRECTED 28 Jul 2026, and worth reading as a lesson.** This answer
+originally read *"there's no server request at all, which you can confirm in
+your browser's network tab."* **That was false.** `app/layout.tsx` mounts Vercel
+Analytics, so the network tab shows requests to `va.vercel-scripts.com` on every
+page of this app. Caught by a Playwright run that watched for off-origin
+requests.
+
+The failure wasn't the analytics — it was inviting the reader to verify a claim
+and then failing their verification. That is worse than saying nothing, because
+someone who checks concludes the whole page is padding. The claim is now scoped
+to what is actually true ("no request that **carries what you typed**") and names
+the script they will see.
+
+**If analytics is ever removed from the layout, the wider claim becomes
+available again. Not before.** And if any tool gains an autosave, an AI draft
+button, or input-level analytics, this answer becomes false again and has to
+change in the same commit.
 
 **Placeholder examples used in the draft fields:** "Emergency plumbing repairs",
 "Ganguly Plumbing", "Salt Lake" — invented illustrative examples, not a real
 client. Swap them if you'd rather not imply one.
+
+---
+
+## Quote & Invoice Generator — `/tools/quote-generator`
+
+**Eyebrow:** Quote & Invoice Generator
+
+**H1:** A quote you'd be happy to send.
+
+**Lede:** Fill it in, print it, or save it as a PDF straight from your browser.
+No signup, no watermark, and nothing you type leaves your machine.
+
+**Mode toggle:** Quote · Invoice
+**Print button:** Print or save as PDF
+**Clear button:** Clear everything
+**Print disabled hint:** Add your business name and one line item first.
+
+**Tax note (under the rate field):** Leave the rate blank and no tax line
+appears at all — which is the right document if you aren't registered. Adding a
+rate does not make this a tax invoice; see the note below the preview.
+
+**Storage note:** Your draft is kept in this browser so a refresh doesn't lose
+it, and nothing you type here is sent to us — the builder makes no request that
+carries it. "Clear everything" wipes the saved draft.
+
+🚩 **THE GST NOTE — the most important line on the page, and it PRINTS.**
+
+> This is a plain quote/invoice, not a GST tax invoice. If you're registered for
+> GST, a compliant invoice also needs your GSTIN, the customer's GSTIN, HSN or
+> SAC codes and the place of supply — none of which this produces. Check with
+> your accountant before using it for anything you'll file.
+
+It prints deliberately: someone who saves the PDF and files it should still be
+able to see what the document is and isn't. **Owner — this is the line most
+worth your review**, because it's the one where being wrong costs a user money
+rather than a ranking. If you'd rather the tool refused GST entirely (no tax
+field at all), say so and the field comes out.
+
+**Section title:** A document, not an accounting package.
+**Section lede:** It fills in one quote or one invoice and hands it back. It
+doesn't track what you've sent, chase payment, or file anything — and it doesn't
+ask you to sign up so that it could.
+
+**Closing CTA title:** Sending the quote is the easy part.
+**Closing CTA body:** If the slow bit is everything around it — the chasing, the
+retyping, the spreadsheet nobody trusts — that's the thing worth fixing.
+
+### FAQ
+
+**Q: Is this a proper GST tax invoice?**
+A: No, and this is the one thing worth reading twice. It produces a plain quote
+or invoice. A GST-compliant tax invoice also needs your GSTIN, the customer's
+GSTIN, HSN or SAC codes and the place of supply, and this doesn't produce any of
+them. If you're registered, check with your accountant before using it for
+anything you'll file.
+
+**Q: Where does what I type get stored?**
+A: In your own browser, so a refresh doesn't destroy your work — and nowhere
+else. The builder makes no request that carries anything you typed. Being exact,
+since we're inviting you to check: the page loads the same anonymous page-view
+counter as every other page on this site, so the network tab will show one
+script. It records that the page was opened and never sees these fields. The
+"Clear everything" button wipes the saved draft, as does clearing site data.
+
+**Q: How do I get a PDF?**
+A: Press "Print or save as PDF" and choose "Save as PDF" as the destination.
+That's your browser's own PDF export rather than something we generate — it's
+already on your machine, it handles fonts and page breaks properly, and it means
+nothing has to be uploaded to produce a file.
+
+**Q: Will the numbers add up correctly?**
+A: Yes. Amounts are worked out in whole paise rather than decimals, so the total
+always matches the lines above it. That sounds obvious, and it's the bug in a
+surprising number of spreadsheet templates — a column of decimals can round to a
+total that's a paise off what's printed.
+
+> That last answer is a verified claim, not a boast: three lines of 3×0.1,
+> 1×0.2 and 3×1234.35 sum to 3703.5499999999997 in plain floating point. The
+> tool computes in integer paise and prints ₹3,703.55.
+
+**Placeholder examples:** "Ganguly Plumbing", "Salt Lake", "Replace kitchen
+mixer tap", "Acme Ltd" — invented illustrations, not real clients. Swap them if
+you'd rather not imply one.
 
 ---
 

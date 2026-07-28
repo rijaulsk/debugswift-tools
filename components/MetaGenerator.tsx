@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, useState, useSyncExternalStore } from "react";
+import { useId, useState } from "react";
+import { useHasMounted } from "@/lib/hooks";
 import {
   DESCRIPTION_FONT,
   DESCRIPTION_PIXEL_BUDGET,
@@ -31,26 +32,6 @@ import {
  * measurements and only one of them is what Google uses. */
 
 const EXAMPLE: MetaInput = { subject: "", business: "", location: "" };
-
-/* "Are we past hydration?" — the canvas only exists in the browser, and
- * measuring during the hydration render would make the client HTML disagree
- * with the server's.
- *
- * useSyncExternalStore rather than an effect that calls setState: the store
- * simply reports false on the server and true on the client, so React resolves
- * it during hydration instead of scheduling a second render pass. (The
- * set-state-in-effect lint rule flags the effect version, and it is right to —
- * this is the pattern that rule points at.)
- *
- * The store never changes, so subscribe is a no-op returning a no-op. */
-const noop = () => () => {};
-function useHasMounted(): boolean {
-  return useSyncExternalStore(
-    noop,
-    () => true,
-    () => false,
-  );
-}
 
 export default function MetaGenerator() {
   const [title, setTitle] = useState("");
@@ -126,8 +107,8 @@ export default function MetaGenerator() {
         <p className="mt-3 max-w-2xl text-slate">
           Fill these in and you&apos;ll get drafts built from the usual shapes —
           specific thing first, business name last, because the end of the line is
-          what gets cut. There&apos;s no AI here and nothing is sent anywhere.
-          Edit whatever you pick.
+          what gets cut. There&apos;s no AI here, and nothing you type is sent
+          anywhere. Edit whatever you pick.
         </p>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">

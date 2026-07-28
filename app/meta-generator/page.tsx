@@ -52,7 +52,7 @@ const faqs: FaqItem[] = [
   {
     question: "Does anything I type get sent to you?",
     answer:
-      "No. This tool runs entirely in your browser — there's no server request at all, which you can confirm in your browser's network tab. Paste in unpublished page copy if you want to.",
+      "No. The tool runs entirely in your browser and makes no request that carries anything you typed — paste in unpublished page copy if you want to. Being exact, since we're inviting you to check: the page loads the same anonymous page-view counter as every other page on this site, so the network tab will show one script. It records that the page was opened and never sees these fields.",
   },
 ];
 
