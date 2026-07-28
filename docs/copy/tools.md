@@ -313,6 +313,77 @@ you'd rather not imply one.
 
 ---
 
+## Brand Kit Generator — `/tools/brand-kit`
+
+**Eyebrow:** Brand Kit Generator
+
+**H1:** One colour in. A palette you can actually use out.
+
+**Lede:** Ten steps built so the gaps look even to a human eye, each one telling
+you whether black or white text passes on it. Plus a type scale from a single
+base size. Copy the CSS and go.
+
+**Palette blurb:** Ten steps built by walking perceptual lightness, so the gaps
+look even rather than measuring even. Each row says which text colour is legible
+on it — measured, not guessed.
+
+**Contrast footnote:** Ratios are WCAG 2.1 contrast, computed on the hex above.
+AA wants 4.5 for body text and 3 for large text — 24px and up, or 19px and up if
+it's bold. A step with neither black nor white passing is a background for
+shapes, not for words.
+
+**Section title:** Even numbers aren't even colours.
+**Section lede:** The usual way to build a ramp is to hold the hue and walk
+lightness in HSL. It's also why so many generated palettes have muddy middles:
+HSL's lightness isn't perceptual. Pure yellow and pure blue both sit at 50%, and
+one of them is blinding.
+
+**Closing CTA title:** Colours are the easy half.
+**Closing CTA body:** The hard half is a set of rules everyone actually follows,
+so the site, the invoice and the van all look like the same company.
+
+### The measured / chosen split — the rule this page is built on
+
+The tool states which of its numbers are facts and which are opinions, and the
+components enforce it:
+
+- **MEASURED (facts):** every contrast ratio. WCAG 2.1 relative luminance,
+  computed on the exact output hex — not on the pre-rounding float, because the
+  hex is what ships and 8-bit rounding can move a ratio across a threshold.
+- **CHOSEN (this tool's opinion, labelled as such):** the ten lightness targets,
+  the five ratio names, and the suggested line heights.
+
+Never let a "chosen" number drift into being presented as a standard.
+
+### FAQ
+
+**Q: What makes this different from other palette generators?**
+A: Two things. The ramp is built in a perceptual colour space, so the steps look
+evenly spaced instead of merely being evenly spaced in numbers — the usual
+approach produces muddy middles and ends that bunch up. And every step tells you
+whether black or white text actually passes contrast on it, which is the
+question you'll hit the moment you try to use the colour.
+
+**Q: Are the contrast numbers reliable?**
+A: They're the WCAG 2.1 formula computed on the exact hex shown, so yes. Worth
+being precise about what they cover: contrast between a text colour and a solid
+background. They say nothing about text over a photo, over a gradient, or at a
+weight so light it's hard to read at any ratio.
+
+**Q: Is this my brand identity, then?**
+A: No. It's a starting palette and a type scale — the mechanical part. A brand
+is what you sound like and what you're for, and no tool derives that from a hex
+code. This gets you a coherent set of colours to build with instead of picking
+shades one at a time until they clash.
+
+**Q: Why does one of my steps say no text colour passes?**
+A: Because it's a mid-tone. Colours in the middle of the lightness range are too
+dark for black text and too light for white, and no amount of wanting changes
+that. Use it for a shape, a border, or a chart fill, and put words on the steps
+that pass.
+
+---
+
 ## Not in this file
 
 The eighteen check strings — each check's `found`, `why` and `fix` — live in

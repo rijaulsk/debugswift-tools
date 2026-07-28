@@ -63,8 +63,9 @@ export const tools: Tool[] = [
   {
     slug: "brand-kit",
     name: "Brand Kit Generator",
-    oneLiner: "Turns one colour and one typeface into a usable starter palette and type scale.",
-    status: "planned",
+    oneLiner:
+      "Turns one colour into a ten-step palette with contrast measured on every step, plus a type scale.",
+    status: "live",
     relatedService: "brand-design-systems",
   },
   {

@@ -100,7 +100,7 @@ export default function WebsiteAuditPage() {
             <li key={name} className="flex gap-6 py-5">
               {/* Ledger gutter — tabular numerals in the design system's
                * numbering role, not filled circles. */}
-              <span className="pt-1 text-small tabular-nums text-stone">
+              <span className="pt-1 text-small tabular-nums text-slate">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <p className="text-ink">

@@ -86,12 +86,12 @@ export default function MetaGenerator() {
               </p>
             </>
           ) : (
-            <p className="text-stone">
+            <p className="text-slate">
               Type a title above and this fills in.
             </p>
           )}
         </div>
-        <p className="mt-4 max-w-2xl text-small text-stone">
+        <p className="mt-4 max-w-2xl text-small text-slate">
           Faded text is the part that gets cut off. Measured in Arial at
           Google&apos;s desktop sizes, so treat the cut-off point as close rather
           than exact — and remember Google rewrites titles it doesn&apos;t like,
@@ -196,10 +196,10 @@ function Field({
           ) : (
             <>measuring…</>
           )}
-          <span className="text-stone"> · {value.length} characters</span>
+          <span className="text-slate"> · {value.length} characters</span>
         </p>
       </div>
-      <p className="mt-1 text-small text-stone">{hint}</p>
+      <p className="mt-1 text-small text-slate">{hint}</p>
       <textarea
         id={id}
         rows={rows}
@@ -229,8 +229,20 @@ function Field({
   );
 }
 
+/* The faded tail is the ONE deliberate use of Stone for text in this repo.
+ *
+ * Stone on Cream measures 2.24:1, which fails WCAG AA at every text size — so
+ * it is not used for content anywhere else here; substantive small text is
+ * Slate (6.19:1). The exception holds because this span's low contrast IS the
+ * information: it depicts the part of the title Google will not show. No
+ * meaning is lost by it being hard to read, because the same characters sit in
+ * full-contrast form in the textarea directly above, and the numeric readout
+ * states the overflow independently.
+ *
+ * If that pairing is ever broken — this preview shown without the input beside
+ * it — this has to change. */
 function Truncated({ fit, full }: { fit: Fit; full: string }) {
-  if (!full) return <span className="text-stone">—</span>;
+  if (!full) return <span className="text-slate">—</span>;
   if (!fit.truncated) return <>{full}</>;
   return (
     <>
@@ -302,8 +314,8 @@ function IdeaList({
             >
               <div className="min-w-0 flex-1">
                 <p className="break-words text-ink">{idea.text}</p>
-                <p className="mt-1 text-small text-stone">{idea.note}</p>
-                <p className="mt-1 text-small tabular-nums text-stone">
+                <p className="mt-1 text-small text-slate">{idea.note}</p>
+                <p className="mt-1 text-small tabular-nums text-slate">
                   {measured && fit.width !== null
                     ? `${fit.width}px${fit.truncated ? " — would be cut" : ""}`
                     : "measuring…"}

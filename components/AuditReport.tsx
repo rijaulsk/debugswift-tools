@@ -71,7 +71,7 @@ export default function AuditReport({ result }: { result: AuditResult }) {
             </>
           )}
         </p>
-        <p className="mt-4 break-words text-small text-stone">
+        <p className="mt-4 break-words text-small text-slate">
           Checked{" "}
           <span className="text-slate">{result.finalUrl}</span>
           {" · "}
@@ -116,7 +116,7 @@ export default function AuditReport({ result }: { result: AuditResult }) {
                     </span>
                   </div>
                   <p className="mt-2 break-words text-slate">{check.found}</p>
-                  <p className="mt-1 text-small text-stone">{check.why}</p>
+                  <p className="mt-1 text-small text-slate">{check.why}</p>
                   {check.fix && (
                     <p className="mt-3 border-l-[1.5px] border-mist pl-4 text-small text-slate">
                       <span className="font-medium text-ink">What to do: </span>

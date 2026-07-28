@@ -116,7 +116,7 @@ export default function QuoteBuilder() {
      * a fraction of a second, and a spinner that flashes is worse than a
      * placeholder that doesn't move. */
     return (
-      <div className="rounded-card border-[1.5px] border-mist p-6 text-stone">
+      <div className="rounded-card border-[1.5px] border-mist p-6 text-slate">
         Loading the builder…
       </div>
     );
@@ -241,7 +241,7 @@ export default function QuoteBuilder() {
                     <span className="sr-only"> line {index + 1}</span>
                   </button>
                 </div>
-                <p className="mt-3 text-small tabular-nums text-stone">
+                <p className="mt-3 text-small tabular-nums text-slate">
                   Line total {formatMinor(lineTotalMinor(item), doc.currency)}
                 </p>
               </li>
@@ -313,13 +313,13 @@ export default function QuoteBuilder() {
             Clear everything
           </button>
           {!printable && (
-            <p className="text-small text-stone">
+            <p className="text-small text-slate">
               Add your business name and one line item first.
             </p>
           )}
         </div>
 
-        <p className="mt-6 max-w-2xl text-small text-stone">
+        <p className="mt-6 max-w-2xl text-small text-slate">
           Your draft is kept in this browser so a refresh doesn&apos;t lose it,
           and nothing you type here is sent to us — the builder makes no request
           that carries it. “Clear everything” wipes the saved draft.
@@ -365,7 +365,7 @@ export default function QuoteBuilder() {
 
           {(doc.toName || doc.toDetails) && (
             <div className="mt-10">
-              <p className="text-eyebrow uppercase text-stone">
+              <p className="text-eyebrow uppercase text-slate">
                 {isQuote ? "Prepared for" : "Billed to"}
               </p>
               {doc.toName && (
@@ -444,7 +444,7 @@ export default function QuoteBuilder() {
         {/* The honesty note. It prints too — deliberately. Someone who saves
          * this as a PDF and files it should still be able to see what the
          * document is and isn't. */}
-        <p className="mt-6 max-w-2xl text-small text-stone">
+        <p className="mt-6 max-w-2xl text-small text-slate">
           This is a plain {isQuote ? "quote" : "invoice"}, not a GST tax invoice.
           If you&apos;re registered for GST, a compliant invoice also needs your
           GSTIN, the customer&apos;s GSTIN, HSN or SAC codes and the place of

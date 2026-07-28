@@ -117,7 +117,7 @@ export default function AuditForm() {
           </button>
         </div>
 
-        <p className="mt-3 text-small text-stone">
+        <p className="mt-3 text-small text-slate">
           Any public page. It takes a few seconds — we&apos;re waiting on the
           site, same as a visitor would.
         </p>

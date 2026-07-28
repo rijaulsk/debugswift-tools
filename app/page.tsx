@@ -103,7 +103,7 @@ export default function ToolsHub() {
                 </li>
               ))}
             </ul>
-            <p className="mt-5 max-w-xl text-small text-stone">
+            <p className="mt-5 max-w-xl text-small text-slate">
               These aren&apos;t built yet. They&apos;re listed because it&apos;s
               the plan, not because they&apos;re hiding behind a signup.
             </p>
