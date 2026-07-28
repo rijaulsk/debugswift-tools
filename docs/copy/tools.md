@@ -514,6 +514,86 @@ older software and for anyone who needs maximum compatibility.
 
 ---
 
+## Project Scoper — `/tools/project-scoper`
+
+🚩 **OWNER DECISION NEEDED — read this section first.**
+
+The brief's tool menu item 7 is a **cost estimator**. The brief ALSO locks
+**"no public pricing on the website"**, and the rupee ranges in §5 are recorded
+as *internal anchors, not published*. A calculator that printed rupees would
+break the second rule to satisfy the first, and leak the anchors doing it.
+
+So it was built as a **scope** tool and renamed to match what it does. The slug
+changed from `cost-estimator` to `project-scoper` — no live URL existed, so
+nothing was lost. The page meets the "what does it cost?" question head-on and
+answers it by explaining why we quote after a conversation.
+
+**If you want a genuine price calculator, that is a positioning decision to make
+deliberately — say so and it gets built.** It is not something to add quietly.
+
+**Eyebrow:** Project Scoper
+
+**H1:** Work out what you're actually asking for.
+
+**Lede:** Three quotes that differ by four times usually means three people were
+asked three different questions. This turns a vague idea into a written brief
+you can send to all of them unchanged — and tells you what any of them will ask
+you next.
+
+**Section title:** So what does it cost?
+**Section lede:** We don't publish prices, and we'd rather say why than put a
+number on a page that turns out to be wrong for you.
+
+> That section repeats the approved safety signal verbatim: *"Fixed price agreed
+> before work starts. No hourly billing, no surprises."* Per the brief that line
+> may appear at most twice per page; it appears once here.
+
+**Closing CTA title:** Bring the brief. Get a fixed price for it.
+**Closing CTA body:** Twenty minutes on what you've just written down, and a
+number you can hold us to.
+
+### The one number it does show
+
+A build-time range in weeks. It is arithmetic the visitor performed: every
+option displays the days it adds, the workings are printed in full
+("8 days for a website + 5 for … = 27 days, then ±25%"), and the total is
+auditable on screen. Verified in the browser that the stated total equals the
+sum of the shown parts.
+
+The per-item day figures are **a statement about how long we would budget**, in
+the same class as the Lead Engine's "7 days" — not a survey of the industry, and
+the page says so: *"That is how long we would budget for this… It is not a
+survey of what anyone else takes, and it is not a quote."*
+
+### FAQ
+
+**Q: Why doesn't this tell me a price?**
+A: Because any number it gave you would be made up. Two projects with identical
+tick-lists can differ several times over depending on what your content is like,
+what your existing systems are, and how quickly decisions get made — none of
+which a form knows. We quote after a conversation, at a fixed price agreed
+before work starts. A calculator that guessed would only be useful for making us
+look cheap until the real number arrived.
+
+**Q: So what use is it?**
+A: It writes down what you're asking for. The reason three quotes come back four
+times apart is almost never that one agency is greedy — it's that all three were
+asked a different question, and each filled the gaps with their own assumptions.
+Send the same brief to all three and the numbers become comparable.
+
+**Q: Where do the build times come from?**
+A: They're what we would budget for each piece of work, and the tool shows the
+days each item adds so the total is something you can check rather than take on
+trust. They're a statement about how we work, not a survey of the industry —
+nobody has measured that, and we're not going to pretend otherwise.
+
+**Q: Is the brief any use if I'm not hiring you?**
+A: Yes, that's rather the point. Copy it and send it to whoever you like. A
+business that knows what it's asking for gets better work from everyone,
+including from the agency that isn't us.
+
+---
+
 ## Not in this file
 
 The eighteen check strings — each check's `found`, `why` and `fix` — live in

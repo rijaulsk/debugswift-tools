@@ -85,10 +85,24 @@ export const tools: Tool[] = [
     relatedService: "web-app-development",
   },
   {
-    slug: "cost-estimator",
-    name: "Cost Estimator",
-    oneLiner: "Works out a rough build range from what you actually need, before you talk to anyone.",
-    status: "planned",
+    /* RENAMED FROM "cost-estimator", 28 Jul 2026, and the rename is the whole
+     * point rather than cosmetic. The brief's menu called for a cost estimator;
+     * the brief ALSO locks "no public pricing on the website", and the rupee
+     * ranges that exist are recorded as internal anchors, explicitly not
+     * published. A calculator printing rupees would break the second rule to
+     * satisfy the first and leak the anchors doing it.
+     *
+     * So it scopes instead of pricing, and it is named for what it does. The
+     * page answers "what does it cost?" directly — by explaining why we quote
+     * after a conversation, which is a real answer rather than a dodge.
+     *
+     * FLAGGED FOR THE OWNER: if you want a genuine price calculator, that is a
+     * positioning decision to make deliberately, not a tool to add quietly. */
+    slug: "project-scoper",
+    name: "Project Scoper",
+    oneLiner:
+      "Turns a vague idea into a written brief, so three quotes are finally comparable.",
+    status: "live",
     relatedService: "technical-consulting",
   },
 ];
