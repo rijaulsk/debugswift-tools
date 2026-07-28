@@ -136,6 +136,86 @@ spend a weekend on it, that's the job.
 
 ---
 
+## Meta & Headline Generator — `/tools/meta-generator`
+
+**Eyebrow:** Meta & Headline Generator
+
+**H1:** See where Google actually cuts your title.
+
+**Lede:** Google truncates search results by pixel width, not by character
+count — so every tool that counts characters is measuring the wrong thing. This
+one measures the real width as you type, against 600px for the title and 920px
+for the description.
+
+> The two pixel numbers come from `TITLE_PIXEL_BUDGET` and
+> `DESCRIPTION_PIXEL_BUDGET` in `lib/meta/measure.ts`; the page reads them from
+> there rather than repeating them, so they cannot drift.
+
+**Field labels:** Title tag / The clickable line in search results ·
+Meta description / The sentences underneath it
+**Live counter:** {width}px of {budget}px — being cut · {n} characters
+**Preview heading:** Roughly how it lands
+**Preview empty state:** Type a title above and this fills in.
+
+**Preview caveat:** Faded text is the part that gets cut off. Measured in Arial
+at Google's desktop sizes, so treat the cut-off point as close rather than
+exact — and remember Google rewrites titles it doesn't like, whatever length
+they are.
+
+**Drafts heading:** Need a starting point?
+**Drafts body:** Fill these in and you'll get drafts built from the usual
+shapes — specific thing first, business name last, because the end of the line
+is what gets cut. There's no AI here and nothing is sent anywhere. Edit whatever
+you pick.
+
+**Section title:** Character counters get this wrong.
+**Section lede:** Not by a little. Two titles of identical length can differ by
+well over a hundred pixels, which is the difference between a line that reads
+cleanly and one that ends mid-word.
+
+**Closing CTA title:** Tags fixed, phone still quiet?
+**Closing CTA body:** Titles decide whether people click. What happens after the
+click is a different problem, and usually the more expensive one.
+
+### FAQ
+
+**Q: Why measure pixels instead of counting characters?**
+A: Because that's what Google does. It cuts the line when it runs out of room,
+and "Illinois plumbing inspections" takes far less room than the same number of
+capital Ws. A character counter will tell you a 55-character title is safe when
+it's already being cut, and that a 62-character one is too long when it fits
+fine.
+
+**Q: So my title will definitely show up like that?**
+A: No. Two caveats, both real. Google rewrites titles it judges unhelpful,
+whatever length they are — a title that fits is not a title that gets used. And
+the preview measures in Arial at Google's desktop sizes, which is close to their
+rendering but not identical. Treat the cut-off point as a good guide, not a
+guarantee.
+
+**Q: Is there AI behind the drafts?**
+A: No. The drafts are four title shapes and two description shapes filled in
+with what you typed — the specific thing first, the business name last, because
+the end of the line is what gets cut. It's formatting, not writing, and it's
+meant to be edited.
+
+**Q: Does anything I type get sent to you?**
+A: No. This tool runs entirely in your browser — there's no server request at
+all, which you can confirm in your browser's network tab. Paste in unpublished
+page copy if you want to.
+
+🚩 **"Nothing is sent anywhere" / "no server request at all"** — true as built
+(the tool is one client component with no fetch). It stops being true the moment
+anyone adds analytics on the input, an autosave, or an AI draft button. If a
+future version calls a model, this answer and the H1 section both have to change
+in the same commit.
+
+**Placeholder examples used in the draft fields:** "Emergency plumbing repairs",
+"Ganguly Plumbing", "Salt Lake" — invented illustrative examples, not a real
+client. Swap them if you'd rather not imply one.
+
+---
+
 ## Not in this file
 
 The eighteen check strings — each check's `found`, `why` and `fix` — live in

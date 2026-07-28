@@ -47,8 +47,9 @@ export const tools: Tool[] = [
   {
     slug: "meta-generator",
     name: "Meta & Headline Generator",
-    oneLiner: "Writes title tags and meta descriptions that fit the space Google gives them.",
-    status: "planned",
+    oneLiner:
+      "Shows exactly where Google cuts your title tag — measured in pixels, not characters.",
+    status: "live",
     relatedService: "seo-local-lead-gen",
   },
   {
