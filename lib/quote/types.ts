@@ -40,6 +40,16 @@ export type QuoteDoc = {
   taxRate: string;
   taxLabel: string;
 
+  /** Advance percentage, as typed. Empty means the document says nothing about
+   *  a deposit. The service-agreement standard is 50% on acceptance, which is
+   *  why this is here rather than left to the notes field. */
+  depositPercent: string;
+
+  /** Spell the total out in words under the figure. On by default: it is the
+   *  conventional guard against a figure being altered, and every Indian
+   *  invoice template carries one. */
+  showWords: boolean;
+
   notes: string;
 };
 
@@ -65,5 +75,7 @@ export const BLANK_DOC = (): QuoteDoc => ({
   items: [BLANK_ITEM()],
   taxRate: "",
   taxLabel: "GST",
+  depositPercent: "",
+  showWords: true,
   notes: "",
 });

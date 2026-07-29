@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { useParam } from "@/lib/params";
+import { checkScannability } from "@/lib/qr/contrast";
 import { encodeQr, QrError, toSvg, type EccLevel } from "@/lib/qr/encode";
 
 /* The QR tool.
@@ -80,14 +81,18 @@ export default function QrGenerator() {
     if (prefillValue) setValue(prefillValue);
   }
 
+  const [dark, setDark] = useState("#000000");
+  const [light, setLight] = useState("#ffffff");
+
   const active = KINDS.find((k) => k.id === kind)!;
   const payload = payloadFor(kind, value);
+  const scan = checkScannability(dark, light);
 
   const result = useMemo(() => {
     if (!payload) return null;
     try {
       const code = encodeQr(payload, level);
-      return { code, svg: toSvg(code), error: null as string | null };
+      return { code, svg: toSvg(code, { dark, light }), error: null as string | null };
     } catch (err) {
       return {
         code: null,
@@ -95,7 +100,7 @@ export default function QrGenerator() {
         error: err instanceof QrError ? err.message : "Something went wrong encoding that.",
       };
     }
-  }, [payload, level]);
+  }, [payload, level, dark, light]);
 
   const download = (format: "svg" | "png") => {
     if (!result?.svg || !result.code) return;
@@ -202,6 +207,45 @@ export default function QrGenerator() {
         </p>
       </fieldset>
 
+      {/* -------------------------------------------------------- colours */}
+      <fieldset className="border-0 p-0">
+        <legend className="text-eyebrow uppercase text-indigo-600">Colours</legend>
+        <p className="mt-3 max-w-2xl text-small text-slate">
+          A brand-coloured code is fine right up until it isn&apos;t. This checks
+          whether a camera can still separate the two — measured, not assumed.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-6">
+          <ColourField label="Code" value={dark} onChange={setDark} />
+          <ColourField label="Background" value={light} onChange={setLight} />
+          <button
+            type="button"
+            onClick={() => {
+              setDark("#000000");
+              setLight("#ffffff");
+            }}
+            className="self-end pb-3 text-small font-medium text-slate underline-offset-4 transition-colors duration-200 ease-out hover:text-ink hover:underline"
+          >
+            Reset to black on white
+          </button>
+        </div>
+        {scan && (
+          <p
+            className={`mt-4 max-w-2xl text-small ${
+              scan.status === "bad"
+                ? "text-clay-700"
+                : scan.status === "risky"
+                  ? "text-ink"
+                  : "text-slate"
+            }`}
+          >
+            <span className="font-medium tabular-nums">
+              {scan.ratio.toFixed(1)}:1 contrast —{" "}
+            </span>
+            {scan.message}
+          </p>
+        )}
+      </fieldset>
+
       <div className="border-t-[1.5px] border-mist pt-10">
         {!payload && (
           <p className="text-slate">Type something above and the code appears.</p>
@@ -260,6 +304,42 @@ export default function QrGenerator() {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ColourField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id} className="text-small font-medium text-ink">
+        {label}
+      </label>
+      <div className="mt-2 flex items-center gap-2">
+        <input
+          id={id}
+          type="color"
+          value={/^#[0-9a-fA-F]{6}$/.test(value) ? value : "#000000"}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-11 w-14 cursor-pointer rounded-card border-[1.5px] border-ink bg-paper p-1"
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          spellCheck={false}
+          aria-label={`${label} hex value`}
+          className="w-28 rounded-card border-[1.5px] border-ink bg-paper px-3 py-2 text-small text-ink"
+        />
       </div>
     </div>
   );

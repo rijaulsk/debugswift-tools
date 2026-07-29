@@ -176,9 +176,29 @@ export type Swatch = {
   largeTextOk: "black" | "white" | null;
 };
 
+/**
+ * A neutral scale, tinted by the brand hue.
+ *
+ * Every real design system needs greys, and pure #808080 greys next to a
+ * saturated brand colour look like they came from a different project — the
+ * eye reads them as dirty. Carrying a trace of the brand hue through the
+ * neutrals is what makes a palette feel like one family.
+ *
+ * The chroma is fixed at 0.012: enough to tint, far too little to read as a
+ * colour. That figure is a choice, like the lightness targets, and is labelled
+ * as such on screen.
+ */
+export function buildNeutralRamp(base: Rgb): Swatch[] {
+  const { h } = rgbToOklch(base);
+  return buildRampAt(h, 0.012);
+}
+
 export function buildRamp(base: Rgb): Swatch[] {
   const { c, h } = rgbToOklch(base);
+  return buildRampAt(h, c);
+}
 
+function buildRampAt(h: number, c: number): Swatch[] {
   return RAMP_STEPS.map((step) => {
     const clamped = clampToGamut({ l: STEP_LIGHTNESS[step]!, c, h });
     const rgb = oklchToRgb(clamped);

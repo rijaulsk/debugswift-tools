@@ -9,6 +9,7 @@ import {
   supportsWebp,
   type OutputFormat,
 } from "@/lib/image/compress";
+import { makeZip, uniqueNames } from "@/lib/image/zip";
 
 /* The compressor.
  *
@@ -45,6 +46,7 @@ export default function ImageCompressor() {
   const [quality, setQuality] = useState(0.75);
   const [format, setFormat] = useState<OutputFormat>("image/webp");
   const [dragging, setDragging] = useState(false);
+  const [zipping, setZipping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileId = useId();
 
@@ -115,6 +117,34 @@ export default function ImageCompressor() {
     0,
   );
 
+  /* One archive instead of twenty save-as dialogs. Same honesty rule as the
+   * single download: a row that came out bigger contributes its ORIGINAL file,
+   * under its original name, so the ZIP never contains a worse version of
+   * something than the one that went in. */
+  const downloadAll = async () => {
+    const ready = rows.filter((r) => r.status === "done");
+    if (!ready.length) return;
+    setZipping(true);
+    try {
+      const names = uniqueNames(
+        ready.map((r) =>
+          r.worse ? r.file.name : outputName(r.file.name, effectiveFormat),
+        ),
+      );
+      const entries = await Promise.all(
+        ready.map(async (r, i) => ({
+          name: names[i]!,
+          data: new Uint8Array(
+            await (r.worse ? r.file : r.outBlob!).arrayBuffer(),
+          ),
+        })),
+      );
+      triggerDownload(makeZip(entries), "compressed-images.zip");
+    } finally {
+      setZipping(false);
+    }
+  };
+
   const download = (row: Row) => {
     /* A row that got bigger hands back the ORIGINAL. Downloading a worse file
      * because the tool produced it would be the tool serving itself. */
@@ -123,12 +153,7 @@ export default function ImageCompressor() {
     const name = row.worse
       ? row.file.name
       : outputName(row.file.name, effectiveFormat);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    URL.revokeObjectURL(url);
+    triggerDownload(blob, name);
   };
 
   return (
@@ -313,17 +338,29 @@ export default function ImageCompressor() {
             ))}
           </ul>
 
-          <button
-            type="button"
-            onClick={() => setRows([])}
-            className="mt-5 font-medium text-slate underline-offset-4 transition-colors duration-200 ease-out hover:text-clay-700 hover:underline"
-          >
-            Clear the list
-          </button>
+          <div className="mt-6 flex flex-wrap items-center gap-5">
+            {done.length > 1 && (
+              <button
+                type="button"
+                onClick={() => void downloadAll()}
+                disabled={zipping}
+                className="inline-flex items-center justify-center rounded-full border-[1.5px] border-ink px-6 py-3 font-medium text-ink transition duration-200 ease-out hover:bg-sand active:scale-[0.98] active:bg-mist disabled:opacity-50"
+              >
+                {zipping ? "Packing…" : `Download all ${done.length} as a ZIP`}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setRows([])}
+              className="font-medium text-slate underline-offset-4 transition-colors duration-200 ease-out hover:text-clay-700 hover:underline"
+            >
+              Clear the list
+            </button>
+          </div>
         </div>
       )}
 
-      <p className="max-w-2xl text-small text-slate">
+      <p className="max-w-2xl text-small text-slate" data-note="loss">
         Re-encoding is lossy, so keep your originals — this is for the copy that
         goes on the website, not your only copy. The browser also drops all
         metadata in the process: that removes GPS coordinates from phone photos,
@@ -332,4 +369,13 @@ export default function ImageCompressor() {
       </p>
     </div>
   );
+}
+
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }

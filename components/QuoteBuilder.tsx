@@ -3,6 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import { useHasMounted } from "@/lib/hooks";
 import {
+  amountInWords,
   computeTotals,
   formatMinor,
   isPrintable,
@@ -283,6 +284,32 @@ export default function QuoteBuilder() {
           make this a tax invoice; see the note below the preview.
         </p>
 
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          <Text
+            label={isQuote ? "Advance on acceptance %" : "Deposit already paid %"}
+            value={doc.depositPercent}
+            onChange={(v) => set("depositPercent", v)}
+            inputMode="decimal"
+            placeholder="50"
+          />
+          <div className="self-end pb-3">
+            <label className="flex items-center gap-3 text-small text-ink">
+              <input
+                type="checkbox"
+                checked={doc.showWords}
+                onChange={(e) => set("showWords", e.target.checked)}
+                className="h-5 w-5 accent-indigo-500"
+              />
+              Write the total out in words
+            </label>
+          </div>
+        </div>
+        <p className="mt-3 max-w-2xl text-small text-slate">
+          Leave the advance blank and the document doesn&apos;t mention one. The
+          amount in words is composed from the same figure as the numeral, so
+          the two can never disagree.
+        </p>
+
         <div className="mt-10">
           <Area
             label="Notes or terms"
@@ -429,8 +456,30 @@ export default function QuoteBuilder() {
                   {formatMinor(totals.totalMinor, doc.currency)}
                 </dd>
               </div>
+              {totals.depositMinor !== null && (
+                <>
+                  <Row
+                    term={`${isQuote ? "Advance on acceptance" : "Deposit paid"} (${totals.depositPercent}%)`}
+                    value={formatMinor(totals.depositMinor, doc.currency)}
+                  />
+                  <div className="flex justify-between text-ink">
+                    <dt className="font-medium">
+                      {isQuote ? "Balance on completion" : "Balance due"}
+                    </dt>
+                    <dd className="font-medium tabular-nums">
+                      {formatMinor(totals.balanceMinor!, doc.currency)}
+                    </dd>
+                  </div>
+                </>
+              )}
             </dl>
           </div>
+
+          {doc.showWords && totals.totalMinor > 0 && (
+            <p className="mt-4 text-right text-small text-slate">
+              {amountInWords(totals.totalMinor, currencyWord(doc.currency).unit, currencyWord(doc.currency).sub)}
+            </p>
+          )}
 
           {doc.notes && (
             <div className="mt-10 border-t border-mist pt-4">
@@ -465,6 +514,24 @@ function Row({ term, value }: { term: string; value: string }) {
       <dd className="tabular-nums">{value}</dd>
     </div>
   );
+}
+
+/** The words for a currency symbol. Falls back to a neutral "Total in words"
+ *  phrasing rather than guessing — writing "Rupees" over a dollar figure would
+ *  be worse than saying nothing. */
+function currencyWord(symbol: string): { unit: string; sub: string } {
+  switch (symbol.trim()) {
+    case "₹":
+      return { unit: "Rupees", sub: "Paise" };
+    case "$":
+      return { unit: "Dollars", sub: "Cents" };
+    case "£":
+      return { unit: "Pounds", sub: "Pence" };
+    case "€":
+      return { unit: "Euros", sub: "Cents" };
+    default:
+      return { unit: "Total:", sub: "and" };
+  }
 }
 
 function formatDate(iso: string): string {

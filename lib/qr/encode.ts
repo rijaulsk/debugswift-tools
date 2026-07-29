@@ -614,7 +614,15 @@ export function encodeQr(
  * scanners need it, and cropping it is the single most common reason a printed
  * QR fails to read.
  */
-export function toSvg(code: QrCode, { scale = 8, quiet = 4 } = {}): string {
+export function toSvg(
+  code: QrCode,
+  {
+    scale = 8,
+    quiet = 4,
+    dark = "#000000",
+    light = "#ffffff",
+  }: { scale?: number; quiet?: number; dark?: string; light?: string } = {},
+): string {
   const dimension = (code.size + quiet * 2) * scale;
   let path = "";
   for (let r = 0; r < code.size; r++) {
@@ -627,8 +635,8 @@ export function toSvg(code: QrCode, { scale = 8, quiet = 4 } = {}): string {
   }
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${dimension}" height="${dimension}" viewBox="0 0 ${dimension} ${dimension}" shape-rendering="crispEdges">`,
-    `<rect width="${dimension}" height="${dimension}" fill="#ffffff"/>`,
-    `<path d="${path}" fill="#000000"/>`,
+    `<rect width="${dimension}" height="${dimension}" fill="${light}"/>`,
+    `<path d="${path}" fill="${dark}"/>`,
     `</svg>`,
   ].join("");
 }

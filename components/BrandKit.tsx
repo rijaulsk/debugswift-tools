@@ -2,7 +2,9 @@
 
 import { useId, useMemo, useState } from "react";
 import {
+  buildNeutralRamp,
   buildRamp,
+  contrastRatio,
   formatRatio,
   parseHex,
   type Swatch,
@@ -35,6 +37,7 @@ export default function BrandKit() {
 
   const parsed = parseHex(hexInput);
   const ramp = useMemo(() => (parsed ? buildRamp(parsed) : null), [parsed]);
+  const neutrals = useMemo(() => (parsed ? buildNeutralRamp(parsed) : null), [parsed]);
   const base = normaliseBase(basePx);
   const scale = useMemo(() => buildScale(base, ratio), [base, ratio]);
 
@@ -103,6 +106,48 @@ export default function BrandKit() {
             it&apos;s bold. A step with neither black nor white passing is a
             background for shapes, not for words.
           </p>
+        </section>
+      )}
+
+      {/* --------------------------------------------------------- neutrals */}
+      {neutrals && (
+        <section>
+          <h2 className="text-eyebrow uppercase text-indigo-600">The neutrals</h2>
+          <p className="mt-3 max-w-2xl text-slate">
+            Greys carrying a trace of your hue. Pure greys next to a saturated
+            brand colour read as dirty — a shared hue is what makes a palette
+            look like one family rather than two projects.
+          </p>
+          <ul className="mt-6 flex flex-wrap gap-2">
+            {neutrals.map((s) => (
+              <li key={s.step} className="text-center">
+                <div
+                  className="h-16 w-16 rounded-card border-[1.5px] border-ink"
+                  style={{ backgroundColor: s.hex }}
+                  role="img"
+                  aria-label={`Neutral ${s.step}, ${s.hex}`}
+                />
+                <span className="mt-1 block text-small tabular-nums text-slate">
+                  {s.step}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ------------------------------------------------------ pair matrix */}
+      {ramp && neutrals && (
+        <section>
+          <h2 className="text-eyebrow uppercase text-indigo-600">
+            Which pairs you can actually use
+          </h2>
+          <p className="mt-3 max-w-2xl text-slate">
+            The question a palette never answers: put THIS text on THAT
+            background — does it pass? Every cell is measured. AA needs 4.5 for
+            body text.
+          </p>
+          <PairMatrix brand={ramp} neutrals={neutrals} />
         </section>
       )}
 
@@ -182,12 +227,10 @@ export default function BrandKit() {
           </p>
           <CodeBlock
             label="CSS custom properties"
-            code={cssOutput(ramp, base, ratio)}
+            code={cssOutput(ramp, neutrals ?? [], base, ratio)}
           />
-          <CodeBlock
-            label="Tailwind v4 theme"
-            code={tailwindOutput(ramp)}
-          />
+          <CodeBlock label="Tailwind v4 theme" code={tailwindOutput(ramp, neutrals ?? [])} />
+          <CodeBlock label="JSON (design tokens)" code={jsonOutput(ramp, neutrals ?? [], base, ratio)} />
         </section>
       )}
     </div>
@@ -238,6 +281,94 @@ function SwatchRow({ swatch }: { swatch: Swatch }) {
   );
 }
 
+/**
+ * Text-on-background contrast for every useful pair.
+ *
+ * Deliberately a small grid rather than all 100 combinations: the pairs anyone
+ * actually reaches for are dark text on light backgrounds and light text on
+ * dark ones. Showing 100 cells would bury the four that matter.
+ *
+ * Cells are labelled with the ratio and a pass/fail word, never colour alone —
+ * a red/green grid is unreadable to a good number of the people who most need
+ * a contrast checker, and this palette has no red or green anyway.
+ */
+function PairMatrix({ brand, neutrals }: { brand: Swatch[]; neutrals: Swatch[] }) {
+  const backgrounds = [
+    { label: "50", hex: neutrals[0]!.hex },
+    { label: "100", hex: neutrals[1]!.hex },
+    { label: "Brand 50", hex: brand[0]!.hex },
+    { label: "Brand 500", hex: brand[5]!.hex },
+    { label: "Brand 900", hex: brand[9]!.hex },
+    { label: "900", hex: neutrals[9]!.hex },
+  ];
+  const texts = [
+    { label: "Neutral 900", hex: neutrals[9]!.hex },
+    { label: "Neutral 600", hex: neutrals[6]!.hex },
+    { label: "Brand 700", hex: brand[7]!.hex },
+    { label: "Neutral 50", hex: neutrals[0]!.hex },
+  ];
+
+  return (
+    <div className="mt-6 overflow-x-auto">
+      <table className="w-full border-collapse text-small">
+        <caption className="sr-only">
+          Contrast ratio for each text colour on each background colour
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" className="border-b-[1.5px] border-ink p-2 text-left">
+              Text on →
+            </th>
+            {backgrounds.map((b) => (
+              <th
+                key={b.label}
+                scope="col"
+                className="border-b-[1.5px] border-ink p-2 text-left font-medium"
+              >
+                {b.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {texts.map((t) => (
+            <tr key={t.label}>
+              <th
+                scope="row"
+                className="border-b border-mist p-2 text-left font-medium text-ink"
+              >
+                {t.label}
+              </th>
+              {backgrounds.map((b) => {
+                const a = parseHex(t.hex);
+                const c = parseHex(b.hex);
+                const ratio = a && c ? contrastRatio(a, c) : 0;
+                const pass = ratio >= 4.5;
+                return (
+                  <td key={b.label} className="border-b border-mist p-2">
+                    <span
+                      className="inline-flex items-center gap-2 rounded px-2 py-1"
+                      style={{ backgroundColor: b.hex, color: t.hex }}
+                    >
+                      Aa
+                    </span>
+                    <span
+                      className={`ml-2 tabular-nums ${pass ? "text-slate" : "text-clay-700"}`}
+                    >
+                      {formatRatio(ratio)}
+                      <span className="ml-1">{pass ? "pass" : "fail"}</span>
+                    </span>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function CodeBlock({ label, code }: { label: string; code: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -275,20 +406,60 @@ function CodeBlock({ label, code }: { label: string; code: string }) {
 
 /* ------------------------------------------------------------------ output */
 
-function cssOutput(ramp: Swatch[], base: number, ratio: number): string {
+function cssOutput(
+  ramp: Swatch[],
+  neutrals: Swatch[],
+  base: number,
+  ratio: number,
+): string {
   const colors = ramp.map((s) => `  --brand-${s.step}: ${s.hex};`).join("\n");
+  const greys = neutrals.map((s) => `  --neutral-${s.step}: ${s.hex};`).join("\n");
   const type = buildScale(base, ratio)
     .map(
       (s) =>
         `  --text-${slug(s.name)}: ${s.rem}rem;\n  --leading-${slug(s.name)}: ${s.lineHeight};`,
     )
     .join("\n");
-  return `:root {\n${colors}\n\n${type}\n}`;
+  return `:root {\n${colors}\n\n${greys}\n\n${type}\n}`;
 }
 
-function tailwindOutput(ramp: Swatch[]): string {
+function tailwindOutput(ramp: Swatch[], neutrals: Swatch[]): string {
   const colors = ramp.map((s) => `  --color-brand-${s.step}: ${s.hex};`).join("\n");
-  return `@theme {\n${colors}\n}`;
+  const greys = neutrals.map((s) => `  --color-neutral-${s.step}: ${s.hex};`).join("\n");
+  return `@theme {\n${colors}\n\n${greys}\n}`;
+}
+
+/** Design-token JSON, for anyone feeding a build pipeline rather than a
+ *  stylesheet. Carries the measured contrast alongside each colour so the
+ *  accessibility information survives the export instead of living only on
+ *  this page. */
+function jsonOutput(
+  ramp: Swatch[],
+  neutrals: Swatch[],
+  base: number,
+  ratio: number,
+): string {
+  return JSON.stringify(
+    {
+      color: {
+        brand: Object.fromEntries(
+          ramp.map((s) => [
+            s.step,
+            { value: s.hex, onWhite: Number(s.onWhite.toFixed(2)), onBlack: Number(s.onBlack.toFixed(2)) },
+          ]),
+        ),
+        neutral: Object.fromEntries(neutrals.map((s) => [s.step, { value: s.hex }])),
+      },
+      type: Object.fromEntries(
+        buildScale(base, ratio).map((s) => [
+          slug(s.name),
+          { size: `${s.rem}rem`, lineHeight: s.lineHeight },
+        ]),
+      ),
+    },
+    null,
+    2,
+  );
 }
 
 const slug = (name: string) => name.toLowerCase().replace(/\s+/g, "-");
