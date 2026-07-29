@@ -834,11 +834,8 @@ function delivery({
   const cacheControl = page.headers.get("cache-control");
 
   const imgs = getImages(clean);
-  const missingDims = imgs.filter((i) => {
-    const tag = i.src ?? "";
-    return tag !== "" && !hasBothDimensions(clean, tag);
-  }).length;
-  const lazy = countLazy(clean);
+  const missingDims = imgs.filter((i) => !i.hasWidth || !i.hasHeight).length;
+  const lazy = imgs.filter((i) => i.lazy).length;
 
   const mixed = final.protocol === "https:" ? countMixedContent(clean) : 0;
 
@@ -1071,20 +1068,6 @@ function delivery({
         : { fix: "Collapse the chain so the first address goes straight to the final one." }),
     },
   ];
-}
-
-function hasBothDimensions(clean: string, src: string): boolean {
-  const escaped = src.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = clean.match(new RegExp(`<img\\b[^>]*${escaped}[^>]*>`, "i"));
-  if (!match) return false;
-  const a = attrs(match[0]);
-  return "width" in a && "height" in a;
-}
-
-function countLazy(clean: string): number {
-  return [...clean.matchAll(/<img\b[^>]*>/gi)].filter(
-    (m) => attrs(m[0]).loading?.toLowerCase() === "lazy",
-  ).length;
 }
 
 /** http:// references in src/href attributes of subresources on an https page. */

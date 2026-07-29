@@ -133,7 +133,31 @@ export function getHtmlLang(html: string): string | undefined {
   return attrs(m[0]).lang?.trim() || undefined;
 }
 
-export function getImages(html: string): { src?: string; alt?: string }[] {
+export type ParsedImage = {
+  src?: string;
+  alt?: string;
+  hasWidth: boolean;
+  hasHeight: boolean;
+  lazy: boolean;
+};
+
+/**
+ * Every <img>, with the attributes the checks care about captured AT PARSE TIME.
+ *
+ * That last part is a bug fix, not a style preference. An earlier version
+ * returned only src and alt, and the dimensions check then went back and
+ * re-searched the HTML for the tag by its src. That failed on every
+ * Next.js-optimised image: attrs() decodes entities, so the src came back as
+ * `/_next/image?url=…&w=640&q=75` while the markup still said `&amp;w=640`, the
+ * search matched nothing, and the check reported "no width and height" for
+ * images that had both.
+ *
+ * It was caught by running the audit against our own site and disbelieving the
+ * result. A tool that invents a problem is worse than one that misses it —
+ * whoever acts on it wastes an afternoon and then stops trusting the whole
+ * report. Read attributes once, from the tag you already have.
+ */
+export function getImages(html: string): ParsedImage[] {
   return [...html.matchAll(/<img\b[^>]*>/gi)].map((m) => {
     const a = attrs(m[0]);
     return {
@@ -142,6 +166,9 @@ export function getImages(html: string): { src?: string; alt?: string }[] {
        * The distinction that matters is present-vs-absent, so undefined and ""
        * must not be collapsed here. */
       alt: "alt" in a ? a.alt : undefined,
+      hasWidth: "width" in a,
+      hasHeight: "height" in a,
+      lazy: a.loading?.toLowerCase() === "lazy",
     };
   });
 }
