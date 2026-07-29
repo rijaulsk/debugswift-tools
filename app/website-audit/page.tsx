@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import AuditForm from "@/components/AuditForm";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CtaBand from "@/components/CtaBand";
@@ -56,11 +57,20 @@ const faqs: FaqItem[] = [
  * describe the report a visitor actually gets. If a group is renamed in
  * lib/audit/types.ts, rename it here in the same commit. */
 const groups: [string, string][] = [
-  ["Findability", "whether search engines can reach and index it at all."],
-  ["On the page", "the title, description, headings and alt text."],
-  ["How it shares", "what the link looks like pasted into WhatsApp."],
+  [
+    "Findability",
+    "whether search engines can reach and index it at all — including the leftover rules that quietly keep a page out.",
+  ],
+  ["On the page", "the title, description, heading structure and alt text."],
+  [
+    "How it shares",
+    "what the link looks like pasted into WhatsApp, and whether the preview image actually loads.",
+  ],
   ["Getting in touch", "whether a visitor on a phone can act in one tap."],
-  ["Delivery", "response time, page weight, blocking scripts."],
+  [
+    "Delivery",
+    "response time, the measured weight of your images, compression, caching and what blocks the page from drawing.",
+  ],
 ];
 
 export default function WebsiteAuditPage() {
@@ -68,7 +78,10 @@ export default function WebsiteAuditPage() {
     <>
       <JsonLd data={toolGraph(tool, faqs)} />
 
-      <Section band="cream" innerClassName="pb-10 md:pb-16">
+      {/* print:hidden on everything except the form section, which holds the
+        * report. A printed audit should be the findings, not the marketing
+        * page around them. */}
+      <Section band="cream" innerClassName="pb-10 md:pb-16" className="print:hidden">
         <Breadcrumbs trail={toolBreadcrumbs(tool)} />
         <div className="mt-8">
           <SectionHeader
@@ -83,13 +96,17 @@ export default function WebsiteAuditPage() {
       {/* The tool itself sits directly under the hero — above the explanation of
        * what it does. Someone who arrived from a search for "free website audit"
        * came to use it, not to read about it. */}
-      <Section band="cream" innerClassName="pt-0 md:pt-0">
+      <Section band="cream" innerClassName="pt-0 md:pt-0 print:py-0">
         <div className="max-w-3xl">
-          <AuditForm />
+          {/* Required — AuditForm reads ?url= to auto-run, which is what makes
+            * a report shareable. See lib/params.ts. */}
+          <Suspense fallback={<div className="text-slate">Loading the audit…</div>}>
+            <AuditForm />
+          </Suspense>
         </div>
       </Section>
 
-      <Section band="sand">
+      <Section band="sand" className="print:hidden">
         <SectionHeader
           eyebrow="What's in the report"
           title={`${TOTAL_CHECKS} checks, in five groups.`}
@@ -123,17 +140,19 @@ export default function WebsiteAuditPage() {
         </p>
       </Section>
 
-      <Section band="cream">
+      <Section band="cream" className="print:hidden">
         <div className="max-w-3xl">
           <FaqList items={faqs} heading="Common questions" />
         </div>
       </Section>
 
+      <div className="print:hidden">
       <CtaBand
         eyebrow="After the report"
         title="Want these fixed rather than listed?"
         body="The report tells you what's wrong. If you'd rather not spend a weekend on it, that's the job."
       />
+      </div>
     </>
   );
 }

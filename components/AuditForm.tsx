@@ -1,9 +1,10 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import AuditReport from "@/components/AuditReport";
 import { variantClasses } from "@/components/Button";
 import { API } from "@/lib/links";
+import { setParamsInUrl, useParam } from "@/lib/params";
 import { isAuditError, type AuditError, type AuditResult } from "@/lib/audit/types";
 
 /* The audit form.
@@ -31,20 +32,38 @@ export default function AuditForm() {
   const [state, setState] = useState<State>({ phase: "idle" });
   const inputId = useId();
   const resultRef = useRef<HTMLDivElement>(null);
+  const [url, setUrl] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const url = String(form.get("url") ?? "");
-    const botcheck = String(form.get("botcheck") ?? "");
+  /* ?url= runs the audit on load, which is what makes a result shareable: the
+   * address bar is updated after every successful run, so someone can send the
+   * link to their web person and it re-runs against the live site rather than
+   * showing a cached opinion from last week.
+   *
+   * Deliberately re-running rather than storing the result. Storing would mean
+   * a database, a stale report that says "as of March", and a privacy question
+   * about holding a third party's page data. Re-running has none of those and
+   * is always current.
+   *
+   * `ran` guards against React's development double-effect firing two audits
+   * against someone else's server. */
+  const prefill = useParam("url");
+  const ran = useRef(false);
+  useEffect(() => {
+    if (!prefill || ran.current) return;
+    ran.current = true;
+    setUrl(prefill);
+    void run(prefill, "");
+  }, [prefill]);
 
+  async function run(target: string, botcheck: string) {
     setState({ phase: "working" });
 
     try {
       const response = await fetch(API.audit, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url, botcheck }),
+        body: JSON.stringify({ url: target, botcheck }),
       });
 
       /* The body is read on EVERY status. The API answers 422 with a readable
@@ -56,6 +75,9 @@ export default function AuditForm() {
         setState({ phase: "failed", error: data });
       } else {
         setState({ phase: "done", result: data });
+        /* Make the result addressable. replaceState, so re-running doesn't
+         * stack up history entries and break the back button. */
+        setParamsInUrl({ url: target.trim() });
       }
     } catch {
       setState({
@@ -74,9 +96,15 @@ export default function AuditForm() {
 
   const working = state.phase === "working";
 
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    void run(String(form.get("url") ?? ""), String(form.get("botcheck") ?? ""));
+  }
+
   return (
     <div>
-      <form onSubmit={onSubmit} noValidate>
+      <form onSubmit={onSubmit} noValidate className="print:hidden">
         <label htmlFor={inputId} className="block font-medium text-ink">
           Which page should we check?
         </label>
@@ -106,7 +134,9 @@ export default function AuditForm() {
             required
             placeholder="example.com"
             disabled={working}
-            className="w-full rounded-card border-[1.5px] border-ink bg-paper px-5 py-3 text-ink placeholder:text-stone disabled:opacity-60 sm:flex-1"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="w-full rounded-card border-[1.5px] border-ink bg-paper px-5 py-3 text-ink placeholder:text-slate disabled:opacity-60 sm:flex-1"
           />
           <button
             type="submit"
@@ -148,7 +178,39 @@ export default function AuditForm() {
           </div>
         )}
 
-        {state.phase === "done" && <AuditReport result={state.result} />}
+        {state.phase === "done" && (
+          <>
+            <AuditReport result={state.result} />
+            {/* Keep and share. Both are honest: the print is the report as
+              * shown, and the link RE-RUNS rather than replaying a stored
+              * result, so it can never show a stale opinion as current. */}
+            <div className="mt-10 flex flex-wrap items-center gap-5 border-t-[1.5px] border-mist pt-8 print:hidden">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center justify-center rounded-full border-[1.5px] border-ink px-6 py-3 font-medium text-ink transition duration-200 ease-out hover:bg-sand active:scale-[0.98] active:bg-mist"
+              >
+                Print or save as PDF
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  void navigator.clipboard
+                    ?.writeText(window.location.href)
+                    .then(() => setCopied(true))
+                    .then(() => window.setTimeout(() => setCopied(false), 2000))
+                    .catch(() => setCopied(false));
+                }}
+                className="font-medium text-indigo-600 underline-offset-4 transition-colors duration-200 ease-out hover:text-indigo-700 hover:underline"
+              >
+                {copied ? "Link copied" : "Copy a link to this report"}
+              </button>
+              <p className="text-small text-slate">
+                The link re-runs the check, so it&apos;s never out of date.
+              </p>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

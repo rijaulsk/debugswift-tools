@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { toolHref } from "@/lib/params";
 import { CHECK_GROUPS, type AuditResult, type CheckStatus } from "@/lib/audit/types";
 
 /* The result, as a ledger.
@@ -121,6 +123,22 @@ export default function AuditReport({ result }: { result: AuditResult }) {
                     <p className="mt-3 border-l-[1.5px] border-mist pl-4 text-small text-slate">
                       <span className="font-medium text-ink">What to do: </span>
                       {check.fix}
+                    </p>
+                  )}
+                  {/* The handoff. A report that names a problem and then leaves
+                    * you to retype the value into another page has done half a
+                    * job — so where a tool here actually fixes this, the link
+                    * carries the value across. next/link with an UNPREFIXED
+                    * path: basePath adds the /tools. Hidden in print, where a
+                    * link is just underlined text nobody can click. */}
+                  {check.fixWith && (
+                    <p className="mt-3 print:hidden">
+                      <Link
+                        href={toolHref(check.fixWith.slug, check.fixWith.params)}
+                        className="text-small font-medium text-indigo-600 underline-offset-4 transition-colors duration-200 ease-out hover:text-indigo-700 hover:underline"
+                      >
+                        {check.fixWith.label} →
+                      </Link>
                     </p>
                   )}
                 </li>

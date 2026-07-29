@@ -332,12 +332,12 @@ async function readCapped(
 /**
  * A secondary GET used for robots.txt and sitemap probes.
  *
- * Same host validation, no redirect following, and failures are values rather
- * than exceptions: a missing robots.txt is a finding, not an error.
+ * Same host validation, and failures are values rather than exceptions: a
+ * missing robots.txt is a finding, not an error.
  */
 export async function probe(
   target: URL,
-): Promise<{ ok: boolean; status: number; text: string }> {
+): Promise<{ ok: boolean; status: number; text: string; finalUrl: string }> {
   try {
     await assertPublicHost(target);
     const response = await fetch(target, {
@@ -346,11 +346,64 @@ export async function probe(
       headers: { "user-agent": USER_AGENT },
       cache: "no-store",
     });
-    const text = response.ok
-      ? (await response.text()).slice(0, 100_000)
-      : "";
-    return { ok: response.ok, status: response.status, text };
+    const text = response.ok ? (await response.text()).slice(0, 100_000) : "";
+    return { ok: response.ok, status: response.status, text, finalUrl: response.url };
   } catch {
-    return { ok: false, status: 0, text: "" };
+    return { ok: false, status: 0, text: "", finalUrl: target.toString() };
+  }
+}
+
+/**
+ * HEAD a resource to learn its size without downloading it.
+ *
+ * Used to weigh a page's images, which is usually the single most actionable
+ * finding for a small business — "the biggest thing on your page is a 3 MB
+ * photo" is a fix someone can do this afternoon.
+ *
+ * SAME SSRF BOUNDARY AS EVERYTHING ELSE, and it matters more here: these URLs
+ * came off somebody else's HTML, so they are attacker-controllable in exactly
+ * the way the page URL is. assertPublicHost runs on every one.
+ *
+ * Some servers do not answer HEAD, or omit content-length. That returns null,
+ * which callers must report as "couldn't measure" rather than as zero — a
+ * missing measurement is not a small one.
+ */
+export async function headSize(target: URL): Promise<number | null> {
+  try {
+    await assertPublicHost(target);
+    const response = await fetch(target, {
+      method: "HEAD",
+      redirect: "follow",
+      signal: AbortSignal.timeout(4000),
+      headers: { "user-agent": USER_AGENT },
+      cache: "no-store",
+    });
+    if (!response.ok) return null;
+    const length = response.headers.get("content-length");
+    if (!length) return null;
+    const bytes = Number(length);
+    return Number.isFinite(bytes) ? bytes : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Does this URL answer at all, and with what status? Used for the OG image
+ *  and the soft-404 probe. */
+export async function statusOf(target: URL): Promise<number> {
+  try {
+    await assertPublicHost(target);
+    const response = await fetch(target, {
+      method: "GET",
+      redirect: "follow",
+      signal: AbortSignal.timeout(5000),
+      headers: { "user-agent": USER_AGENT },
+      cache: "no-store",
+    });
+    /* Drain so the connection isn't left hanging. */
+    await response.arrayBuffer().catch(() => undefined);
+    return response.status;
+  } catch {
+    return 0;
   }
 }

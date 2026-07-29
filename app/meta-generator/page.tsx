@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CtaBand from "@/components/CtaBand";
 import FaqList from "@/components/FaqList";
@@ -75,7 +76,13 @@ export default function MetaGeneratorPage() {
 
       <Section band="cream" innerClassName="pt-0 md:pt-0">
         <div className="max-w-3xl">
-          <MetaGenerator />
+          {/* Suspense is REQUIRED, not decorative: MetaGenerator reads search
+            * params (the audit hands a title over that way), and without a
+            * boundary that would opt this whole page out of static rendering.
+            * See lib/params.ts. */}
+          <Suspense fallback={<div className="text-slate">Loading the editor…</div>}>
+            <MetaGenerator />
+          </Suspense>
         </div>
       </Section>
 

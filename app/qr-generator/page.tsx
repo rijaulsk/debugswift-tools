@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import CtaBand from "@/components/CtaBand";
 import FaqList from "@/components/FaqList";
@@ -70,7 +71,11 @@ export default function QrGeneratorPage() {
 
       <Section band="cream" innerClassName="pt-0 md:pt-0">
         <div className="max-w-3xl">
-          <QrGenerator />
+          {/* Required — QrGenerator reads ?kind= / ?value= so the audit can
+            * open it on the right tab. See lib/params.ts. */}
+          <Suspense fallback={<div className="text-slate">Loading the generator…</div>}>
+            <QrGenerator />
+          </Suspense>
         </div>
       </Section>
 

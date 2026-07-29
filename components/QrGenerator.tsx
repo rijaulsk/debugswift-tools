@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useMemo, useState } from "react";
+import { useParam } from "@/lib/params";
 import { encodeQr, QrError, toSvg, type EccLevel } from "@/lib/qr/encode";
 
 /* The QR tool.
@@ -58,10 +59,26 @@ function payloadFor(kind: Kind, value: string): string {
 }
 
 export default function QrGenerator() {
+  /* ?kind= and ?value= let the audit send someone here with the right tab
+   * already open — its "no WhatsApp link on the page" finding links straight to
+   * the WhatsApp tab rather than dropping them on a generic form. */
+  const prefillKind = useParam("kind", 20);
+  const prefillValue = useParam("value", 500);
+
   const [kind, setKind] = useState<Kind>("link");
   const [value, setValue] = useState("");
   const [level, setLevel] = useState<EccLevel>("M");
   const inputId = useId();
+
+  /* Adjusted during render rather than in an effect — the react.dev "you might
+   * not need an effect" case. Once the visitor touches anything, `touched`
+   * stops the URL from reasserting itself. */
+  const [touched, setTouched] = useState(false);
+  if (!touched && (prefillKind || prefillValue)) {
+    setTouched(true);
+    if (KINDS.some((k) => k.id === prefillKind)) setKind(prefillKind as Kind);
+    if (prefillValue) setValue(prefillValue);
+  }
 
   const active = KINDS.find((k) => k.id === kind)!;
   const payload = payloadFor(kind, value);

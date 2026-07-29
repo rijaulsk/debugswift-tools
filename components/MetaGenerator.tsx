@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { useHasMounted } from "@/lib/hooks";
+import { useParam } from "@/lib/params";
 import {
   DESCRIPTION_FONT,
   DESCRIPTION_PIXEL_BUDGET,
@@ -34,10 +35,29 @@ import {
 const EXAMPLE: MetaInput = { subject: "", business: "", location: "" };
 
 export default function MetaGenerator() {
+  /* Prefill from ?title= / ?description=, which is how the website audit hands
+   * a too-long title straight over instead of telling you to retype it. The
+   * params are read after mount (see lib/params.ts), so the initial state is
+   * empty and the values arrive on the first client render. */
+  const prefillTitle = useParam("title", 300);
+  const prefillDescription = useParam("description", 600);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [seed, setSeed] = useState<MetaInput>(EXAMPLE);
   const measured = useHasMounted();
+
+  /* Applied ONCE, adjusted during render rather than in an effect — the
+   * react.dev "you might not need an effect" pattern, and the one the
+   * set-state-in-effect lint rule points you at. After the first application
+   * the fields belong to the visitor; re-syncing from the URL would fight
+   * anyone who edits the text and then reloads the page. */
+  const [applied, setApplied] = useState(false);
+  if (!applied && (prefillTitle || prefillDescription)) {
+    setApplied(true);
+    if (prefillTitle) setTitle(prefillTitle);
+    if (prefillDescription) setDescription(prefillDescription);
+  }
 
   const titleFit = fitToBudget(title, TITLE_FONT, TITLE_PIXEL_BUDGET);
   const descFit = fitToBudget(description, DESCRIPTION_FONT, DESCRIPTION_PIXEL_BUDGET);

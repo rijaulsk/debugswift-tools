@@ -45,6 +45,18 @@ export const tools: Tool[] = [
     relatedService: "seo-local-lead-gen",
   },
   {
+    /* Added 29 Jul 2026, beyond the brief's seven. It exists because the audit's
+     * structured-data check kept ending at "no JSON-LD on the page" and leaving
+     * someone who runs a plumbing business to go and learn schema.org. A finding
+     * with nowhere to go is half a finding. */
+    slug: "schema-generator",
+    name: "Schema Generator",
+    oneLiner:
+      "Writes the structured data that tells search engines your address, hours and phone number.",
+    status: "live",
+    relatedService: "seo-local-lead-gen",
+  },
+  {
     slug: "meta-generator",
     name: "Meta & Headline Generator",
     oneLiner:

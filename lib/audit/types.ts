@@ -14,6 +14,17 @@ export const CHECK_GROUPS = [
 
 export type CheckGroup = (typeof CHECK_GROUPS)[number];
 
+/** A handoff into the tool that fixes this finding, with the value carried
+ *  across. See lib/params.ts — this is what stops the tools being seven
+ *  separate pages that each abandon you at the useful moment. */
+export type FixWith = {
+  /** Tool slug, e.g. "meta-generator". */
+  slug: string;
+  label: string;
+  /** Query params to prefill the target tool with. */
+  params: Record<string, string>;
+};
+
 export type Check = {
   id: string;
   group: CheckGroup;
@@ -26,6 +37,8 @@ export type Check = {
   why: string;
   /** What to change. Present only when the status is not "pass". */
   fix?: string;
+  /** Offered only when a tool in this repo genuinely does the job. */
+  fixWith?: FixWith;
 };
 
 export type AuditResult = {
