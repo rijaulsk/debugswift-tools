@@ -209,9 +209,17 @@ script. It records that the page was opened and never sees these fields.
 ⚠️ **CORRECTED 28 Jul 2026, and worth reading as a lesson.** This answer
 originally read *"there's no server request at all, which you can confirm in
 your browser's network tab."* **That was false.** `app/layout.tsx` mounts Vercel
-Analytics, so the network tab shows requests to `va.vercel-scripts.com` on every
-page of this app. Caught by a Playwright run that watched for off-origin
-requests.
+Analytics, so a beacon fires on every page of this app. Caught by a Playwright
+run that watched for off-origin requests.
+
+⚠️ **The correction itself needed correcting, 22 Aug 2026.** This note used to
+say the network tab shows requests to `va.vercel-scripts.com`. It does not.
+Mounted through the Next integration, Vercel Analytics posts to a **first-party**
+path on our own origin (`/<hash>/view`), and a reader watching the network tab
+sees **zero off-origin requests** — verified on the live deployment. The
+user-facing answer above never named a domain, so nothing misleading was ever
+published; only this rationale was wrong. Which is its own version of the same
+lesson: a note written to keep the copy honest drifted and nobody re-checked it.
 
 The failure wasn't the analytics — it was inviting the reader to verify a claim
 and then failing their verification. That is worse than saying nothing, because

@@ -138,15 +138,27 @@ Deb: three poses, no fourth, placed through `components/Deb.tsx` only.
 - `npm run dev -- -p 3002` — dev server, then open **`localhost:3002/tools`**
 - `npm run build` · `npm run lint` · `npm run typecheck`
 
-## Going live
+## Live since 22 August 2026
 
-The marketing repo's `next.config.ts` already has the `beforeFiles` rewrite. In
-order: deploy this app → set `TOOLS_ORIGIN` on the MAIN Vercel project → add the
-`/tools` entry to `app/sitemap.ts` there → delete `app/tools/page.tsx` there.
+`debugswift.com/tools` is proxied to this deployment. `TOOLS_ORIGIN` is set on
+the MAIN Vercel project, the `/tools` entry is in its `app/sitemap.ts`, its
+`app/robots.ts` advertises `/tools/sitemap.xml`, and its placeholder route is
+deleted. **Nothing further is needed in the marketing repo to add a tool** — a
+registry entry plus a route folder here is the whole job, which is the property
+the single-repo shape exists to protect.
 
-**Do not flip `TOOLS_ORIGIN` before at least one tool is genuinely worth
-bookmarking.** Until then the marketing placeholder ("First one is on the bench
-now") is a true statement, and pointing the rewrite at a thin hub makes it false.
+Two things that cost time getting here, worth not rediscovering:
+
+- **`async rewrites()` is evaluated at BUILD time.** Setting `TOOLS_ORIGIN` in
+  the Vercel dashboard changes nothing until the marketing project is
+  redeployed. It looks exactly like a broken proxy. Check
+  `curl -I https://debugswift.com/tools` — a stale `age:` on a cache `HIT` means
+  no rebuild has happened.
+- **The env var goes on the MARKETING project, not this one.** Setting it here
+  does nothing at all.
+
+**Deployment needs zero environment variables**, and that should stay true. If a
+tool ever needs a key, it also needs a line in `.env.example` and a note here.
 
 ## Don't
 

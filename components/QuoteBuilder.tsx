@@ -29,11 +29,17 @@ import {
  * BE PRECISE IN THE COPY, and this is not pedantry — an earlier draft of the
  * FAQ said "there's no server request at all, which you can confirm in your
  * browser's network tab". That was false: app/layout.tsx mounts Vercel
- * Analytics, so the tab shows requests to va.vercel-scripts.com on every page.
- * Inviting someone to check and then failing their check is worse than saying
- * nothing. The claim is now scoped to "no request that carries what you typed",
- * with the analytics script named. If analytics is ever removed, the copy can
- * be widened again — not before.
+ * Analytics, so a beacon fires on every page. Inviting someone to check and
+ * then failing their check is worse than saying nothing. The claim is now
+ * scoped to "no request that carries what you typed". If analytics is ever
+ * removed, the copy can be widened again — not before.
+ *
+ * WHAT THAT BEACON ACTUALLY LOOKS LIKE, corrected 22 Aug 2026: it is NOT a
+ * request to va.vercel-scripts.com, as this comment used to say. Mounted
+ * through the Next integration, Vercel Analytics posts to a first-party path
+ * on our own origin (/<hash>/view), and a reader watching the network tab sees
+ * zero off-origin requests — verified on the live deployment. The user-facing
+ * FAQ never named the domain, so nothing misleading shipped; this note did.
  *
  * PRINTING is window.print() against a print stylesheet built from Tailwind's
  * `print:` variants — no PDF library, no server render, no dependency. The
