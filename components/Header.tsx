@@ -114,12 +114,22 @@ export default function Header() {
     };
   }, [mobileOpen]);
 
-  const linkClass =
-    "text-ink transition-colors duration-200 ease-out hover:text-indigo-600";
+  const linkBase = "transition-colors duration-200 ease-out";
+  const linkClass = `${linkBase} text-ink hover:text-indigo-600`;
   /* Active = Indigo 600 + a 1.5px underline offset clear of the text. No new
-   * colour, no new weight — the token table covers this. */
-  const activeClass =
-    "text-indigo-600 underline decoration-[1.5px] underline-offset-[6px]";
+   * colour, no new weight — the token table covers this.
+   *
+   * THIS IS A COMPLETE CLASS, NOT A MODIFIER, and must never be concatenated
+   * onto linkClass again. It was, and the two both set a text colour at the
+   * same specificity: Tailwind emits text-ink after text-indigo-600, so the
+   * active colour lost silently and the current section rendered as plain ink
+   * with a stray underline — which reads as a link stuck in its hover state
+   * rather than as "you are here". It also left Tools as the one nav item
+   * whose hover behaved differently from Services, because ink→indigo on an
+   * item that was supposed to already BE indigo is not a hover, it is a
+   * correction. Active now hovers to Indigo 700, so every item in the bar
+   * responds to the pointer the same way. */
+  const activeClass = `${linkBase} text-indigo-600 underline decoration-[1.5px] underline-offset-[6px] hover:text-indigo-700`;
 
   return (
     /* TOOLS DIFFERENCE: print:hidden. This app produces a document people
@@ -255,7 +265,7 @@ export default function Header() {
                   key={label}
                   href={href}
                   aria-current="page"
-                  className={`${linkClass} ${activeClass}`}
+                  className={activeClass}
                 >
                   {label}
                 </Link>
@@ -380,7 +390,7 @@ export default function Header() {
               <Link
                 href={TOOLS.home}
                 aria-current="page"
-                className={`block py-2 ${linkClass} ${activeClass}`}
+                className={`block py-2 ${activeClass}`}
               >
                 Tools
               </Link>

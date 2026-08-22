@@ -117,30 +117,6 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-            {/* Tool-local navigation. Stacked under Pages rather than given a
-             * fifth column: the grid is a four-column rhythm shared with the
-             * main site, and breaking it here would make the two footers stop
-             * looking like one company.
-             *
-             * Live tools only, and the whole block disappears when there are
-             * none — an empty "In tools" heading would advertise a section that
-             * isn't there. */}
-            {liveTools.length > 0 && (
-              <>
-                <p className="mt-6 text-eyebrow uppercase text-cream">
-                  In tools
-                </p>
-                <ul className="mt-4 space-y-2">
-                  {liveTools.map(({ slug, name }) => (
-                    <li key={slug}>
-                      <Link href={TOOLS.tool(slug)} className={linkClass}>
-                        {name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
           </nav>
           <div>
             <p className="text-eyebrow uppercase text-cream">Contact</p>
@@ -190,6 +166,37 @@ export default function Footer() {
             </ul>
           </div>
         </div>
+        {/* Tool-local navigation, as its own band beneath the four columns.
+          *
+          * It used to stack inside the Pages column, to protect the
+          * four-column rhythm this footer shares with the main site. That
+          * rhythm is still worth protecting — but eight tool names under six
+          * page links made that column twice the height of its neighbours, so
+          * the footer stood on one long leg and three short ones. A full-width
+          * band balances the columns, leaves the shared grid untouched, and
+          * gives the tools the prominence they ought to have in the tools app
+          * itself.
+          *
+          * Live tools only, and the whole band disappears when there are none:
+          * an empty "In tools" heading would advertise a section that is not
+          * there. */}
+        {liveTools.length > 0 && (
+          <nav
+            aria-label="In tools"
+            className="mt-12 border-t-[1.5px] border-indigo-800 pt-8"
+          >
+            <p className="text-eyebrow uppercase text-cream">In tools</p>
+            <ul className="mt-4 flex flex-wrap justify-center gap-x-8 gap-y-3 md:justify-start">
+              {liveTools.map(({ slug, name }) => (
+                <li key={slug}>
+                  <Link href={TOOLS.tool(slug)} className={linkClass}>
+                    {name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
         <div className="mt-14 flex flex-col items-center gap-4 border-t-[1.5px] border-indigo-800 pt-6 md:flex-row md:items-baseline md:justify-between">
           <p className="text-small text-mist">
             {/* Explicit {" "} — the space after the year expression gets
