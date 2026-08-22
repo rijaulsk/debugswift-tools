@@ -1,3 +1,4 @@
+import Card from "@/components/Card";
 import {
   parseHex,
   RAMP_STEPS,
@@ -134,7 +135,12 @@ export default function RampComparison() {
   const hslDrift = worstDrift(hsl);
 
   return (
-    <div className="rounded-card border-[1.5px] border-ink bg-paper p-6 md:p-8">
+    /* Card, not a hand-rolled equivalent. It was in this repo imported by
+     * nothing — copied over with the shared component set and never used. The
+     * fix is to use it rather than delete it: the repo's rule is that these
+     * components stay in step with the marketing repo's, so removing one to
+     * tidy up dead code would fork the set instead. */
+    <Card className="md:p-8">
       <div className="space-y-8">
         <Strip
           label="Asked in HSL"
@@ -156,6 +162,6 @@ export default function RampComparison() {
         out of the colour above it. Both rows were built from the same ten
         targets and the same starting colour — {SEED}.
       </p>
-    </div>
+    </Card>
   );
 }

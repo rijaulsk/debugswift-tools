@@ -5,6 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import CtaBand from "@/components/CtaBand";
 import FaqList from "@/components/FaqList";
 import JsonLd from "@/components/JsonLd";
+import LedgerList from "@/components/LedgerList";
 import MainSiteLink from "@/components/MainSiteLink";
 import { Section, SectionHeader } from "@/components/Section";
 import ToolVisual from "@/components/ToolVisual";
@@ -120,21 +121,19 @@ export default function WebsiteAuditPage() {
           title={`${TOTAL_CHECKS} checks, in five groups.`}
           lede="Every one is measured on the page you give us. There are no benchmarks, no scores borrowed from other sites, and no “businesses like yours” — we haven't surveyed them, so we won't pretend we have."
         />
-        <ol className="mt-10 divide-y-[1.5px] divide-mist border-y-[1.5px] border-mist">
-          {groups.map(([name, detail], i) => (
-            <li key={name} className="flex gap-6 py-5">
-              {/* Ledger gutter — tabular numerals in the design system's
-               * numbering role, not filled circles. */}
-              <span className="pt-1 text-small tabular-nums text-slate">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="text-ink">
-                <span className="font-medium">{name}</span>
-                <span className="text-slate"> — {detail}</span>
-              </p>
-            </li>
-          ))}
-        </ol>
+        {/* LedgerList, not a hand-rolled list. This page had its own weaker
+          * copy — slate numerals in a divide-y row list — of a component the
+          * design system names as a section archetype, which meant the two
+          * deployments drew the same idea two different ways. Same five
+          * strings, the real gutter. */}
+        <div className="mt-10 max-w-3xl">
+          <LedgerList
+            items={groups.map(([name, detail]) => ({
+              title: name,
+              body: detail,
+            }))}
+          />
+        </div>
         <p className="mt-8 max-w-2xl text-small text-slate">
           Most of it is fixable in an afternoon by whoever built the site. If the
           list points at something structural, that&apos;s what{" "}
