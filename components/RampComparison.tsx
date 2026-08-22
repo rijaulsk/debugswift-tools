@@ -118,7 +118,13 @@ function Strip({
               className="h-14 rounded-[6px] border-[1.5px] border-ink"
               style={{ backgroundColor: row.hex }}
             />
-            <p className="mt-2 text-center text-[11px] leading-none tabular-nums text-slate">
+            {/* Hidden below sm. At 390px ten swatches are 25px wide and the
+              * figure under them is 22px — legible only in the sense that the
+              * pixels are present. Nothing is lost: the sentence below each
+              * strip states the same measurement in words, so the claim still
+              * stands up on a phone and the per-swatch numbers become an
+              * enhancement where there is room to read them. */}
+            <p className="mt-2 hidden text-center text-[11px] leading-none tabular-nums text-slate sm:block">
               {row.got.toFixed(2)}
             </p>
           </div>
@@ -158,9 +164,12 @@ export default function RampComparison() {
         />
       </div>
       <p className="mt-8 border-t-[1.5px] border-mist pt-5 text-small text-slate">
-        The figure under each swatch is its perceptual lightness, measured back
-        out of the colour above it. Both rows were built from the same ten
-        targets and the same starting colour — {SEED}.
+        <span className="hidden sm:inline">
+          The figure under each swatch is its perceptual lightness, measured
+          back out of the colour above it.{" "}
+        </span>
+        Both rows were built from the same ten targets and the same starting
+        colour — {SEED}.
       </p>
     </Card>
   );
