@@ -388,8 +388,44 @@ export async function headSize(target: URL): Promise<number | null> {
   }
 }
 
+/**
+ * The FIRST status a host answers with, WITHOUT following the redirect.
+ *
+ * Separate from statusOf() on purpose, and the two must not be merged. The
+ * soft-404 probe wants redirects followed — a missing page that bounces to the
+ * homepage and answers 200 is precisely the soft 404 it exists to catch. The
+ * www/non-www check wants the opposite: there, a redirect is the CORRECT
+ * answer, and following it hides the very thing being measured.
+ *
+ * Conflating them was a live false positive. statusOf() followed
+ * debugswift.com's own www→apex 308 through to the apex, returned 200, and the
+ * check reported "both the www and non-www addresses serve the page directly"
+ * — telling the owner the duplication was unfixed on the very deploy that
+ * fixed it. A check that can never report success once you act on it is worse
+ * than no check at all.
+ *
+ * Nothing is followed, so no second hop needs re-validating.
+ */
+export async function firstStatusOf(target: URL): Promise<number> {
+  try {
+    await assertPublicHost(target);
+    const response = await fetch(target, {
+      method: "GET",
+      redirect: "manual",
+      signal: AbortSignal.timeout(5000),
+      headers: { "user-agent": USER_AGENT },
+      cache: "no-store",
+    });
+    await response.arrayBuffer().catch(() => undefined);
+    return response.status;
+  } catch {
+    return 0;
+  }
+}
+
 /** Does this URL answer at all, and with what status? Used for the OG image
- *  and the soft-404 probe. */
+ *  and the soft-404 probe — both of which want redirects FOLLOWED. For the
+ *  www/non-www pair use firstStatusOf() instead; see the note above. */
 export async function statusOf(target: URL): Promise<number> {
   try {
     await assertPublicHost(target);

@@ -1,6 +1,7 @@
 import {
   fetchPage,
   FetchPageError,
+  firstStatusOf,
   headSize,
   probe,
   statusOf,
@@ -180,7 +181,9 @@ async function checkAltHost(final: URL): Promise<number | null> {
   if (!alt) return null;
   const target = new URL(final.toString());
   target.hostname = alt;
-  return statusOf(target);
+  /* firstStatusOf, NOT statusOf: a redirect is the correct answer here and
+   * following it would report the destination's 200 as a duplicate site. */
+  return firstStatusOf(target);
 }
 
 type ImageWeight = {
