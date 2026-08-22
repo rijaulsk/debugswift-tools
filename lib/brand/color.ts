@@ -151,7 +151,7 @@ export const RAMP_STEPS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900] as c
  * chosen so 500 sits where a brand colour usually lives, the top two steps are
  * usable as page washes, and 700+ stay dark enough to carry white text.
  */
-const STEP_LIGHTNESS: Record<number, number> = {
+export const STEP_LIGHTNESS: Record<number, number> = {
   50: 0.97,
   100: 0.94,
   200: 0.88,

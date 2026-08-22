@@ -5,6 +5,7 @@ import CtaBand from "@/components/CtaBand";
 import FaqList from "@/components/FaqList";
 import JsonLd from "@/components/JsonLd";
 import MainSiteLink from "@/components/MainSiteLink";
+import RampComparison from "@/components/RampComparison";
 import { Section, SectionHeader } from "@/components/Section";
 import ToolVisual from "@/components/ToolVisual";
 import { canonicalPath, MAIN, toolUrl } from "@/lib/links";
@@ -88,6 +89,12 @@ export default function BrandKitPage() {
           title="Even numbers aren't even colours."
           lede="The usual way to build a ramp is to hold the hue and walk lightness in HSL. It's also why so many generated palettes have muddy middles: HSL's lightness isn't perceptual. Pure yellow and pure blue both sit at 50%, and one of them is blinding."
         />
+        {/* The claim on this page is visual, so it is shown before it is
+          * described. Every figure in it is measured off the swatch beside it —
+          * see components/RampComparison.tsx. */}
+        <div className="mt-10">
+          <RampComparison />
+        </div>
         <div className="mt-10 max-w-2xl space-y-4 text-slate">
           <p>
             This builds the ramp in OKLCh instead, a space designed so equal
