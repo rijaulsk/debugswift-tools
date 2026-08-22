@@ -20,6 +20,21 @@
 
 export type ToolStatus = "live" | "planned";
 
+/** Which flat ink-bordered figure `components/ToolVisual.tsx` draws for this
+ *  tool. Declared here rather than in the component so the dependency runs
+ *  lib → component like every other field, and so ToolVisual's switch is
+ *  exhaustive against the registry rather than the other way round. Adding a
+ *  key without adding its case is a compile error. */
+export type ArtifactKey =
+  | "audit"
+  | "serp"
+  | "quote"
+  | "palette"
+  | "qr"
+  | "weight"
+  | "brief"
+  | "schema";
+
 export type Tool = {
   /** URL segment. Lives at debugswift.com/tools/<slug>. Never rename a live
    *  one — that discards whatever the page has earned. */
@@ -33,6 +48,10 @@ export type Tool = {
    *  its service page — that internal link is half the point of the tools
    *  existing (SEO architecture: tools ↔ blog ↔ service pages). */
   relatedService: string;
+  /** The figure drawn beside this tool's hero and on its hub card. Always an
+   *  illustration of the tool's own OUTPUT — never a stock image, never a
+   *  result anyone achieved. See components/ToolVisual.tsx. */
+  artifact: ArtifactKey;
 };
 
 export const tools: Tool[] = [
@@ -43,6 +62,7 @@ export const tools: Tool[] = [
       "Checks a page for the technical and on-page basics search engines and customers both rely on.",
     status: "live",
     relatedService: "seo-local-lead-gen",
+    artifact: "audit",
   },
   {
     /* Added 29 Jul 2026, beyond the brief's seven. It exists because the audit's
@@ -55,6 +75,7 @@ export const tools: Tool[] = [
       "Writes the structured data that tells search engines your address, hours and phone number.",
     status: "live",
     relatedService: "seo-local-lead-gen",
+    artifact: "schema",
   },
   {
     slug: "meta-generator",
@@ -63,6 +84,7 @@ export const tools: Tool[] = [
       "Shows exactly where Google cuts your title tag — measured in pixels, not characters.",
     status: "live",
     relatedService: "seo-local-lead-gen",
+    artifact: "serp",
   },
   {
     slug: "quote-generator",
@@ -71,6 +93,7 @@ export const tools: Tool[] = [
       "Fills a clean, printable quote or invoice and saves it as a PDF from your browser.",
     status: "live",
     relatedService: "business-process-automation",
+    artifact: "quote",
   },
   {
     slug: "brand-kit",
@@ -79,6 +102,7 @@ export const tools: Tool[] = [
       "Turns one colour into a ten-step palette with contrast measured on every step, plus a type scale.",
     status: "live",
     relatedService: "brand-design-systems",
+    artifact: "palette",
   },
   {
     slug: "qr-generator",
@@ -87,6 +111,7 @@ export const tools: Tool[] = [
       "Makes a vector QR code for a link, phone number or WhatsApp chat — with no redirect that can expire.",
     status: "live",
     relatedService: "conversion-websites",
+    artifact: "qr",
   },
   {
     slug: "image-compressor",
@@ -95,6 +120,7 @@ export const tools: Tool[] = [
       "Shrinks photos on your own device so a page stops waiting on them. Nothing is uploaded.",
     status: "live",
     relatedService: "web-app-development",
+    artifact: "weight",
   },
   {
     /* RENAMED FROM "cost-estimator", 28 Jul 2026, and the rename is the whole
@@ -116,6 +142,7 @@ export const tools: Tool[] = [
       "Turns a vague idea into a written brief, so three quotes are finally comparable.",
     status: "live",
     relatedService: "technical-consulting",
+    artifact: "brief",
   },
 ];
 

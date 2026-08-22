@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import MainSiteLink from "@/components/MainSiteLink";
 import QrGenerator from "@/components/QrGenerator";
 import { Section, SectionHeader } from "@/components/Section";
+import ToolVisual from "@/components/ToolVisual";
 import { canonicalPath, MAIN, toolUrl } from "@/lib/links";
 import { toolBreadcrumbs, toolGraph } from "@/lib/seo";
 import { getTool } from "@/lib/tools";
@@ -59,13 +60,20 @@ export default function QrGeneratorPage() {
 
       <Section band="cream" innerClassName="pb-10 md:pb-16">
         <Breadcrumbs trail={toolBreadcrumbs(tool)} />
-        <div className="mt-8">
-          <SectionHeader
-            as="h1"
-            eyebrow="QR Code Generator"
-            title="A QR code that still works in five years."
-            lede="It encodes your link directly — no redirect through us, nothing to expire, nothing to start charging for. Download it as vector so it stays sharp from a business card to a shopfront."
-          />
+        <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-12">
+          <div className="lg:col-span-7">
+            <SectionHeader
+              as="h1"
+              eyebrow="QR Code Generator"
+              title="A QR code that still works in five years."
+              lede="It encodes your link directly — no redirect through us, nothing to expire, nothing to start charging for. Download it as vector so it stays sharp from a business card to a shopfront."
+            />
+          </div>
+          {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at
+            * 390px a 380px figure would push the tool itself below the fold. */}
+          <div className="mt-12 hidden justify-end lg:col-span-5 lg:mt-0 lg:flex">
+            <ToolVisual artifact={tool.artifact} />
+          </div>
         </div>
       </Section>
 

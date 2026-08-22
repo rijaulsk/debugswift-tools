@@ -6,6 +6,7 @@ import JsonLd from "@/components/JsonLd";
 import MainSiteLink from "@/components/MainSiteLink";
 import ProjectScoper from "@/components/ProjectScoper";
 import { Section, SectionHeader } from "@/components/Section";
+import ToolVisual from "@/components/ToolVisual";
 import { canonicalPath, MAIN, toolUrl } from "@/lib/links";
 import { toolBreadcrumbs, toolGraph } from "@/lib/seo";
 import { getTool } from "@/lib/tools";
@@ -64,13 +65,20 @@ export default function ProjectScoperPage() {
 
       <Section band="cream" innerClassName="pb-10 md:pb-16">
         <Breadcrumbs trail={toolBreadcrumbs(tool)} />
-        <div className="mt-8">
-          <SectionHeader
-            as="h1"
-            eyebrow="Project Scoper"
-            title="Work out what you're actually asking for."
-            lede="Three quotes that differ by four times usually means three people were asked three different questions. This turns a vague idea into a written brief you can send to all of them unchanged — and tells you what any of them will ask you next."
-          />
+        <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-12">
+          <div className="lg:col-span-7">
+            <SectionHeader
+              as="h1"
+              eyebrow="Project Scoper"
+              title="Work out what you're actually asking for."
+              lede="Three quotes that differ by four times usually means three people were asked three different questions. This turns a vague idea into a written brief you can send to all of them unchanged — and tells you what any of them will ask you next."
+            />
+          </div>
+          {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at
+            * 390px a 380px figure would push the tool itself below the fold. */}
+          <div className="mt-12 hidden justify-end lg:col-span-5 lg:mt-0 lg:flex">
+            <ToolVisual artifact={tool.artifact} />
+          </div>
         </div>
       </Section>
 

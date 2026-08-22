@@ -7,6 +7,7 @@ import JsonLd from "@/components/JsonLd";
 import MainSiteLink from "@/components/MainSiteLink";
 import SchemaGenerator from "@/components/SchemaGenerator";
 import { Section, SectionHeader } from "@/components/Section";
+import ToolVisual from "@/components/ToolVisual";
 import { canonicalPath, MAIN, TOOLS, toolUrl } from "@/lib/links";
 import { toolBreadcrumbs, toolGraph } from "@/lib/seo";
 import { getTool } from "@/lib/tools";
@@ -59,13 +60,20 @@ export default function SchemaGeneratorPage() {
 
       <Section band="cream" innerClassName="pb-10 md:pb-16">
         <Breadcrumbs trail={toolBreadcrumbs(tool)} />
-        <div className="mt-8">
-          <SectionHeader
-            as="h1"
-            eyebrow="Schema Generator"
-            title="Tell search engines what your business actually is."
-            lede="Structured data is how a search engine knows your phone number is a phone number and not a string of digits. Fill this in, paste the result into your site, and stop making it guess."
-          />
+        <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-12">
+          <div className="lg:col-span-7">
+            <SectionHeader
+              as="h1"
+              eyebrow="Schema Generator"
+              title="Tell search engines what your business actually is."
+              lede="Structured data is how a search engine knows your phone number is a phone number and not a string of digits. Fill this in, paste the result into your site, and stop making it guess."
+            />
+          </div>
+          {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at
+            * 390px a 380px figure would push the tool itself below the fold. */}
+          <div className="mt-12 hidden justify-end lg:col-span-5 lg:mt-0 lg:flex">
+            <ToolVisual artifact={tool.artifact} />
+          </div>
         </div>
       </Section>
 

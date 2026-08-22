@@ -4,6 +4,7 @@ import CtaBand from "@/components/CtaBand";
 import Deb from "@/components/Deb";
 import JsonLd from "@/components/JsonLd";
 import { Section, SectionHeader } from "@/components/Section";
+import { ToolIcon } from "@/components/ToolVisual";
 import { canonicalPath, toolUrl, TOOLS } from "@/lib/links";
 import { collectionPageJsonLd } from "@/lib/seo";
 import { tools } from "@/lib/tools";
@@ -73,18 +74,36 @@ export default function ToolsHub() {
           {live.map((tool) => (
             <li key={tool.slug}>
               {/* The whole card is the target — a 40px link inside a 200px card
-               * is a target-size failure waiting to happen. */}
+               * is a target-size failure waiting to happen.
+               *
+               * Hover choreography ported from the marketing repo's
+               * ServiceCard: border warms to indigo, card lifts 2px, arrow
+               * nudges — 200ms, no shadow, the lift IS the tactile cue. Eight
+               * cards differing only in their wording read as a list of links;
+               * the glyph and the lift are what make them read as tools. */}
               <Link
                 href={TOOLS.tool(tool.slug)}
-                className="group block h-full rounded-card border-[1.5px] border-ink bg-paper p-6 transition-colors duration-200 ease-out hover:bg-indigo-50"
+                className="group flex h-full flex-col rounded-card border-[1.5px] border-ink bg-paper p-6 transition duration-200 ease-out hover:-translate-y-0.5 hover:border-indigo-600"
               >
+                <span
+                  aria-hidden="true"
+                  className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-[10px] border-[1.5px] border-mist bg-indigo-50 text-indigo-600 transition-colors duration-200 ease-out group-hover:border-indigo-200 group-hover:bg-indigo-100"
+                >
+                  <ToolIcon artifact={tool.artifact} />
+                </span>
                 <p className="text-h3 font-medium text-ink group-hover:text-indigo-700">
                   {tool.name}
                 </p>
-                <p className="mt-3 text-slate">{tool.oneLiner}</p>
-                <p className="mt-5 font-medium text-indigo-600">
-                  Open the tool →
-                </p>
+                <p className="mt-3 flex-1 text-slate">{tool.oneLiner}</p>
+                <span className="mt-6 inline-flex items-center gap-2 font-medium text-indigo-600">
+                  Open the tool
+                  <span
+                    aria-hidden="true"
+                    className="transition-transform duration-200 ease-out group-hover:translate-x-1"
+                  >
+                    →
+                  </span>
+                </span>
               </Link>
             </li>
           ))}

@@ -7,6 +7,7 @@ import FaqList from "@/components/FaqList";
 import JsonLd from "@/components/JsonLd";
 import MainSiteLink from "@/components/MainSiteLink";
 import { Section, SectionHeader } from "@/components/Section";
+import ToolVisual from "@/components/ToolVisual";
 import { TOTAL_CHECKS } from "@/lib/audit/checks";
 import { canonicalPath, MAIN, toolUrl } from "@/lib/links";
 import { toolBreadcrumbs, toolGraph } from "@/lib/seo";
@@ -83,13 +84,20 @@ export default function WebsiteAuditPage() {
         * page around them. */}
       <Section band="cream" innerClassName="pb-10 md:pb-16" className="print:hidden">
         <Breadcrumbs trail={toolBreadcrumbs(tool)} />
-        <div className="mt-8">
-          <SectionHeader
-            as="h1"
-            eyebrow="Website Audit"
-            title="See your page the way a search engine does."
-            lede={`Paste a web address. We fetch the page once, run ${TOTAL_CHECKS} checks on whether it gets found and whether a visitor can act on it, and show you every answer — including the ones that pass.`}
-          />
+        <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-12">
+          <div className="lg:col-span-7">
+            <SectionHeader
+              as="h1"
+              eyebrow="Website Audit"
+              title="See your page the way a search engine does."
+              lede={`Paste a web address. We fetch the page once, run ${TOTAL_CHECKS} checks on whether it gets found and whether a visitor can act on it, and show you every answer — including the ones that pass.`}
+            />
+          </div>
+          {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at
+            * 390px a 380px figure would push the tool itself below the fold. */}
+          <div className="mt-12 hidden justify-end lg:col-span-5 lg:mt-0 lg:flex">
+            <ToolVisual artifact={tool.artifact} />
+          </div>
         </div>
       </Section>
 
