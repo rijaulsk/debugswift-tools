@@ -282,8 +282,12 @@ export default function ImageCompressor() {
                 {formatBytes(totalIn)} → {formatBytes(totalOut)}
               </p>
               <p className="mt-2 text-slate">
+                {/* floor, not round: rounding turned a 99.6% saving into
+                  * "100% smaller", which claims the file shrank to nothing.
+                  * Flooring also errs toward understating the win, which is the
+                  * only safe direction for a number we are boasting with. */}
                 {totalOut < totalIn
-                  ? `${Math.round(((totalIn - totalOut) / totalIn) * 100)}% smaller across ${done.length} image${done.length === 1 ? "" : "s"}.`
+                  ? `${Math.floor(((totalIn - totalOut) / totalIn) * 100)}% smaller across ${done.length} image${done.length === 1 ? "" : "s"}.`
                   : "No saving on these — they were already well optimised."}
               </p>
             </div>
@@ -316,7 +320,7 @@ export default function ImageCompressor() {
                       ) : (
                         <>
                           {" "}
-                          ({Math.round(
+                          ({Math.floor(
                             ((row.file.size - row.outSize!) / row.file.size) * 100,
                           )}
                           % smaller) · {row.width}×{row.height}
