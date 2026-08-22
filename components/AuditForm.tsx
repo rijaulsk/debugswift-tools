@@ -57,6 +57,18 @@ export default function AuditForm() {
   }, [prefill]);
 
   async function run(target: string, botcheck: string) {
+    /* Claim the prefill guard for EVERY run, not just the on-load one.
+     *
+     * Without this, one click audited the target twice. The effect above
+     * early-returns when there is no ?url= on load, which leaves `ran` false —
+     * and then this function's own setParamsInUrl() write flips the param from
+     * empty to a value. Next patches history.replaceState to keep the router in
+     * sync, so useSearchParams() reports the change, the effect re-runs, the
+     * guard is still unclaimed, and it fires a second identical audit.
+     *
+     * That is someone else's server hit twice per click (six outbound requests,
+     * not three) and a rate limit of 12 that spends like 6. */
+    ran.current = true;
     setState({ phase: "working" });
 
     try {
