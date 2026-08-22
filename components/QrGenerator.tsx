@@ -262,10 +262,13 @@ export default function QrGenerator() {
 
         {result?.svg && result.code && (
           <div className="flex flex-wrap items-start gap-10">
-            {/* The rendered code. dangerouslySetInnerHTML is safe here in the
-             * strict sense: the SVG is built by toSvg() from a boolean matrix,
-             * so no user text reaches the markup — the payload becomes modules,
-             * never characters. */}
+            {/* The rendered code. The ENCODED payload never reaches the markup
+              * — it becomes modules, never characters — but that is only half
+              * the input. The colour values are user text and are interpolated
+              * into fill="…", which was a live markup-injection hole until
+              * toSvg() started escaping them at the sink. Read safeColour() in
+              * lib/qr/encode.ts before adding any other caller-supplied string
+              * to this SVG. */}
             <div
               className="w-64 shrink-0 rounded-card border-[1.5px] border-ink bg-paper p-4"
               dangerouslySetInnerHTML={{ __html: result.svg }}

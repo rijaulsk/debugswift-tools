@@ -614,6 +614,24 @@ export function encodeQr(
  * scanners need it, and cropping it is the single most common reason a printed
  * QR fails to read.
  */
+/* Colours are the ONLY caller-supplied strings that reach the markup, so they
+ * are escaped here at the sink rather than trusted from the form.
+ *
+ * This was a real injection, not a hypothetical: the colour picker validated
+ * the value it DISPLAYED, while the free-text hex field beside it passed
+ * whatever was typed straight through to `fill="${dark}"`, and the result is
+ * rendered with dangerouslySetInnerHTML. Pasting
+ * `#000" /><span>…</span><path d="` put live markup on the page.
+ *
+ * It was only ever self-XSS — colours are not read from the URL, so no link
+ * could carry it. But this app hands values between tools through query params
+ * as its core idea, and the day someone adds ?dark= for shareable brand codes
+ * it becomes one-click. Guarding the sink means that day is safe by default. */
+const HEX = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+function safeColour(value: string, fallback: string): string {
+  return HEX.test(value.trim()) ? value.trim() : fallback;
+}
+
 export function toSvg(
   code: QrCode,
   {
@@ -623,6 +641,8 @@ export function toSvg(
     light = "#ffffff",
   }: { scale?: number; quiet?: number; dark?: string; light?: string } = {},
 ): string {
+  const darkFill = safeColour(dark, "#000000");
+  const lightFill = safeColour(light, "#ffffff");
   const dimension = (code.size + quiet * 2) * scale;
   let path = "";
   for (let r = 0; r < code.size; r++) {
@@ -635,8 +655,8 @@ export function toSvg(
   }
   return [
     `<svg xmlns="http://www.w3.org/2000/svg" width="${dimension}" height="${dimension}" viewBox="0 0 ${dimension} ${dimension}" shape-rendering="crispEdges">`,
-    `<rect width="${dimension}" height="${dimension}" fill="${light}"/>`,
-    `<path d="${path}" fill="${dark}"/>`,
+    `<rect width="${dimension}" height="${dimension}" fill="${lightFill}"/>`,
+    `<path d="${path}" fill="${darkFill}"/>`,
     `</svg>`,
   ].join("");
 }

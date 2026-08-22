@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StickyMobileBar from "@/components/StickyMobileBar";
 import { canonicalPath, SITE_URL, toolUrl } from "@/lib/links";
+import { jsonLdScript } from "@/lib/seo";
 import { CONTACT_EMAIL, SOCIALS } from "@/lib/site";
 import "./globals.css";
 
@@ -117,7 +118,11 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col font-sans" suppressHydrationWarning>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+          /* jsonLdScript, not bare JSON.stringify: it escapes "<" so a value
+           * containing "</script>" cannot close the tag early. This payload is
+           * static today, but the helper exists for exactly this and every
+           * other JSON-LD block in the app already goes through it. */
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(siteJsonLd) }}
         />
         <Header />
         <div className="flex-1">{children}</div>
