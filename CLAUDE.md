@@ -70,6 +70,17 @@ because a number on a screen looks more authoritative than a sentence:
   X", no percentile. Every number a tool shows is measured from the user's own
   input or is a stated product spec. The thresholds in `lib/audit/checks.ts` are
   the tool's own opinions and are labelled as such on screen.
+- **Somebody else's benchmark is allowed, ATTRIBUTED, and never in our score.**
+  Google's Lighthouse number and Mozilla's letter grade are benchmarks — theirs,
+  said out loud as theirs, which is a different thing from us inventing one. So:
+  every third-party figure is captioned with whose it is, and none of it may
+  enter "X of Y checks passed", which is this tool's opinion of its own checks.
+  Folding an outside number into that denominator would silently stop two audits
+  being comparable. See `lib/audit/deep.ts`.
+- **A third party that doesn't answer is a sentence, not a zero.** If PageSpeed
+  times out, the panel says so. Printing 0/100 because a field was missing is
+  the worst possible claim about someone's site, invented. Each source fails on
+  its own, too — Google timing out must not discard a grade that arrived.
 - **A tool must never report a result it did not compute.** If the page can't be
   fetched, the tool says so and shows nothing — no partial score, no "here's
   what we'd normally check". `lib/audit/checks.ts` refuses to score an HTTP 4xx
@@ -157,8 +168,15 @@ Two things that cost time getting here, worth not rediscovering:
 - **The env var goes on the MARKETING project, not this one.** Setting it here
   does nothing at all.
 
-**Deployment needs zero environment variables**, and that should stay true. If a
-tool ever needs a key, it also needs a line in `.env.example` and a note here.
+**Deployment needs no environment variables to work.** All eight tools and the
+audit's 34 checks run on a fresh clone with nothing configured.
+
+**One optional key exists as of 23 Aug 2026: `PAGESPEED_API_KEY`** (server-only,
+never `NEXT_PUBLIC_`). It powers the audit's opt-in "deeper checks" section
+only. Without it that section still renders and says PageSpeed isn't configured
+here, while Mozilla's grade and the domain age still answer — nothing else
+degrades. Any future key must keep that shape: an absent key degrades one
+feature honestly and out loud, it never breaks a page and never fails silently.
 
 ## Don't
 

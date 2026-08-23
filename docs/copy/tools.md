@@ -129,6 +129,49 @@ database, nothing persisted, and the rate limiter holds an IP in memory only).
 If a tool ever starts storing submissions, this answer becomes false and the
 deferred privacy-policy item in `tools-repo-spec.md` stops being deferrable.
 
+---
+
+### Deeper checks — DRAFT, added 23 Aug 2026, NOT owner-approved
+
+New opt-in section below the report (`components/DeepChecks.tsx`). It is the
+first thing in this app that hands a visitor's input to a third party, so the
+disclosure sits **above the button, in body text**, not in a footnote under it.
+
+**Eyebrow:** Deeper checks
+**Heading:** Three things we can't measure ourselves.
+**Body:** How fast the page really loads, measured by Google in a real browser;
+what Mozilla makes of your security headers; and how long the domain has
+existed. Running these sends **the address you typed to Google, to Mozilla, and
+to the domain registry**. Nothing about you goes with it, and none of it counts
+towards the score above.
+
+**Button:** Run the deeper checks
+**Under the button, idle:** Takes up to a minute, mostly waiting on Google.
+**Under the button, running:** Google is loading the page in a real browser —
+this genuinely takes up to a minute.
+
+**Panel captions** name the source rather than absorbing its opinion as ours:
+"Google PageSpeed Insights", "Mozilla HTTP Observatory", "Domain registry".
+
+**The lab-vs-field line, which is the one most worth keeping:** *"It is a lab
+measurement on Google's hardware, not a reading of what your visitors
+experience."* Conflating those two is the most common way a performance score
+gets misread, and the panel shows both precisely so the difference is visible.
+
+**When Google has no field data:** *"Google has no field data for this site —
+that means too few visitors in Chrome to report on, which is normal for a
+smaller site and is not a fault."* Silence there would read as a failing grade.
+
+**On domain age:** *"…it is a fact, not a score, and a young domain is not a
+problem to fix."* Included because every other panel on the page IS a score, and
+without that sentence a low number reads as a mark against them.
+
+🚩 **Does the audit lede need changing?** It still says *"We fetch the page
+once."* That remains true of the audit itself — the deeper checks are a separate
+button the visitor presses, with their own disclosure. My reading is that it
+stands, but it is the sentence a careful reader would test, so it is flagged
+rather than quietly left alone.
+
 **Closing CTA title:** Want these fixed rather than listed?
 **Closing CTA body:** The report tells you what's wrong. If you'd rather not
 spend a weekend on it, that's the job.

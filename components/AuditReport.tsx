@@ -1,5 +1,6 @@
 import { AlertTriangle, Check, Info, X, type LucideIcon } from "lucide-react";
 import Link from "next/link";
+import DeepChecks from "@/components/DeepChecks";
 import { toolHref } from "@/lib/params";
 import { CHECK_GROUPS, type AuditResult, type CheckStatus } from "@/lib/audit/types";
 
@@ -81,6 +82,16 @@ function StatusMarker({ status }: { status: CheckStatus }) {
 
 export default function AuditReport({ result }: { result: AuditResult }) {
   const checked = new Date(result.fetchedAt);
+  /* The hostname the audit actually landed on, after redirects — not what was
+   * typed. If it won't parse we render no deeper-checks offer at all rather
+   * than one that cannot work. */
+  const host = (() => {
+    try {
+      return new URL(result.finalUrl).hostname;
+    } catch {
+      return null;
+    }
+  })();
   /* Checks that ran but didn't apply — no images on the page, so nothing to say
    * about alt text. They are shown, and excluded from the score, and the
    * difference is stated. A denominator that silently shrinks is how a visitor
@@ -187,6 +198,12 @@ export default function AuditReport({ result }: { result: AuditResult }) {
           </section>
         );
       })}
+
+      {/* The deeper checks sit BELOW our own, behind their own button, and
+        * outside the score. They are somebody else's measurements of the same
+        * page — useful, and not ours to fold into a number we call this tool's
+        * opinion. See components/DeepChecks.tsx. */}
+      {host && <DeepChecks host={host} />}
     </div>
   );
 }

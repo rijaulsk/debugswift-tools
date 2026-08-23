@@ -92,6 +92,10 @@ export const MAIN = {
  * debugswift.com/api/audit — the MAIN site, which has no such route. */
 export const API = {
   audit: `${TOOLS_BASE}/api/audit`,
+  /* The deeper checks — Google, Mozilla, the domain registry. Separate route
+   * because it is slow and sends the address to third parties; see the header
+   * of lib/audit/deep.ts. */
+  deep: `${TOOLS_BASE}/api/deep`,
 } as const;
 
 /* Tool destinations, as next/link wants them (no /tools prefix). */

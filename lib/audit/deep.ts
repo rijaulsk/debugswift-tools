@@ -1,0 +1,322 @@
+/* The deeper checks — the three things worth knowing that we cannot measure
+ * ourselves, fetched from Google, Mozilla and the domain registry.
+ *
+ * WHY THIS IS A SEPARATE REQUEST AND NOT PART OF auditPage().
+ *
+ *   1. Speed. The audit answers in well under a second. A PageSpeed Insights
+ *      run takes ten to thirty, because Google is really loading the page in a
+ *      real browser. Folding that in would make every audit feel broken, and
+ *      would push a serverless invocation towards its ceiling for a result most
+ *      visitors did not ask for.
+ *   2. Consent, in the only form that means anything here. Our own 34 checks
+ *      involve one fetch from our server. THESE hand the address to three other
+ *      companies. That should be a thing a person chooses, on a button, having
+ *      read what it does — not a thing that happens because they typed a URL.
+ *
+ * WHAT THESE RESULTS MUST NEVER DO: enter the score. "31 of 33 checks passed"
+ * is this tool's opinion of its own checks. Folding Google's Lighthouse number
+ * into it would mean the denominator silently changed and two audits stopped
+ * being comparable. They render as their own attributed section.
+ *
+ * ATTRIBUTION IS THE HONESTY MECHANISM HERE. The repo's rule is "never invent a
+ * benchmark". A Lighthouse score IS a benchmark — but it is Google's, said out
+ * loud as Google's, which is a different thing from us inventing one. Every
+ * figure below is captioned with whose opinion it is.
+ *
+ * NO SSRF SURFACE. Unlike lib/audit/fetchPage.ts, nothing here fetches a URL
+ * the caller chose. The three endpoints are fixed and ours; the caller's
+ * hostname travels as an encoded query parameter. It is still validated before
+ * use, because a hostname is not a free-text field and shipping one unchecked
+ * into someone else's API is how you find out it was.
+ */
+
+const PSI_ENDPOINT = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed";
+const OBSERVATORY_ENDPOINT = "https://observatory-api.mdn.mozilla.net/api/v2/scan";
+const RDAP_ENDPOINT = "https://rdap.org/domain";
+
+/* Generous, because the whole point of this route is that it is slow. Google
+ * genuinely takes tens of seconds; cutting it short would report a failure that
+ * is ours, not theirs. */
+const PSI_TIMEOUT_MS = 60_000;
+const FAST_TIMEOUT_MS = 15_000;
+
+export type DeepFailure = { ok: false; reason: string };
+
+export type PagespeedResult = {
+  ok: true;
+  /** Lighthouse performance category, 0–100. Google's number, LAB data. */
+  score: number;
+  strategy: "mobile";
+  /** Lab metrics, as Google formats them for display. */
+  metrics: { label: string; value: string }[];
+  /** Real-user data from the Chrome UX Report, when Google has enough traffic
+   *  for this origin to report it. Absent is normal and is NOT a failure — it
+   *  means the site is too quiet to have field data, which is itself worth
+   *  saying rather than hiding. */
+  field: { label: string; value: string; verdict: string }[] | null;
+};
+
+export type SecurityResult = {
+  ok: true;
+  /** Mozilla's letter grade, A+ through F. */
+  grade: string;
+  score: number;
+  passed: number;
+  total: number;
+  detailsUrl: string;
+};
+
+export type DomainResult = {
+  ok: true;
+  registered: string;
+  ageYears: number;
+};
+
+export type DeepChecks = {
+  pagespeed: PagespeedResult | DeepFailure;
+  security: SecurityResult | DeepFailure;
+  domain: DomainResult | DeepFailure;
+};
+
+/** A hostname we are willing to put in someone else's query string. Deliberately
+ *  strict: letters, digits, hyphens and dots, with a dot in it and no scheme,
+ *  port, path, credentials or whitespace. */
+export function safeHostname(input: string): string | null {
+  const host = input.trim().toLowerCase();
+  if (host.length === 0 || host.length > 253) return null;
+  if (!/^[a-z0-9.-]+$/.test(host)) return null;
+  if (!host.includes(".") || host.startsWith(".") || host.endsWith(".")) return null;
+  if (host.includes("..")) return null;
+  return host;
+}
+
+async function getJson(
+  url: string,
+  timeoutMs: number,
+  init?: RequestInit,
+): Promise<unknown> {
+  const response = await fetch(url, {
+    ...init,
+    signal: AbortSignal.timeout(timeoutMs),
+    headers: { accept: "application/json", ...(init?.headers ?? {}) },
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    throw new Error(`upstream answered ${response.status}`);
+  }
+  return response.json();
+}
+
+/* ---------------------------------------------------------------- pagespeed */
+
+type PsiAudit = { displayValue?: unknown; title?: unknown };
+
+/** The five lab metrics worth showing, in the order Lighthouse reports them. */
+const PSI_METRIC_KEYS = [
+  "first-contentful-paint",
+  "largest-contentful-paint",
+  "total-blocking-time",
+  "cumulative-layout-shift",
+  "speed-index",
+] as const;
+
+const FIELD_LABELS: Record<string, string> = {
+  LARGEST_CONTENTFUL_PAINT_MS: "Largest contentful paint",
+  INTERACTION_TO_NEXT_PAINT: "Interaction to next paint",
+  CUMULATIVE_LAYOUT_SHIFT_SCORE: "Cumulative layout shift",
+};
+
+const FIELD_VERDICTS: Record<string, string> = {
+  FAST: "good",
+  AVERAGE: "needs improvement",
+  SLOW: "poor",
+};
+
+export async function fetchPagespeed(
+  host: string,
+  apiKey: string | undefined,
+): Promise<PagespeedResult | DeepFailure> {
+  /* Stated plainly rather than silently skipped: without a key Google answers
+   * 429 on the first request from a shared address, which would surface as a
+   * mysterious upstream error. */
+  if (!apiKey) {
+    return {
+      ok: false,
+      reason:
+        "PageSpeed isn't configured on this deployment, so we didn't ask Google.",
+    };
+  }
+
+  try {
+    const url =
+      `${PSI_ENDPOINT}?url=${encodeURIComponent(`https://${host}`)}` +
+      `&strategy=mobile&category=performance&key=${encodeURIComponent(apiKey)}`;
+    const data = (await getJson(url, PSI_TIMEOUT_MS)) as {
+      lighthouseResult?: {
+        categories?: { performance?: { score?: unknown } };
+        audits?: Record<string, PsiAudit>;
+      };
+      loadingExperience?: {
+        metrics?: Record<string, { category?: unknown }>;
+      };
+    };
+
+    const raw = data.lighthouseResult?.categories?.performance?.score;
+    /* A missing or non-numeric score is a failure, not a zero. Rendering 0/100
+     * because a field was absent would be inventing the worst possible result
+     * for someone's site. */
+    if (typeof raw !== "number" || !Number.isFinite(raw)) {
+      return { ok: false, reason: "Google answered, but without a score we could read." };
+    }
+
+    const audits = data.lighthouseResult?.audits ?? {};
+    const metrics = PSI_METRIC_KEYS.flatMap((key) => {
+      const entry = audits[key];
+      const label = typeof entry?.title === "string" ? entry.title : null;
+      const value = typeof entry?.displayValue === "string" ? entry.displayValue : null;
+      /* Only metrics that arrived complete are shown. A row with a label and a
+       * blank value looks like the page is broken. */
+      return label && value ? [{ label, value }] : [];
+    });
+
+    const fieldMetrics = data.loadingExperience?.metrics ?? {};
+    const field = Object.entries(fieldMetrics).flatMap(([key, entry]) => {
+      const label = FIELD_LABELS[key];
+      const category = typeof entry?.category === "string" ? entry.category : null;
+      const verdict = category ? FIELD_VERDICTS[category] : null;
+      return label && verdict ? [{ label, value: category!, verdict }] : [];
+    });
+
+    return {
+      ok: true,
+      score: Math.round(raw * 100),
+      strategy: "mobile",
+      metrics,
+      field: field.length > 0 ? field : null,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason:
+        error instanceof Error && error.name === "TimeoutError"
+          ? "Google took longer than a minute and we stopped waiting."
+          : "Google couldn't be reached for this one.",
+    };
+  }
+}
+
+/* -------------------------------------------------------------- observatory */
+
+export async function fetchSecurityGrade(
+  host: string,
+): Promise<SecurityResult | DeepFailure> {
+  try {
+    const data = (await getJson(
+      `${OBSERVATORY_ENDPOINT}?host=${encodeURIComponent(host)}`,
+      FAST_TIMEOUT_MS,
+      { method: "POST" },
+    )) as {
+      grade?: unknown;
+      score?: unknown;
+      tests_passed?: unknown;
+      tests_quantity?: unknown;
+      details_url?: unknown;
+      error?: unknown;
+    };
+
+    if (typeof data.error === "string" && data.error) {
+      return { ok: false, reason: `Mozilla couldn't scan that host: ${data.error}` };
+    }
+    /* A null grade is what Observatory returns for a host it could not reach.
+     * That is a real answer about their site, but it is not a grade, and
+     * printing "null" or defaulting to F would be inventing one. */
+    if (typeof data.grade !== "string" || typeof data.score !== "number") {
+      return { ok: false, reason: "Mozilla answered, but without a grade we could read." };
+    }
+
+    return {
+      ok: true,
+      grade: data.grade,
+      score: data.score,
+      passed: typeof data.tests_passed === "number" ? data.tests_passed : 0,
+      total: typeof data.tests_quantity === "number" ? data.tests_quantity : 0,
+      detailsUrl:
+        typeof data.details_url === "string"
+          ? data.details_url
+          : `https://developer.mozilla.org/en-US/observatory/analyze?host=${encodeURIComponent(host)}`,
+    };
+  } catch {
+    return { ok: false, reason: "Mozilla's scanner couldn't be reached for this one." };
+  }
+}
+
+/* --------------------------------------------------------------------- rdap */
+
+export async function fetchDomainAge(
+  host: string,
+): Promise<DomainResult | DeepFailure> {
+  /* RDAP answers for a registrable domain, not for a subdomain — asking it
+   * about www.example.co.uk gets a 404. Two labels is right far more often
+   * than not; the well-known exceptions (co.uk, com.au) need three, and rather
+   * than ship a public-suffix list for one line of output we try the obvious
+   * candidates and take the first that answers. */
+  const labels = host.split(".");
+  const candidates =
+    labels.length <= 2
+      ? [host]
+      : [labels.slice(-2).join("."), labels.slice(-3).join(".")];
+
+  for (const candidate of candidates) {
+    try {
+      const data = (await getJson(
+        `${RDAP_ENDPOINT}/${encodeURIComponent(candidate)}`,
+        FAST_TIMEOUT_MS,
+      )) as { events?: { eventAction?: unknown; eventDate?: unknown }[] };
+
+      const registration = data.events?.find(
+        (e) => e.eventAction === "registration",
+      );
+      const date =
+        typeof registration?.eventDate === "string" ? registration.eventDate : null;
+      if (!date) continue;
+
+      const registered = new Date(date);
+      if (Number.isNaN(registered.getTime())) continue;
+
+      const years = (Date.now() - registered.getTime()) / (365.25 * 24 * 3600 * 1000);
+      return {
+        ok: true,
+        registered: registered.toISOString().slice(0, 10),
+        ageYears: Math.round(years * 10) / 10,
+      };
+    } catch {
+      /* Try the next candidate; a 404 here usually means we guessed the
+       * registrable domain wrong, not that the domain has no record. */
+    }
+  }
+
+  return { ok: false, reason: "No registration date was published for that domain." };
+}
+
+/* ------------------------------------------------------------- orchestrator */
+
+/**
+ * All three, in parallel, each reporting its own success or failure.
+ *
+ * Deliberately NOT Promise.all-with-rejection: one slow registry must not
+ * discard a Lighthouse run that took forty seconds to earn. Each fetcher
+ * already resolves to a failure object rather than throwing, so a partial
+ * result here means "these two answered and that one didn't", which is exactly
+ * what the page says.
+ */
+export async function runDeepChecks(
+  host: string,
+  apiKey: string | undefined,
+): Promise<DeepChecks> {
+  const [pagespeed, security, domain] = await Promise.all([
+    fetchPagespeed(host, apiKey),
+    fetchSecurityGrade(host),
+    fetchDomainAge(host),
+  ]);
+  return { pagespeed, security, domain };
+}
