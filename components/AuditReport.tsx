@@ -62,6 +62,85 @@ const statusIcon: Record<CheckStatus, LucideIcon> = {
   info: Info,
 };
 
+/**
+ * Where the score actually went, per group.
+ *
+ * "31 of 33" tells you there is a problem and not where it is. The list below
+ * answers that, but it is 34 rows long and you have to read all of it. Five
+ * bars sit between the two.
+ *
+ * FORM. Magnitude across five nominal categories, one series. So: a thin
+ * horizontal bar per group, direct-labelled. Explicitly not a donut (this is
+ * not part-to-whole), not one bar per status (that is four series where the
+ * story is one number), and not a value-ramp — the five groups have no natural
+ * order, so darker-where-worse would double-encode bar length as hue and burn
+ * the only free channel on information the bar already carries. One series,
+ * one colour, every bar.
+ *
+ * COLOUR. Indigo 600 on a Mist track. Not a new decision — Indigo 600 is
+ * already this report's "passed", so the bars inherit the meaning rather than
+ * inventing a second vocabulary. It also measures 4.01:1 against the track,
+ * clearing the 3:1 that non-text graphics need; Indigo 500, which the meta
+ * generator's meter uses on the same track, comes to 2.98 and would not.
+ *
+ * NO TOOLTIP, deliberately. A hover layer is the default for bar marks, but it
+ * exists to reveal values the marks cannot state. Every row here is already
+ * labelled with its own count, so a tooltip would repeat what is on screen —
+ * and a tooltip must never be the only way to read a value anyway.
+ *
+ * The denominator matches the headline score: checks that did not apply are
+ * excluded here exactly as they are there, or the group totals would sum to
+ * more than the score they are breaking down.
+ *
+ * THE VALUE COLUMN IS A FIXED WIDTH, NOT AUTO. With auto, "10 of 11" is wider
+ * than "9 of 9" and steals that width from the 1fr track beside it — so the
+ * bars get drawn on tracks of different lengths, and comparing them across rows
+ * silently compares them against different baselines. A magnitude chart whose
+ * baseline moves per row is worse than no chart. Nothing in the markup hints at
+ * it; it was caught by looking at the render.
+ */
+function GroupBreakdown({ result }: { result: AuditResult }) {
+  const rows = CHECK_GROUPS.map((group) => {
+    const counted = result.checks.filter(
+      (c) => c.group === group && c.status !== "info",
+    );
+    return {
+      group,
+      passed: counted.filter((c) => c.status === "pass").length,
+      total: counted.length,
+    };
+  }).filter((r) => r.total > 0);
+
+  if (rows.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <p className="text-eyebrow uppercase text-indigo-600">Where it went</p>
+      <ul className="mt-4 space-y-3">
+        {rows.map(({ group, passed, total }) => (
+          <li key={group} className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 sm:grid-cols-[11rem_1fr_4.5rem]">
+            <span className="text-small text-ink sm:order-1">{group}</span>
+            {/* The value sits OUTSIDE the bar, never inside it: an in-bar label
+              * on a group that passed one of nine has nowhere to go. */}
+            <span className="justify-self-end text-small tabular-nums text-slate sm:order-3">
+              {passed} of {total}
+            </span>
+            <span
+              aria-hidden="true"
+              className="col-span-2 h-2 overflow-hidden rounded-full bg-mist sm:order-2 sm:col-span-1"
+            >
+              <span
+                className="block h-full rounded-full bg-indigo-600"
+                style={{ width: `${Math.round((passed / total) * 100)}%` }}
+              />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /** The row's status marker. A component rather than a lookup at the call site
  *  so the row map stays a concise arrow — the alternative was wrapping 45 lines
  *  of JSX in a block body to hold one `const`, which is a large diff for no
@@ -105,7 +184,11 @@ export default function AuditReport({ result }: { result: AuditResult }) {
        * meaningless without knowing whose eighteen. */}
       <div className="border-b-[1.5px] border-ink pb-8">
         <p className="text-eyebrow uppercase text-indigo-600">The result</p>
-        <p className="mt-3 text-h1 font-bold tabular-nums text-ink">
+        {/* Proportional figures, NOT tabular-nums. Equal-width digits exist to
+          * make numbers line up in a column; on a standalone display figure
+          * they just make "31" sit loose. The per-group counts below DO align
+          * vertically, so those keep tabular-nums — same rule, opposite answer. */}
+        <p className="mt-3 text-h1 font-bold text-ink">
           {result.score.passed} of {result.score.total}
           <span className="ml-3 text-h3 font-medium text-slate">checks passed</span>
         </p>
@@ -147,6 +230,7 @@ export default function AuditReport({ result }: { result: AuditResult }) {
               </>
             )}
         </p>
+        <GroupBreakdown result={result} />
       </div>
 
       {CHECK_GROUPS.map((group) => {
