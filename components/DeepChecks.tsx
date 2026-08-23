@@ -247,9 +247,17 @@ function PagespeedBody({ result }: { result: PagespeedResult }) {
               </div>
             ))}
           </dl>
+          {/* NOT "the time each one would save". Google's displayValue for
+            * these is whatever unit suits the audit — KiB for unused
+            * JavaScript, seconds for a render-blocking request — while the
+            * ordering below uses its millisecond estimate. Describing a figure
+            * reading "27 KiB" as a time is the kind of small wrongness a
+            * reader spots immediately and then distrusts the rest for. */}
           <p className="mt-3 text-small text-slate">
-            Google&apos;s estimate of the time each one would save. Estimates, not
-            promises — but they are ordered by how much they cost you.
+            Google&apos;s estimate of what each one would save, in whichever unit
+            it measures that audit. Estimates, not promises — and ordered by how
+            much load time each is costing, which is not always the same as the
+            size shown.
           </p>
         </div>
       )}
