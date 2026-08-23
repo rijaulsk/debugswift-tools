@@ -159,9 +159,15 @@ export default function AuditForm() {
           </button>
         </div>
 
+        {/* The third-party disclosure lives HERE, before the address is
+          * submitted, because the deeper checks now run automatically rather
+          * than behind their own button. Losing the click must not mean losing
+          * the sentence — this is the last moment a visitor can decide not to
+          * hand their address to Google. */}
         <p className="mt-3 text-small text-slate">
-          Any public page. It takes a few seconds — we&apos;re waiting on the
-          site, same as a visitor would.
+          Any public page. Our own checks take a few seconds; we then ask Google,
+          Mozilla and the domain registry about it too, which takes up to a
+          minute more. The address you type is the only thing they receive.
         </p>
       </form>
 

@@ -18,13 +18,19 @@ export const dynamic = "force-dynamic";
  * 10s abort always fires first (verified in production). */
 export const maxDuration = 90;
 
-/* Tighter than the audit's twelve, and for a different reason. The audit's
- * limit is about how hard one person can point our server at someone else's.
- * This one is about a shared, finite allowance: PageSpeed's quota belongs to
- * the deployment's key, not to the caller, so one enthusiastic visitor spends
- * everybody's. Six in ten minutes is enough to check a site and its staging
- * copy, and not enough to drain a day's quota. */
-const LIMIT = { limit: 6, windowMs: 10 * 60 * 1000 };
+/* MATCHED TO THE AUDIT'S TWELVE, and it has to be.
+ *
+ * This was six while the deeper checks sat behind their own button — a
+ * deliberate choice, because PageSpeed's quota belongs to the deployment's key
+ * rather than the caller, so one enthusiastic visitor spends everybody's.
+ *
+ * Now they run automatically with every audit, one call each, so a lower limit
+ * here would mean the seventh audit in a window still scored 34 checks while
+ * its deeper half silently 429'd — the same page behaving two different ways
+ * for no reason the visitor could see. Two limits on one action is one limit
+ * too many. Google's own allowance is 25,000 a day, which this is nowhere near.
+ */
+const LIMIT = { limit: 12, windowMs: 10 * 60 * 1000 };
 
 type DeepError = { error: string; hint?: string };
 

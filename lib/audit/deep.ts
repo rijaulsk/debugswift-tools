@@ -45,10 +45,21 @@ export type DeepFailure = { ok: false; reason: string };
 export type PagespeedResult = {
   ok: true;
   /** Lighthouse performance category, 0–100. Google's number, LAB data. */
-  score: number;
+  /** All four Lighthouse categories, 0–100, in Google's own order.
+   *
+   *  Performance alone was the first version and it was a thin reading of a
+   *  report Google had already produced in full: Lighthouse runs every audit
+   *  regardless, so asking for one category threw three away for no saving.
+   *  Accessibility in particular is the one a small business is most likely to
+   *  be failing and least likely to have heard of. */
+  scores: { id: string; label: string; score: number }[];
   strategy: "mobile";
   /** Lab metrics, as Google formats them for display. */
   metrics: { label: string; value: string }[];
+  /** The specific things costing the most load time, biggest first — Google's
+   *  own "opportunity" audits with an estimated saving attached. This is the
+   *  part that turns a score into something actionable. */
+  opportunities: { label: string; saving: string }[];
   /** Real-user data from the Chrome UX Report, when Google has enough traffic
    *  for this origin to report it. Absent is normal and is NOT a failure — it
    *  means the site is too quiet to have field data, which is itself worth
@@ -119,7 +130,22 @@ async function getJson(
 
 /* ---------------------------------------------------------------- pagespeed */
 
-type PsiAudit = { displayValue?: unknown; title?: unknown };
+type PsiAudit = {
+  displayValue?: unknown;
+  title?: unknown;
+  score?: unknown;
+  details?: { type?: unknown; overallSavingsMs?: unknown };
+};
+
+/** The four Lighthouse categories, in Google's own order. Requesting all four
+ *  costs nothing extra — Lighthouse runs every audit either way, so asking for
+ *  one was throwing three away. */
+const PSI_CATEGORIES = [
+  ["performance", "Performance"],
+  ["accessibility", "Accessibility"],
+  ["best-practices", "Best practices"],
+  ["seo", "SEO"],
+] as const;
 
 /** The five lab metrics worth showing, in the order Lighthouse reports them. */
 const PSI_METRIC_KEYS = [
@@ -158,12 +184,13 @@ export async function fetchPagespeed(
   }
 
   try {
+    const categoryParams = PSI_CATEGORIES.map(([id]) => `&category=${id}`).join("");
     const url =
       `${PSI_ENDPOINT}?url=${encodeURIComponent(`https://${host}`)}` +
-      `&strategy=mobile&category=performance&key=${encodeURIComponent(apiKey)}`;
+      `&strategy=mobile${categoryParams}&key=${encodeURIComponent(apiKey)}`;
     const data = (await getJson(url, PSI_TIMEOUT_MS)) as {
       lighthouseResult?: {
-        categories?: { performance?: { score?: unknown } };
+        categories?: Record<string, { score?: unknown }>;
         audits?: Record<string, PsiAudit>;
       };
       loadingExperience?: {
@@ -171,11 +198,19 @@ export async function fetchPagespeed(
       };
     };
 
-    const raw = data.lighthouseResult?.categories?.performance?.score;
-    /* A missing or non-numeric score is a failure, not a zero. Rendering 0/100
-     * because a field was absent would be inventing the worst possible result
-     * for someone's site. */
-    if (typeof raw !== "number" || !Number.isFinite(raw)) {
+    const categories = data.lighthouseResult?.categories ?? {};
+    /* Only categories that came back with a real number. A category Google
+     * declined to score is dropped rather than shown as zero — rendering 0/100
+     * because a field was absent would invent the worst possible result for
+     * someone's site. */
+    const scores = PSI_CATEGORIES.flatMap(([id, label]) => {
+      const raw = categories[id]?.score;
+      return typeof raw === "number" && Number.isFinite(raw)
+        ? [{ id, label, score: Math.round(raw * 100) }]
+        : [];
+    });
+
+    if (scores.length === 0) {
       return { ok: false, reason: "Google answered, but without a score we could read." };
     }
 
@@ -189,6 +224,32 @@ export async function fetchPagespeed(
       return label && value ? [{ label, value }] : [];
     });
 
+    /* The specific things costing load time, biggest first.
+     *
+     * Lighthouse marks these audits `details.type === "opportunity"` and
+     * attaches an estimated saving in milliseconds. A score tells someone their
+     * page is slow; this tells them which image, script or stylesheet is doing
+     * it — which is the difference between a number and an instruction.
+     *
+     * Filtered to audits that actually failed AND have a saving worth acting
+     * on. Google emits opportunities with a 0ms saving; listing those pads the
+     * report with work that would change nothing. */
+    const opportunities = Object.values(audits)
+      .flatMap((entry) => {
+        if (entry?.details?.type !== "opportunity") return [];
+        const savingMs = entry.details.overallSavingsMs;
+        const label = typeof entry.title === "string" ? entry.title : null;
+        const value = typeof entry.displayValue === "string" ? entry.displayValue : null;
+        const scored = typeof entry.score === "number" ? entry.score : 1;
+        if (!label || typeof savingMs !== "number" || savingMs < 100 || scored >= 0.9) {
+          return [];
+        }
+        return [{ label, saving: value ?? `${(savingMs / 1000).toFixed(1)} s`, savingMs }];
+      })
+      .sort((a, b) => b.savingMs - a.savingMs)
+      .slice(0, 5)
+      .map(({ label, saving }) => ({ label, saving }));
+
     const fieldMetrics = data.loadingExperience?.metrics ?? {};
     const field = Object.entries(fieldMetrics).flatMap(([key, entry]) => {
       const label = FIELD_LABELS[key];
@@ -199,9 +260,10 @@ export async function fetchPagespeed(
 
     return {
       ok: true,
-      score: Math.round(raw * 100),
+      scores,
       strategy: "mobile",
       metrics,
+      opportunities,
       field: field.length > 0 ? field : null,
     };
   } catch (error) {
