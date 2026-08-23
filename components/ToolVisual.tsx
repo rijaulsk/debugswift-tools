@@ -3,6 +3,7 @@ import {
   Check,
   ClipboardList,
   ImageDown,
+  MailCheck,
   Minus,
   Palette as PaletteIcon,
   QrCode,
@@ -375,6 +376,46 @@ function SchemaCard() {
   );
 }
 
+/* The four records, as a mail server reads them — email deliverability. One is
+ * missing on purpose: a figure where everything passes illustrates a tool
+ * nobody would need to run. */
+function MailRecords() {
+  const rows = [
+    ["SPF", "v=spf1 …", true],
+    ["DKIM", "selector1._domainkey", true],
+    ["DMARC", "not published", false],
+    ["MX", "2 servers", true],
+  ] as const;
+  return (
+    <div className={frame}>
+      <div className={bar}>
+        <Caption>What a mail server checks</Caption>
+      </div>
+      <ul className="divide-y-[1.5px] divide-mist">
+        {rows.map(([name, value, present]) => (
+          <li key={name} className="flex items-center justify-between gap-4 px-5 py-3.5">
+            <span className="w-14 shrink-0 text-small font-medium text-ink">{name}</span>
+            <span className="min-w-0 flex-1 truncate text-[13px] text-slate">{value}</span>
+            {present ? (
+              <Check
+                size={18}
+                strokeWidth={2}
+                aria-hidden="true"
+                className="shrink-0 text-indigo-600"
+              />
+            ) : (
+              <span className="shrink-0 text-[13px] font-medium text-ink">missing</span>
+            )}
+          </li>
+        ))}
+      </ul>
+      <p className="border-t-[1.5px] border-mist px-5 py-3.5 text-[13px] text-slate">
+        No bounce, no error — mail just stops arriving.
+      </p>
+    </div>
+  );
+}
+
 /* The hub card's glyph, keyed off the same registry field as the artifact so a
  * tool cannot end up with one and not the other.
  *
@@ -392,6 +433,7 @@ const ICONS: Record<ArtifactKey, typeof Check> = {
   weight: ImageDown,
   brief: ClipboardList,
   schema: Braces,
+  email: MailCheck,
 };
 
 export function ToolIcon({
@@ -428,5 +470,7 @@ export default function ToolVisual({ artifact }: { artifact: ArtifactKey }) {
       return <BriefSheet />;
     case "schema":
       return <SchemaCard />;
+    case "email":
+      return <MailRecords />;
   }
 }

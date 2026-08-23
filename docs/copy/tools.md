@@ -565,6 +565,53 @@ older software and for anyone who needs maximum compatibility.
 
 ---
 
+## Email Deliverability Check — `/tools/email-deliverability`
+
+**DRAFT, added 23 Aug 2026, NOT owner-approved.** The ninth tool, and the first
+here that isn't about a web page.
+
+**Eyebrow:** Email Deliverability Check
+**H1:** Find out why your invoices land in spam.
+**Lede:** Four DNS records decide whether a mail server trusts email sent from
+your domain. When they're wrong there's no bounce and no error — the message
+just quietly doesn't arrive. This reads all four and tells you which one to fix.
+
+**Field label:** Which domain sends your email?
+**Under the field:** The domain on its own, or an email address at it. We read
+public DNS records — nothing is sent, and no mailbox is touched.
+**Button:** Check the records
+
+**Result headline** is "Nothing broken" or "N to fix" — deliberately not a score.
+**Under it:** *"There is no score here on purpose: deliverability isn't a
+number."* That line is load-bearing; every competitor grades this out of 100 and
+the number is meaningless.
+
+🚩 **THE DKIM ANSWER IS THE ONE MOST WORTH YOUR REVIEW**, because it is where
+this tool refuses to do what every other free checker does. DKIM keys live under
+a selector name the email provider chooses, and DNS gives no way to list what
+exists under a domain — so a checker can only guess at known selectors. Finding
+one proves it is there; NOT finding one proves nothing at all.
+
+Every free checker I know of reports that as "DKIM: FAIL". This reports it as
+**"Couldn't tell"**, with: *"This does NOT mean you have no DKIM — only that it
+isn't on a name we can guess."* The cost of the honest version is that our
+report looks less complete than theirs. The cost of the dishonest version is
+somebody paying to fix a thing that was never broken.
+
+**The SPF lookup limit is the differentiator and the copy should keep saying so:**
+*"Most free checkers count only your top-level includes and tell you you're fine.
+This one follows the tree."* Verified against real domains — salesforce.com
+resolves to 4, debugswift.com to 2 through two levels of Zoho includes.
+
+**On what a clean result does and doesn't promise:** *"These four records are the
+part that's mechanical and checkable — they decide whether you're allowed to be
+believed. Whether you're actually wanted also depends on your sending history…
+Getting the records right removes the excuse; it doesn't remove the judgement."*
+
+**Closing CTA title:** Email arriving is the floor, not the finish.
+
+---
+
 ## Project Scoper — `/tools/project-scoper`
 
 🚩 **OWNER DECISION NEEDED — read this section first.**

@@ -96,6 +96,8 @@ export const API = {
    * because it is slow and sends the address to third parties; see the header
    * of lib/audit/deep.ts. */
   deep: `${TOOLS_BASE}/api/deep`,
+  /* SPF / DKIM / DMARC / MX over public DNS. */
+  email: `${TOOLS_BASE}/api/email`,
 } as const;
 
 /* Tool destinations, as next/link wants them (no /tools prefix). */

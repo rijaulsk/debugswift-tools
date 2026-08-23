@@ -33,7 +33,8 @@ export type ArtifactKey =
   | "qr"
   | "weight"
   | "brief"
-  | "schema";
+  | "schema"
+  | "email";
 
 export type Tool = {
   /** URL segment. Lives at debugswift.com/tools/<slug>. Never rename a live
@@ -76,6 +77,20 @@ export const tools: Tool[] = [
     status: "live",
     relatedService: "seo-local-lead-gen",
     artifact: "schema",
+  },
+  {
+    /* Added 23 Aug 2026, and the first tool here that isn't about a web page.
+     * It earns its place on stakes: a business whose invoices land in spam has
+     * no bounce, no error and no dashboard telling them — the customer just
+     * says they never got it. Diagnosable entirely from public DNS, for free,
+     * which is exactly the shape of problem this agency says it exists to find. */
+    slug: "email-deliverability",
+    name: "Email Deliverability Check",
+    oneLiner:
+      "Checks the four DNS records that decide whether your email reaches an inbox or a spam folder.",
+    status: "live",
+    relatedService: "technical-consulting",
+    artifact: "email",
   },
   {
     slug: "meta-generator",
