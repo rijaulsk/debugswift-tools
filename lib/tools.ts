@@ -123,7 +123,7 @@ export const tools: Tool[] = [
     slug: "qr-generator",
     name: "QR Code Generator",
     oneLiner:
-      "Makes a vector QR code for a link, phone number or WhatsApp chat — with no redirect that can expire.",
+      "Makes a vector QR code for your Wi-Fi, a contact card, a link or a chat — with no redirect that can expire.",
     status: "live",
     relatedService: "conversion-websites",
     artifact: "qr",

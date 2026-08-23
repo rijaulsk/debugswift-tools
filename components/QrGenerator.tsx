@@ -4,6 +4,7 @@ import { useId, useMemo, useState } from "react";
 import { useParam } from "@/lib/params";
 import { checkScannability } from "@/lib/qr/contrast";
 import { encodeQr, QrError, toSvg, type EccLevel } from "@/lib/qr/encode";
+import { actionFor, payloadFor, type Kind, type Values } from "@/lib/qr/payload";
 
 /* The QR tool.
  *
@@ -16,28 +17,119 @@ import { encodeQr, QrError, toSvg, type EccLevel } from "@/lib/qr/encode";
  * offered too, because plenty of software still won't take an SVG.
  */
 
-type Kind = "link" | "phone" | "whatsapp" | "text";
+/* The kinds, each declaring its own fields.
+ *
+ * It was one text box and four kinds. WiFi and a contact card need several
+ * inputs each, so a kind now carries a field list and the form renders it —
+ * which is also what lets the hint sit per-field rather than per-kind, where a
+ * cold arrival needs it.
+ *
+ * WiFi is first after Link on purpose. "A QR for the café wifi" is the single
+ * most common reason a small business wants one, and it was the thing this tool
+ * could not do. */
+type Field = {
+  id: string;
+  label: string;
+  placeholder?: string;
+  hint?: string;
+  optional?: boolean;
+  /* A short list renders as a segmented control rather than a select — three
+   * options are faster to read than a dropdown that hides two of them. */
+  choices?: { value: string; label: string }[];
+  multiline?: boolean;
+};
 
-const KINDS: { id: Kind; label: string; hint: string; placeholder: string }[] = [
+const KINDS: { id: Kind; label: string; blurb: string; fields: Field[] }[] = [
   {
     id: "link",
     label: "Link",
-    hint: "A web address. Include https:// so every scanner opens it.",
-    placeholder: "https://example.com",
+    blurb: "Opens a web page.",
+    fields: [
+      {
+        id: "value",
+        label: "Web address",
+        placeholder: "example.com",
+        hint: "We'll add https:// if you leave it off — without a scheme, many scanners treat it as plain text and do nothing.",
+      },
+    ],
+  },
+  {
+    id: "wifi",
+    label: "Wi-Fi",
+    blurb: "Joins a network without anyone typing the password.",
+    fields: [
+      { id: "ssid", label: "Network name", placeholder: "Cafe Guest", hint: "Exactly as it appears in the phone's Wi-Fi list, including capitals." },
+      { id: "password", label: "Password", placeholder: "", optional: true, hint: "Leave blank for an open network. Symbols are fine — they're escaped for you." },
+      {
+        id: "security",
+        label: "Security",
+        choices: [
+          { value: "WPA", label: "WPA/WPA2/WPA3" },
+          { value: "WEP", label: "WEP" },
+        ],
+        hint: "WPA covers almost everything made this century.",
+      },
+      {
+        id: "hidden",
+        label: "Hidden network",
+        choices: [
+          { value: "no", label: "No" },
+          { value: "yes", label: "Yes" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "vcard",
+    label: "Contact card",
+    blurb: "Saves your details straight into their phone.",
+    fields: [
+      { id: "first", label: "First name", placeholder: "Rijaul" },
+      { id: "last", label: "Last name", placeholder: "Sk", optional: true },
+      { id: "org", label: "Business", placeholder: "DebugSwift", optional: true },
+      { id: "title", label: "Role", placeholder: "Founder", optional: true },
+      { id: "phone", label: "Phone", placeholder: "+91 85850 30894", optional: true },
+      { id: "email", label: "Email", placeholder: "hello@example.com", optional: true },
+      { id: "url", label: "Website", placeholder: "example.com", optional: true },
+    ],
   },
   {
     id: "phone",
     label: "Phone",
-    hint: "Scanning starts a call. Include the country code.",
-    placeholder: "+91 85850 30894",
+    blurb: "Starts a call.",
+    fields: [{ id: "value", label: "Number", placeholder: "+91 85850 30894", hint: "Include the country code." }],
   },
   {
     id: "whatsapp",
     label: "WhatsApp",
-    hint: "Opens a chat with you. Country code, digits only.",
-    placeholder: "918585030894",
+    blurb: "Opens a chat with you.",
+    fields: [{ id: "value", label: "Number", placeholder: "918585030894", hint: "Country code, digits only — no plus, no spaces." }],
   },
-  { id: "text", label: "Plain text", hint: "Anything else.", placeholder: "Back in 10 minutes" },
+  {
+    id: "email",
+    label: "Email",
+    blurb: "Starts an email, subject and all.",
+    fields: [
+      { id: "to", label: "To", placeholder: "hello@example.com" },
+      { id: "subject", label: "Subject", placeholder: "Quote request", optional: true },
+      { id: "body", label: "Message", placeholder: "Hi — I'd like a quote for…", optional: true, multiline: true },
+    ],
+  },
+  {
+    id: "sms",
+    label: "Text message",
+    blurb: "Opens a text, ready to send.",
+    fields: [
+      { id: "number", label: "Number", placeholder: "+91 85850 30894" },
+      { id: "message", label: "Message", placeholder: "BOOK", optional: true, multiline: true, hint: "Handy for a keyword people text to book or enquire." },
+    ],
+  },
+  {
+    id: "text",
+    label: "Plain text",
+    blurb: "Just shows words on the screen.",
+    fields: [{ id: "value", label: "Text", placeholder: "Back in 10 minutes", multiline: true }],
+  },
 ];
 
 const LEVELS: { id: EccLevel; label: string; note: string }[] = [
@@ -47,17 +139,9 @@ const LEVELS: { id: EccLevel; label: string; note: string }[] = [
   { id: "H", label: "Highest", note: "Densest. For rough surfaces, or if you'll cover part of it." },
 ];
 
-/** Turn the typed value into what actually gets encoded. */
-function payloadFor(kind: Kind, value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  if (kind === "phone") return `tel:${trimmed.replace(/[^\d+]/g, "")}`;
-  if (kind === "whatsapp") return `https://wa.me/${trimmed.replace(/\D/g, "")}`;
-  if (kind === "link" && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) {
-    return `https://${trimmed}`;
-  }
-  return trimmed;
-}
+/* payloadFor and actionFor now live in lib/qr/payload.ts — they are formats
+ * with escaping rules rather than string concatenation, and a WiFi password
+ * containing a semicolon silently corrupts a code that still scans perfectly. */
 
 export default function QrGenerator() {
   /* ?kind= and ?value= let the audit send someone here with the right tab
@@ -67,7 +151,18 @@ export default function QrGenerator() {
   const prefillValue = useParam("value", 500);
 
   const [kind, setKind] = useState<Kind>("link");
-  const [value, setValue] = useState("");
+  /* Values are kept per-kind rather than in one shared box, so switching tabs
+   * to compare doesn't destroy what was typed in the last one. */
+  const [values, setValues] = useState<Record<Kind, Values>>(() => ({
+    link: {},
+    wifi: { security: "WPA", hidden: "no" },
+    vcard: {},
+    phone: {},
+    whatsapp: {},
+    email: {},
+    sms: {},
+    text: {},
+  }));
   const [level, setLevel] = useState<EccLevel>("M");
   const inputId = useId();
 
@@ -77,15 +172,27 @@ export default function QrGenerator() {
   const [touched, setTouched] = useState(false);
   if (!touched && (prefillKind || prefillValue)) {
     setTouched(true);
-    if (KINDS.some((k) => k.id === prefillKind)) setKind(prefillKind as Kind);
-    if (prefillValue) setValue(prefillValue);
+    const target = KINDS.find((k) => k.id === prefillKind)?.id;
+    if (target) setKind(target);
+    if (prefillValue) {
+      /* The handoff sends one value, so it fills that kind's FIRST field —
+       * which is the identifying one in every kind. */
+      const k = target ?? "link";
+      const first = KINDS.find((x) => x.id === k)!.fields[0]!.id;
+      setValues((prev) => ({ ...prev, [k]: { ...prev[k], [first]: prefillValue } }));
+    }
   }
 
   const [dark, setDark] = useState("#000000");
   const [light, setLight] = useState("#ffffff");
 
   const active = KINDS.find((k) => k.id === kind)!;
-  const payload = payloadFor(kind, value);
+  const current = values[kind];
+  const payload = payloadFor(kind, current);
+  const action = actionFor(kind, current);
+
+  const setField = (field: string, next: string) =>
+    setValues((prev) => ({ ...prev, [kind]: { ...prev[kind], [field]: next } }));
   const scan = checkScannability(dark, light);
 
   const result = useMemo(() => {
@@ -156,22 +263,37 @@ export default function QrGenerator() {
       </fieldset>
 
       <div>
-        <label htmlFor={inputId} className="font-medium text-ink">
-          {active.label}
-        </label>
-        <p className="mt-1 text-small text-slate">{active.hint}</p>
-        <input
-          id={inputId}
-          type="text"
-          value={value}
-          placeholder={active.placeholder}
-          onChange={(e) => setValue(e.target.value)}
-          className="mt-3 w-full rounded-card border-[1.5px] border-ink bg-paper px-5 py-3 text-ink placeholder:text-slate"
-        />
-        {payload && payload !== value.trim() && (
-          <p className="mt-2 break-words text-small text-slate">
-            Encodes as <span className="text-ink">{payload}</span>
+        <p className="text-small text-slate">{active.blurb}</p>
+        <div className="mt-5 space-y-5">
+          {active.fields.map((field) => (
+            <FieldInput
+              key={`${kind}-${field.id}`}
+              idBase={`${inputId}-${kind}-${field.id}`}
+              field={field}
+              value={current[field.id] ?? ""}
+              onChange={(next) => setField(field.id, next)}
+            />
+          ))}
+        </div>
+
+        {/* What it DOES, in a sentence, above the raw payload. "WIFI:T:WPA;S:…"
+          * is the proof; it is not the answer to "did I get this right?" — and
+          * for a cold arrival it is the only line on the page that confirms the
+          * code will do what they meant. */}
+        {action && (
+          <p className="mt-5 rounded-card border-[1.5px] border-mist bg-cream px-4 py-3 text-small text-ink">
+            {action}
           </p>
+        )}
+        {payload && (
+          <details className="mt-3">
+            <summary className="cursor-pointer text-small text-slate">
+              What gets encoded
+            </summary>
+            <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-all rounded-card border-[1.5px] border-mist bg-cream p-3 text-[13px] text-ink">
+              {payload}
+            </pre>
+          </details>
         )}
       </div>
 
@@ -344,6 +466,80 @@ function ColourField({
           className="w-28 rounded-card border-[1.5px] border-ink bg-paper px-3 py-2 text-small text-ink"
         />
       </div>
+    </div>
+  );
+}
+
+/** One field of whichever kind is active — a text box, a textarea, or a
+ *  segmented control when the field has a short fixed set of answers. */
+function FieldInput({
+  idBase,
+  field,
+  value,
+  onChange,
+}: {
+  idBase: string;
+  field: Field;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  if (field.choices) {
+    return (
+      <fieldset className="border-0 p-0">
+        <legend className="text-small font-medium text-ink">{field.label}</legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {field.choices.map((choice) => {
+            const on = value === choice.value;
+            return (
+              <button
+                key={choice.value}
+                type="button"
+                aria-pressed={on}
+                onClick={() => onChange(choice.value)}
+                className={`rounded-full border-[1.5px] px-4 py-2 text-small font-medium transition duration-200 ease-out ${
+                  on ? "border-ink bg-ink text-cream" : "border-ink text-ink hover:bg-sand"
+                }`}
+              >
+                {choice.label}
+              </button>
+            );
+          })}
+        </div>
+        {field.hint && <p className="mt-2 text-small text-slate">{field.hint}</p>}
+      </fieldset>
+    );
+  }
+
+  const shared =
+    "mt-2 w-full rounded-card border-[1.5px] border-ink bg-paper px-5 py-3 text-ink placeholder:text-slate";
+
+  return (
+    <div>
+      <label htmlFor={idBase} className="text-small font-medium text-ink">
+        {field.label}
+        {field.optional && <span className="ml-2 font-normal text-slate">optional</span>}
+      </label>
+      {field.multiline ? (
+        <textarea
+          id={idBase}
+          rows={3}
+          value={value}
+          placeholder={field.placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          className={`${shared} resize-y`}
+        />
+      ) : (
+        <input
+          id={idBase}
+          type="text"
+          value={value}
+          placeholder={field.placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          spellCheck={false}
+          className={shared}
+        />
+      )}
+      {field.hint && <p className="mt-2 text-small text-slate">{field.hint}</p>}
     </div>
   );
 }
