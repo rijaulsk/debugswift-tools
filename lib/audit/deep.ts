@@ -90,6 +90,16 @@ export function safeHostname(input: string): string | null {
   return host;
 }
 
+/** Carries the upstream status so callers can tell "they said no" apart from
+ *  "we never got there". Quota exhaustion in particular is a real, actionable
+ *  answer and must not be reported as a network failure. */
+class UpstreamError extends Error {
+  constructor(readonly status: number) {
+    super(`upstream answered ${status}`);
+    this.name = "UpstreamError";
+  }
+}
+
 async function getJson(
   url: string,
   timeoutMs: number,
@@ -102,7 +112,7 @@ async function getJson(
     cache: "no-store",
   });
   if (!response.ok) {
-    throw new Error(`upstream answered ${response.status}`);
+    throw new UpstreamError(response.status);
   }
   return response.json();
 }
@@ -195,13 +205,23 @@ export async function fetchPagespeed(
       field: field.length > 0 ? field : null,
     };
   } catch (error) {
-    return {
-      ok: false,
-      reason:
-        error instanceof Error && error.name === "TimeoutError"
-          ? "Google took longer than a minute and we stopped waiting."
-          : "Google couldn't be reached for this one.",
-    };
+    if (error instanceof Error && error.name === "TimeoutError") {
+      return { ok: false, reason: "Google took longer than a minute and we stopped waiting." };
+    }
+    /* 429 is the predictable one and deserves saying plainly: the PageSpeed
+     * quota belongs to this deployment's key, so it is shared across everyone
+     * using the tool. Reporting that as "couldn't be reached" would send
+     * someone looking for a fault on their own site. */
+    if (error instanceof UpstreamError) {
+      return {
+        ok: false,
+        reason:
+          error.status === 429
+            ? "We've used up this tool's PageSpeed allowance for the moment. Worth trying again later — nothing is wrong with your site."
+            : `Google answered ${error.status} rather than a result.`,
+      };
+    }
+    return { ok: false, reason: "Google couldn't be reached for this one." };
   }
 }
 
@@ -245,7 +265,17 @@ export async function fetchSecurityGrade(
           ? data.details_url
           : `https://developer.mozilla.org/en-US/observatory/analyze?host=${encodeURIComponent(host)}`,
     };
-  } catch {
+  } catch (error) {
+    /* Same distinction as PageSpeed above: a status is Mozilla answering, and
+     * saying "couldn't be reached" would be wrong about whose end the problem
+     * is. Either way the message stays about OUR request — nothing here is
+     * allowed to imply a verdict on their site we did not receive. */
+    if (error instanceof UpstreamError) {
+      return {
+        ok: false,
+        reason: `Mozilla answered ${error.status} rather than a grade — often that just means the host wasn't reachable from their scanner.`,
+      };
+    }
     return { ok: false, reason: "Mozilla's scanner couldn't be reached for this one." };
   }
 }
@@ -266,36 +296,56 @@ export async function fetchDomainAge(
       ? [host]
       : [labels.slice(-2).join("."), labels.slice(-3).join(".")];
 
+  /* Whether ANY candidate got as far as a readable response.
+   *
+   * This distinction is the whole point and it was wrong in the first version:
+   * every failure reported "no registration date was published", which states a
+   * fact about someone's domain that we never established. rdap.org redirects
+   * to the real registry and that hop is measurably flaky from a datacentre —
+   * observed answering on one request and timing out on the next for the same
+   * domain. Telling someone their domain has no published registration date
+   * because our request wobbled is exactly the class of invented claim the rest
+   * of this file exists to prevent. */
+  let reached = false;
+
   for (const candidate of candidates) {
+    let data: { events?: { eventAction?: unknown; eventDate?: unknown }[] };
     try {
-      const data = (await getJson(
+      data = (await getJson(
         `${RDAP_ENDPOINT}/${encodeURIComponent(candidate)}`,
         FAST_TIMEOUT_MS,
-      )) as { events?: { eventAction?: unknown; eventDate?: unknown }[] };
-
-      const registration = data.events?.find(
-        (e) => e.eventAction === "registration",
-      );
-      const date =
-        typeof registration?.eventDate === "string" ? registration.eventDate : null;
-      if (!date) continue;
-
-      const registered = new Date(date);
-      if (Number.isNaN(registered.getTime())) continue;
-
-      const years = (Date.now() - registered.getTime()) / (365.25 * 24 * 3600 * 1000);
-      return {
-        ok: true,
-        registered: registered.toISOString().slice(0, 10),
-        ageYears: Math.round(years * 10) / 10,
-      };
+      )) as typeof data;
     } catch {
-      /* Try the next candidate; a 404 here usually means we guessed the
-       * registrable domain wrong, not that the domain has no record. */
+      /* Could not reach it, or it answered non-2xx. A 404 usually just means we
+       * guessed the registrable domain wrong, so try the next candidate — but
+       * do NOT record this as having reached a registry. */
+      continue;
     }
+
+    reached = true;
+
+    const registration = data.events?.find((e) => e.eventAction === "registration");
+    const date =
+      typeof registration?.eventDate === "string" ? registration.eventDate : null;
+    if (!date) continue;
+
+    const registered = new Date(date);
+    if (Number.isNaN(registered.getTime())) continue;
+
+    const years = (Date.now() - registered.getTime()) / (365.25 * 24 * 3600 * 1000);
+    return {
+      ok: true,
+      registered: registered.toISOString().slice(0, 10),
+      ageYears: Math.round(years * 10) / 10,
+    };
   }
 
-  return { ok: false, reason: "No registration date was published for that domain." };
+  return {
+    ok: false,
+    reason: reached
+      ? "The registry answered but published no registration date for that domain."
+      : "The domain registry didn't answer just now — that's about our request, not your domain.",
+  };
 }
 
 /* ------------------------------------------------------------- orchestrator */
