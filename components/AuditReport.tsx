@@ -141,6 +141,80 @@ function GroupBreakdown({ result }: { result: AuditResult }) {
   );
 }
 
+/**
+ * The headline, as four facts instead of a paragraph.
+ *
+ * The report opened with one big number and then 34 rows of prose, and reading
+ * it meant reading all of it — "31 of 33" says there is a problem and the next
+ * thing on screen is the first of thirty-four paragraphs. These four tiles are
+ * the shape DuctForge uses for a takeoff's bottom line, and they answer the
+ * questions a visitor actually has in the first three seconds: how much passed,
+ * how much is worth a look, how much genuinely needs fixing, and how quickly the
+ * page answered.
+ *
+ * NOT A CHART, deliberately. Four single values with no shared axis are a stat
+ * row; drawing them as bars would imply a comparison between "checks" and
+ * "milliseconds" that does not exist.
+ *
+ * Colour follows the report's existing status vocabulary — Indigo 600 passed,
+ * Ink worth a look, Clay 700 needs fixing — so this introduces no new meaning,
+ * and every tile is labelled in words with an icon beside it. That is the same
+ * rule the rows follow and the reason there is still no green and no red here;
+ * the long note at the top of this file has the argument.
+ *
+ * Zero counts still render. A tile that disappears when it hits zero makes the
+ * layout move between two audits of the same site, and "0 needs fixing" is the
+ * single most reassuring thing this report can say — hiding it throws that away.
+ */
+function SummaryTiles({ result }: { result: AuditResult }) {
+  const count = (s: CheckStatus) =>
+    result.checks.filter((c) => c.status === s).length;
+
+  const tiles: { status: CheckStatus; value: string; sub: string }[] = [
+    {
+      status: "pass",
+      value: String(count("pass")),
+      sub: `of ${result.score.total} counted`,
+    },
+    { status: "warn", value: String(count("warn")), sub: "not urgent" },
+    { status: "fail", value: String(count("fail")), sub: "worth doing first" },
+  ];
+
+  return (
+    /* print:grid-cols-4 — A4 minus margins is ~741px, below the `lg` breakpoint,
+     * so on paper these wrapped to a 2x2 block and ate half a page. The screen
+     * breakpoint can't help: print width has nothing to do with viewport width. */
+    <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4 print:grid-cols-4 print:gap-x-4">
+      {tiles.map(({ status, value, sub }) => {
+        const Icon = statusIcon[status];
+        return (
+          <div key={status} className="print-keep">
+            <p
+              className={`flex items-center gap-1.5 text-eyebrow uppercase ${statusClass[status]}`}
+            >
+              <Icon size={16} strokeWidth={1.5} aria-hidden="true" />
+              {statusLabel[status]}
+            </p>
+            <p className="mt-2 text-h2 font-bold tabular-nums text-ink">{value}</p>
+            <p className="mt-1 text-small text-slate">{sub}</p>
+          </div>
+        );
+      })}
+      {/* The one measured value in the set, and it is labelled as one sample
+        * rather than "your site speed" — the same caveat the response-time
+        * check carries in its own row. */}
+      <div className="print-keep">
+        <p className="text-eyebrow uppercase text-indigo-600">First byte</p>
+        <p className="mt-2 text-h2 font-bold tabular-nums text-ink">
+          {(result.ttfbMs / 1000).toFixed(2)}
+          <span className="ml-1 text-small font-medium text-slate">s</span>
+        </p>
+        <p className="mt-1 text-small text-slate">one request, just now</p>
+      </div>
+    </div>
+  );
+}
+
 /** The row's status marker. A component rather than a lookup at the call site
  *  so the row map stays a concise arrow — the alternative was wrapping 45 lines
  *  of JSX in a block body to hold one `const`, which is a large diff for no
@@ -182,6 +256,31 @@ export default function AuditReport({ result }: { result: AuditResult }) {
       {/* Score. The numerals are the oversized display role; the caveat sits
        * directly under them rather than in a footnote, because "12 of 18" is
        * meaningless without knowing whose eighteen. */}
+      {/* PRINT-ONLY MASTHEAD. The site header is print:hidden — correct, a
+        * sticky nav is meaningless on paper — but that left the saved PDF with
+        * no title, no date and nothing naming what produced it. A report a
+        * visitor forwards to a client is the most durable thing this tool
+        * makes, and it was arriving anonymous and undated: the on-screen line
+        * below gives a time but not a day, which is fine on a page you are
+        * looking at and useless on one filed for a fortnight.
+        *
+        * The full date is here rather than added to the screen line because on
+        * screen "12:35" is obviously today; on paper nothing is. */}
+      <div className="mb-8 hidden items-baseline justify-between border-b-[1.5px] border-ink pb-4 print:flex">
+        <p className="font-bold text-ink">
+          Website audit
+          <span className="ml-2 font-normal text-slate">{result.finalUrl}</span>
+        </p>
+        <p className="text-small text-slate">
+          {checked.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}{" "}
+          · debugswift.com/tools
+        </p>
+      </div>
+
       <div className="border-b-[1.5px] border-ink pb-8">
         <p className="text-eyebrow uppercase text-indigo-600">The result</p>
         {/* Proportional figures, NOT tabular-nums. Equal-width digits exist to
@@ -230,16 +329,31 @@ export default function AuditReport({ result }: { result: AuditResult }) {
               </>
             )}
         </p>
+        <SummaryTiles result={result} />
         <GroupBreakdown result={result} />
       </div>
 
       {CHECK_GROUPS.map((group) => {
         const rows = result.checks.filter((c) => c.group === group);
         if (!rows.length) return null;
+        /* The group's own score, beside its name. Scrolling the ledger used to
+         * mean losing your place in the breakdown above; now each heading
+         * carries the number the bar chart drew. Counted the same way as the
+         * headline and the chart — "info" rows excluded — so the three can
+         * never disagree. */
+        const counted = rows.filter((c) => c.status !== "info");
+        const passed = counted.filter((c) => c.status === "pass").length;
 
         return (
           <section key={group} className="mt-10">
-            <h3 className="text-eyebrow uppercase text-indigo-600">{group}</h3>
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h3 className="text-eyebrow uppercase text-indigo-600">{group}</h3>
+              {counted.length > 0 && (
+                <p className="text-small tabular-nums text-slate">
+                  {passed} of {counted.length}
+                </p>
+              )}
+            </div>
             <ul className="mt-4 divide-y-[1.5px] divide-mist border-y-[1.5px] border-mist">
               {rows.map((check) => (
                 <li key={check.id} className="py-5">
@@ -266,15 +380,27 @@ export default function AuditReport({ result }: { result: AuditResult }) {
                     * carries the value across. next/link with an UNPREFIXED
                     * path: basePath adds the /tools. Hidden in print, where a
                     * link is just underlined text nobody can click. */}
+                  {/* In print the LINK goes but the offer stays. Hiding the
+                    * whole line lost the fact that a tool here already does
+                    * this job — the reader of a printed report is exactly the
+                    * person deciding what to act on, so telling them a fix
+                    * exists is worth more than the anchor they can't tap. */}
                   {check.fixWith && (
-                    <p className="mt-3 print:hidden">
-                      <Link
-                        href={toolHref(check.fixWith.slug, check.fixWith.params)}
-                        className="text-small font-medium text-indigo-600 underline-offset-4 transition-colors duration-200 ease-out hover:text-indigo-700 hover:underline"
-                      >
-                        {check.fixWith.label} →
-                      </Link>
-                    </p>
+                    <>
+                      <p className="mt-3 print:hidden">
+                        <Link
+                          href={toolHref(check.fixWith.slug, check.fixWith.params)}
+                          className="text-small font-medium text-indigo-600 underline-offset-4 transition-colors duration-200 ease-out hover:text-indigo-700 hover:underline"
+                        >
+                          {check.fixWith.label} →
+                        </Link>
+                      </p>
+                      <p className="mt-3 hidden text-small text-slate print:block">
+                        <span className="font-medium text-ink">Fix it with: </span>
+                        {check.fixWith.label} — debugswift.com/tools/
+                        {check.fixWith.slug}
+                      </p>
+                    </>
                   )}
                 </li>
               ))}

@@ -93,11 +93,22 @@ export default function DeepChecks({ host }: { host: string }) {
   }, [host]);
 
   return (
-    <section className="mt-12 border-t-[1.5px] border-ink pt-8 print:hidden">
+    /* NOT print:hidden any more. This section carries Google's field
+     * measurements, Mozilla's security grade and the domain's registration
+     * date — the three things in the whole report a client is most likely to
+     * ask about, and they were the one part the saved PDF dropped. That is what
+     * "the PDF doesn't contain every data" meant.
+     *
+     * Only the states that would print as nonsense are hidden: the spinner and
+     * the skeleton, below. A failure still prints, because a report that
+     * silently omits a section it promised is worse than one that says the
+     * check didn't get through. */
+    <section className="mt-12 border-t-[1.5px] border-ink pt-8">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
         <p className="text-eyebrow uppercase text-indigo-600">Deeper checks</p>
         {state.phase === "working" && (
-          <p className="inline-flex items-center gap-2 text-small text-slate">
+          /* A frozen spinner on paper is just a smudge. */
+          <p className="inline-flex items-center gap-2 text-small text-slate print:hidden">
             <Loader2
               size={16}
               strokeWidth={1.5}
@@ -105,6 +116,15 @@ export default function DeepChecks({ host }: { host: string }) {
               className="motion-safe:animate-spin"
             />
             Google is loading the page in a real browser — up to a minute.
+          </p>
+        )}
+        {state.phase === "working" && (
+          /* Print-only: says why the section is thin rather than leaving a
+           * heading over nothing. Someone who prints before these land should
+           * be told to wait, not left wondering what was cut. */
+          <p className="hidden text-small text-slate print:block">
+            These were still loading when this was saved — run the audit again
+            and give them a minute before printing.
           </p>
         )}
       </div>
@@ -122,7 +142,12 @@ export default function DeepChecks({ host }: { host: string }) {
       </p>
 
       <div className="mt-8" aria-live="polite">
-        {state.phase === "working" && <Skeleton />}
+        {/* The skeleton is a loading affordance; on paper it is grey boxes. */}
+        {state.phase === "working" && (
+          <div className="print:hidden">
+            <Skeleton />
+          </div>
+        )}
 
         {state.phase === "failed" && (
           <div className="rounded-card border-[1.5px] border-ink bg-paper p-6">

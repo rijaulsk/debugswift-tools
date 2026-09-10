@@ -1,3 +1,4 @@
+import { brotliCompressSync, gzipSync } from "node:zlib";
 import {
   fetchPage,
   FetchPageError,
@@ -146,6 +147,7 @@ export async function auditPage(input: string): Promise<AuditResult> {
     fetchedAt: new Date().toISOString(),
     ttfbMs: page.ttfbMs,
     htmlBytes: Buffer.byteLength(raw, "utf8"),
+    htmlTransferBytes: transferBytes(raw, page.headers.get("content-encoding")),
     checks,
     score: {
       passed: gradeable.filter((c) => c.status === OK).length,
@@ -809,8 +811,49 @@ function gettingInTouch({
 
 const TTFB_GOOD_MS = 1000;
 const TTFB_POOR_MS = 2500;
+/* HTML weight is judged on what CROSSES THE WIRE, not on the raw document.
+ *
+ * This check used to compare the decompressed HTML against 150 KB, which made
+ * it wrong about every modern framework. debugswift.com's own homepage measured
+ * 207 KB raw and got "worth a look" — but the server sends it brotli-compressed
+ * at 21 KB, so the visitor downloads a tenth of the number the tool was
+ * reporting. Telling someone to go on a diet based on a figure they never pay
+ * is how a tool loses trust: they open devtools, see 21 KB, and stop believing
+ * the other thirty-two checks too.
+ *
+ * `fetch` transparently decompresses, and content-length is usually absent on a
+ * chunked response, so the transferred size is re-derived here with node:zlib
+ * using the SAME algorithm the server said it used. That is an estimate of
+ * their encoder's output, not a promise of it, and the copy says "about".
+ *
+ * Raw size still matters and is still shown: the browser has to decompress and
+ * parse all of it, which costs main-thread time on a cheap phone. It is context
+ * now rather than the verdict. */
+const HTML_GOOD_TRANSFER_BYTES = 60_000;
+const HTML_POOR_TRANSFER_BYTES = 200_000;
+/* Only used when the server sends no compression at all — then raw IS the
+ * transfer size, and the separate "Text compression" check explains why. */
 const HTML_GOOD_BYTES = 150_000;
 const HTML_POOR_BYTES = 500_000;
+
+/** What this page would weigh over the wire, using the server's own encoding.
+ *  Returns null when we can't speak that algorithm, so the copy can fall back
+ *  to raw rather than invent a number. */
+function transferBytes(raw: string, encoding: string | null): number | null {
+  const body = Buffer.from(raw, "utf8");
+  try {
+    /* Only the two encodings that are actually deployed. `zstd` is appearing on
+     * some CDNs and node:zlib gained it recently, but guessing an encoder we
+     * cannot verify would be inventing the number this check exists to stop. */
+    if (encoding?.includes("br")) return brotliCompressSync(body).length;
+    if (encoding?.includes("gzip") || encoding?.includes("deflate")) {
+      return gzipSync(body, { level: 9 }).length;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
 const IMAGES_GOOD_BYTES = 500_000;
 const IMAGES_POOR_BYTES = 1_500_000;
 
@@ -844,8 +887,21 @@ function delivery({
 
   const ttfbStatus =
     page.ttfbMs <= TTFB_GOOD_MS ? OK : page.ttfbMs <= TTFB_POOR_MS ? "warn" : "fail";
+  /* Judged on the transferred size where the server compresses, on raw where it
+   * doesn't — see the note by the thresholds. */
+  const transferred = transferBytes(raw, encoding);
   const weightStatus =
-    bytes <= HTML_GOOD_BYTES ? OK : bytes <= HTML_POOR_BYTES ? "warn" : "fail";
+    transferred === null
+      ? bytes <= HTML_GOOD_BYTES
+        ? OK
+        : bytes <= HTML_POOR_BYTES
+          ? "warn"
+          : "fail"
+      : transferred <= HTML_GOOD_TRANSFER_BYTES
+        ? OK
+        : transferred <= HTML_POOR_TRANSFER_BYTES
+          ? "warn"
+          : "fail";
   const imageStatus =
     imageWeight.measured === 0
       ? "info"
@@ -1001,12 +1057,18 @@ function delivery({
       group: "Delivery",
       label: "HTML size",
       status: weightStatus,
-      found: `${kb(bytes)} of HTML${page.truncated ? " (we stopped reading at 2 MB)" : ""}. This is the document only — images, scripts and fonts are counted separately.`,
-      why: "The HTML has to arrive and be read before anything appears, so its size sets the floor for how fast the page can feel.",
+      found:
+        transferred === null
+          ? `${kb(bytes)} of HTML, sent uncompressed${page.truncated ? " (we stopped reading at 2 MB)" : ""}. This is the document only — images, scripts and fonts are counted separately.`
+          : `About ${kb(transferred)} over the wire, from ${kb(bytes)} of HTML${page.truncated ? " (we stopped reading at 2 MB)" : ""} — the server sends it ${encoding}-compressed. This is the document only; images, scripts and fonts are counted separately.`,
+      why: "The compressed size is what a visitor downloads; the full size is what their phone still has to unpack and read before anything appears.",
       ...(weightStatus === OK
         ? {}
         : {
-            fix: "Large HTML usually means a page builder emitting inline styles, or a whole catalogue rendered into one document.",
+            fix:
+              transferred === null
+                ? "Turn on compression first — that alone usually removes most of this. Past that, large HTML tends to mean a page builder emitting inline styles, or a whole catalogue rendered into one document."
+                : "Even compressed this is heavy. That usually means a page builder emitting inline styles, or a whole catalogue rendered into one document.",
           }),
     },
     {

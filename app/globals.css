@@ -323,6 +323,80 @@
     }
   }
 
+  /* TOOLS DIFFERENCE — the print stylesheet.
+   *
+   * Two tools here produce a document somebody keeps: the audit report and the
+   * quote builder. Both print through window.print() rather than a PDF library
+   * (see QuoteBuilder.tsx), and until now there were no @media print rules at
+   * all — only `print:hidden` on the page chrome. So the saved PDF came out
+   * with the browser's default margins, rows split across page breaks
+   * mid-sentence, and every chart bar blank, because browsers drop background
+   * colours when printing unless told not to.
+   *
+   * A report a visitor hands to a client is the most durable thing this tool
+   * makes. It gets the same care as the screen. */
+  @media print {
+    @page {
+      /* Default margins vary by browser and locale and are usually too small
+       * on one edge. A named size would force a paper the reader may not have,
+       * so only the margin is set. */
+      margin: 14mm;
+    }
+
+    html,
+    body {
+      background: #fff !important;
+    }
+
+    /* The grain layer is a fixed overlay: on paper a `position: fixed` element
+     * repeats on EVERY page, so a 3% noise texture would be stamped over all of
+     * them. It has no job in print. */
+    body::after {
+      display: none !important;
+    }
+
+    /* Chart bars, status chips, and the score tiles are all background fills.
+     * Without this they print as empty outlines and the group breakdown becomes
+     * five blank tracks. */
+    * {
+      print-color-adjust: exact;
+      -webkit-print-color-adjust: exact;
+    }
+
+    /* Nothing that carries meaning may be cut in half by a page break. A check
+     * row is a unit: marker, finding, why, and what to do belong together, and
+     * a row broken across a fold reads as two different findings. */
+    li,
+    figure,
+    blockquote,
+    .print-keep {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* A group heading stranded at the foot of a page is worse than a slightly
+     * short page. */
+    h1,
+    h2,
+    h3 {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    /* Sections start clean rather than one line down from the previous one. */
+    section {
+      break-inside: auto;
+    }
+
+    /* Links print as their text; a blue underline on paper is noise, and the
+     * href is meaningless once it can't be clicked. Handled per-component where
+     * the destination matters. */
+    a {
+      text-decoration: none !important;
+      color: inherit !important;
+    }
+  }
+
   /* Site-wide grain: one 3% texture layer over cream (§3) — never per-component. */
   body::after {
     content: "";

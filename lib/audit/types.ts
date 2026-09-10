@@ -53,6 +53,10 @@ export type AuditResult = {
    *  "your site speed". */
   ttfbMs: number;
   htmlBytes: number;
+  /** What the document weighs over the wire, re-derived with the server's own
+   *  content-encoding. Null when the server sends it uncompressed (then
+   *  `htmlBytes` IS the transfer size) or used an encoding we can't speak. */
+  htmlTransferBytes: number | null;
   checks: Check[];
   /** "X of Y checks passed". Both numbers are counted from `checks`, so the
    *  score can never disagree with the list underneath it — the list IS the
