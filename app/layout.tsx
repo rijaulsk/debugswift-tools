@@ -1,6 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import ReactDOM from "react-dom";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StickyMobileBar from "@/components/StickyMobileBar";
@@ -50,19 +50,25 @@ const siteJsonLd = {
 };
 
 /* Satoshi only — Inter is banned (design system §2). Variable woff2, 300–900.
- * Copied from E:\debugswift\public\fonts: /public is served by THIS deployment,
- * so the font cannot be borrowed from the main app across the proxy. */
-const satoshi = localFont({
-  src: [
-    {
-      path: "../public/fonts/Satoshi-Variable.woff2",
-      weight: "300 900",
-      style: "normal",
-    },
-  ],
-  variable: "--font-satoshi",
-  display: "swap",
-});
+ *
+ * This used to say the font could not be borrowed from the main app across the
+ * proxy, and kept its own next/font copy. That was only true of standalone dev.
+ * In production this app is served from debugswift.com, where /fonts/ belongs
+ * to the MAIN deployment and is not proxied — so an absolute path reaches it
+ * and all three apps finally share one URL and one cache entry, instead of
+ * re-downloading the same 41.6KB file and re-swapping the type on every hop.
+ *
+ * The @font-face lives in app/globals.css; next.config.ts rewrites /fonts/*
+ * back to this repo's own copy so standalone dev still works. */
+function preloadFont() {
+  /* ReactDOM.preload rather than a rendered <link>: React hoists the element
+   * and also emits it in the head preamble, so the tag comes out twice. */
+  ReactDOM.preload("/fonts/Satoshi-Variable.woff2", {
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  });
+}
 
 export const metadata: Metadata = {
   /* The canonical host is the MAIN domain, never the *.vercel.app origin this
@@ -109,12 +115,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  preloadFont();
   return (
-    <html
-      lang="en"
-      className={`${satoshi.variable} h-full antialiased`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="flex min-h-full flex-col font-sans" suppressHydrationWarning>
         <script
           type="application/ld+json"

@@ -149,6 +149,12 @@ Deb: three poses, no fourth, placed through `components/Deb.tsx` only.
 - `npm run dev -- -p 3002` — dev server, then open **`localhost:3002/tools`**
 - `npm run build` · `npm run lint` · `npm run typecheck`
 
+**Every commit is authored solely by Rijaul Sk.** No `Co-Authored-By: Claude`,
+no `Claude-Session:`, no Anthropic attribution of any kind — that trailer made
+GitHub render Claude as a second contributor, and the history was rewritten on
+21 Sep 2026 to strip it. Enforcement is `"includeCoAuthoredBy": false` in the
+global Claude settings; if a trailer reappears, that key was lost.
+
 ## Live since 22 August 2026
 
 `debugswift.com/tools` is proxied to this deployment. `TOOLS_ORIGIN` is set on

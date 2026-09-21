@@ -1,5 +1,43 @@
 @import "tailwindcss";
 
+/* SATOSHI, DECLARED BY HAND AND SHARED WITH THE OTHER TWO DEPLOYMENTS.
+ *
+ * This was `next/font/local` here, in the blog repo and in the main repo. All
+ * three hashed to the same filename, but each served it under its own prefix —
+ * /_next/…, /tools/_next/…, /blog/_next/… — so one byte-identical 41.6KB file
+ * occupied three cache entries and was downloaded again on every hop between
+ * the apps, re-swapping the type each time.
+ *
+ * In production /fonts/ is served by the APEX deployment and is not covered by
+ * its beforeFiles rewrites, so this absolute path resolves to the same URL and
+ * the same cache entry from every page of the estate. next.config.ts rewrites
+ * it back to this repo's own public/fonts copy for standalone dev, where the
+ * apex is not there to answer.
+ *
+ * The fallback metrics are next/font's own computed output, copied verbatim
+ * from the build this replaced — without them the Arial fallback re-flows the
+ * page when Satoshi lands. Do not round them.
+ *
+ * The filename is NOT content-hashed and the main app serves it immutable for
+ * a year. If the typeface is ever re-cut, ship it under a NEW filename, in all
+ * three repos at once. */
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 300 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Satoshi Fallback";
+  src: local("Arial");
+  ascent-override: 92.36%;
+  descent-override: 21.95%;
+  line-gap-override: 9.14%;
+  size-adjust: 109.35%;
+}
+
 /*
  * DebugSwift design tokens — single source of truth.
  * Every value below is copied verbatim from docs/design-system-v1-1.md §1–§3.
@@ -62,8 +100,11 @@
   --color-dark-surface: #1b1d29;
   --color-dark-raised: #272936;
 
-  /* Typography — Satoshi only (§2) */
-  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
+  /* Typography — Satoshi only (§2). The families are named directly rather
+   * than through a --font-satoshi variable, because that variable was set by
+   * next/font on <html>; the @font-face rules at the top of this file replaced
+   * it. "Satoshi Fallback" carries the metric overrides. */
+  --font-sans: "Satoshi", "Satoshi Fallback", ui-sans-serif, system-ui, sans-serif;
 
   --text-display: 4.5rem; /* 72px */
   --text-display--line-height: 4.75rem; /* 76px */
