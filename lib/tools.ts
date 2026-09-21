@@ -36,6 +36,20 @@ export type ArtifactKey =
   | "schema"
   | "email";
 
+/** What job the tool is for. Drives the filter chips on the hub and the group
+ *  headers in the main site's Tools dropdown. Nine flat entries scan as a wall;
+ *  four headed groups scan as a menu. */
+export type ToolGroup = "search" | "money" | "assets" | "diagnostics";
+
+/** Group labels, in display order. Lives here rather than in a component so the
+ *  hub and the three Headers cannot disagree about what a group is called. */
+export const toolGroups: { key: ToolGroup; label: string }[] = [
+  { key: "search", label: "Search & visibility" },
+  { key: "money", label: "Money & documents" },
+  { key: "assets", label: "Assets" },
+  { key: "diagnostics", label: "Diagnostics" },
+];
+
 export type Tool = {
   /** URL segment. Lives at debugswift.com/tools/<slug>. Never rename a live
    *  one — that discards whatever the page has earned. */
@@ -44,6 +58,11 @@ export type Tool = {
   /** Hub card line and the source of the page's meta description. One sentence,
    *  says what the tool DOES, never what it will do for your business. */
   oneLiner: string;
+  /** ≤35 characters. Feeds the dropdown column in all three Headers ONLY, where
+   *  it truncates rather than wraps — the same budget and the same reason as
+   *  Service.navLine in the main repo. Never a sentence. */
+  navLine: string;
+  group: ToolGroup;
   status: ToolStatus;
   /** Slug of the main-site service this tool feeds. Every tool page links to
    *  its service page — that internal link is half the point of the tools
@@ -61,6 +80,8 @@ export const tools: Tool[] = [
     name: "Website Audit",
     oneLiner:
       "Checks a page for the technical and on-page basics search engines and customers both rely on.",
+    navLine: "34 checks on one page",
+    group: "search",
     status: "live",
     relatedService: "seo-local-lead-gen",
     artifact: "audit",
@@ -74,6 +95,8 @@ export const tools: Tool[] = [
     name: "Schema Generator",
     oneLiner:
       "Writes the structured data that tells search engines your address, hours and phone number.",
+    navLine: "Structured data for local search",
+    group: "search",
     status: "live",
     relatedService: "seo-local-lead-gen",
     artifact: "schema",
@@ -88,6 +111,8 @@ export const tools: Tool[] = [
     name: "Email Deliverability Check",
     oneLiner:
       "Checks the four DNS records that decide whether your email reaches an inbox or a spam folder.",
+    navLine: "SPF, DKIM and DMARC over DNS",
+    group: "diagnostics",
     status: "live",
     relatedService: "technical-consulting",
     artifact: "email",
@@ -97,6 +122,8 @@ export const tools: Tool[] = [
     name: "Meta & Headline Generator",
     oneLiner:
       "Shows exactly where Google cuts your title tag — measured in pixels, not characters.",
+    navLine: "Where Google cuts your title",
+    group: "search",
     status: "live",
     relatedService: "seo-local-lead-gen",
     artifact: "serp",
@@ -106,6 +133,8 @@ export const tools: Tool[] = [
     name: "Quote & Invoice Generator",
     oneLiner:
       "Fills a clean, printable quote or invoice and saves it as a PDF from your browser.",
+    navLine: "A printable quote or invoice",
+    group: "money",
     status: "live",
     relatedService: "business-process-automation",
     artifact: "quote",
@@ -115,6 +144,8 @@ export const tools: Tool[] = [
     name: "Brand Kit Generator",
     oneLiner:
       "Turns one colour into a ten-step palette with contrast measured on every step, plus a type scale.",
+    navLine: "One colour into a full palette",
+    group: "assets",
     status: "live",
     relatedService: "brand-design-systems",
     artifact: "palette",
@@ -124,6 +155,8 @@ export const tools: Tool[] = [
     name: "QR Code Generator",
     oneLiner:
       "Makes a vector QR code for your Wi-Fi, a contact card, a link or a chat — with no redirect that can expire.",
+    navLine: "Vector QR with no redirect",
+    group: "assets",
     status: "live",
     relatedService: "conversion-websites",
     artifact: "qr",
@@ -133,6 +166,8 @@ export const tools: Tool[] = [
     name: "Image Compressor",
     oneLiner:
       "Shrinks photos on your own device so a page stops waiting on them. Nothing is uploaded.",
+    navLine: "Shrinks photos on your device",
+    group: "assets",
     status: "live",
     relatedService: "web-app-development",
     artifact: "weight",
@@ -155,6 +190,8 @@ export const tools: Tool[] = [
     name: "Project Scoper",
     oneLiner:
       "Turns a vague idea into a written brief, so three quotes are finally comparable.",
+    navLine: "A vague idea into a brief",
+    group: "money",
     status: "live",
     relatedService: "technical-consulting",
     artifact: "brief",

@@ -21,6 +21,101 @@ import { variantClasses } from "@/components/Button";
 import MainSiteLink from "@/components/MainSiteLink";
 import { MAIN, TOOLS } from "@/lib/links";
 import { services } from "@/lib/nav";
+import { liveTools, toolGroups } from "@/lib/tools";
+
+type MenuKey = "services" | "tools";
+
+/* A top-level nav item that is BOTH a real link and a disclosure.
+ *
+ * Extracted when Tools grew a panel, so there is one implementation of the
+ * behaviour in this file rather than two that slowly disagree. Everything
+ * subtle about it is deliberate and was already true of Services:
+ *
+ *  · The label is a real link, not a <button>. Making it a button is what put
+ *    /services behind a link buried inside its own dropdown, which is bad for a
+ *    page that is itself an ad destination. The caret is a SEPARATE control.
+ *  · h-6 w-6 on that caret: a bare glyph is a ~10px tap target and fails WCAG
+ *    target-size (2.5.8). The box is invisible; the hit area is not.
+ *  · The panel stays MOUNTED in both states so crawlers index its links.
+ *  · max-h: the panel hangs off a STICKY header, so anything it cannot fit is
+ *    unreachable. Capped to the space below the header, with internal scroll as
+ *    a last resort on very short viewports.
+ *
+ * `trigger` is passed in rather than built from an href, because in this repo
+ * Services is a MainSiteLink and Tools is a next/link, and which one a label
+ * needs is exactly the basePath trap this file exists to avoid. */
+function NavMenu({
+  trigger,
+  disclosureLabel,
+  width,
+  open,
+  onOpen,
+  children,
+}: {
+  trigger: React.ReactNode;
+  disclosureLabel: string;
+  width: string;
+  open: boolean;
+  onOpen: (open: boolean) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => onOpen(true)}
+      onMouseLeave={() => onOpen(false)}
+    >
+      <span className="flex items-center gap-1.5">
+        {trigger}
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-label={disclosureLabel}
+          onClick={() => onOpen(!open)}
+          className="-mr-1 flex h-6 w-6 items-center justify-center text-ink transition-colors duration-200 ease-out hover:text-indigo-600"
+        >
+          <span
+            aria-hidden="true"
+            className={`text-[10px] transition-transform duration-[250ms] ease-out ${
+              open ? "rotate-180" : ""
+            }`}
+          >
+            ▾
+          </span>
+        </button>
+      </span>
+      <div
+        className={`absolute left-1/2 top-full ${width} -translate-x-1/2 pt-4 transition-[opacity,translate] duration-[250ms] ease-out ${
+          open
+            ? "visible translate-y-0 opacity-100"
+            : "invisible translate-y-1 opacity-0"
+        }`}
+      >
+        <div className="max-h-[calc(100dvh-7rem)] overflow-y-auto rounded-card border-[1.5px] border-ink bg-paper p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const menuRowClass =
+  "group block rounded-lg px-3 py-2 transition-colors duration-200 ease-out hover:bg-indigo-50";
+
+/** The two lines inside a panel row. The row's LINK is supplied by the caller,
+ *  for the same MainSiteLink-versus-next/link reason as `trigger` above. */
+function MenuRowBody({ name, navLine }: { name: string; navLine: string }) {
+  return (
+    <>
+      <span className="font-medium text-ink group-hover:text-indigo-700">
+        {name}
+      </span>
+      <span className="mt-1 block truncate text-eyebrow font-normal tracking-normal text-slate">
+        {navLine}
+      </span>
+    </>
+  );
+}
 
 /* PORTED FROM E:\debugswift\components\Header.tsx via E:\debugswift-blog —
  * identical markup and styling, with exactly one structural change for this
@@ -49,30 +144,41 @@ import { services } from "@/lib/nav";
 
 type NavLink = { label: string; href: string; main: boolean };
 
-const primaryLinks: NavLink[] = [
+/* Services and Tools are NOT here — both carry a panel and are rendered by
+ * <NavMenu>, so the two disclosures cannot drift apart. */
+const linksBeforeTools: NavLink[] = [
   { label: "About", href: MAIN.about, main: true },
   { label: "Blog", href: MAIN.blog, main: true },
-  /* This repo IS the tools app. Tools → next/link "/" → renders /tools. */
-  { label: "Tools", href: TOOLS.home, main: false },
+];
+const linksAfterTools: NavLink[] = [
   { label: "Contact", href: MAIN.contact, main: true },
 ];
 
-/* Home · Services (dropdown) · About · Blog · Tools · Contact + a "Book a free
- * diagnosis" pill — SECONDARY (1.5px ink border), not clay: the header is
+/* Home · Services (panel) · About · Blog · Tools (panel) · Contact + a "Book a
+ * free diagnosis" pill — SECONDARY (1.5px ink border), not clay: the header is
  * sticky, so a clay pill here would ride over every page's own primary CTA and
  * blow the ≤2%-per-viewport clay ration. The mobile menu's pill IS clay, which
  * is fine — that panel is full-screen, so it's the only clay in the view.
- * The dropdown holds 12 rows: the Lead Engine featured row + all 11 services.
+ *
+ * TWO panels now, both through <NavMenu>. Tools reads straight from
+ * lib/tools.ts, which lives in this repo — the main site has to keep a
+ * hand-synced copy of it for the same panel, checked by its `npm run check:nav`.
+ * The Services panel holds 12 rows: the Lead Engine featured row + all 11 services.
  * The Lead Engine is a flagship fix, not a peer of the whole agency, so it
  * lives inside Services — as the panel's featured row, carrying the "Start
  * here" badge — not the top-level nav. The badge renders on that row only,
  * never also on the AI Automation grid item.
  * Sticky solid cream — no blur/transparency (glassmorphism stays banned). */
 export default function Header() {
-  const [servicesOpen, setServicesOpen] = useState(false);
+  /* ONE open menu at a time, rather than a boolean per panel. Two booleans
+   * would let a fast diagonal mouse leave both panels open at once. */
+  const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+
+  const setMenu = (key: MenuKey) => (open: boolean) =>
+    setOpenMenu(open ? key : null);
 
   /* Close everything on navigation — state adjusted during render, per
    * react.dev "You might not need an effect". Still correct under basePath:
@@ -81,7 +187,7 @@ export default function Header() {
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
-    setServicesOpen(false);
+    setOpenMenu(null);
     setMobileOpen(false);
   }
 
@@ -89,13 +195,13 @@ export default function Header() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setServicesOpen(false);
+        setOpenMenu(null);
         setMobileOpen(false);
       }
     };
     const onClick = (e: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
-        setServicesOpen(false);
+        setOpenMenu(null);
       }
     };
     document.addEventListener("keydown", onKey);
@@ -158,104 +264,132 @@ export default function Header() {
             <MainSiteLink href={MAIN.home} className={linkClass}>
               Home
             </MainSiteLink>
-            <div
-              className="relative"
-              onMouseEnter={() => setServicesOpen(true)}
-              onMouseLeave={() => setServicesOpen(false)}
-            >
-              {/* "Services" is a link with a separate disclosure control for the
-               * panel — /services is itself an ad destination and must be
-               * reachable without opening a dropdown first. */}
-              <span className="flex items-center gap-1.5">
+            <NavMenu
+              trigger={
                 <MainSiteLink href={MAIN.services} className={linkClass}>
                   Services
                 </MainSiteLink>
-                {/* h-6 w-6: a bare caret is a ~10px tap target and fails WCAG
-                 * target-size (2.5.8). The box is invisible; the hit area isn't. */}
-                <button
-                  type="button"
-                  aria-expanded={servicesOpen}
-                  aria-label="Show all services"
-                  onClick={() => setServicesOpen((v) => !v)}
-                  className="-mr-1 flex h-6 w-6 items-center justify-center text-ink transition-colors duration-200 ease-out hover:text-indigo-600"
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`text-[10px] transition-transform duration-[250ms] ease-out ${
-                      servicesOpen ? "rotate-180" : ""
-                    }`}
-                  >
-                    ▾
-                  </span>
-                </button>
-              </span>
-              {/* Panel stays mounted so crawlers index all 12 links (the Lead
-                * Engine featured row + 11 services). */}
-              <div
-                className={`absolute left-1/2 top-full w-[620px] -translate-x-1/2 pt-4 transition-[opacity,translate] duration-[250ms] ease-out ${
-                  servicesOpen
-                    ? "visible translate-y-0 opacity-100"
-                    : "invisible translate-y-1 opacity-0"
-                }`}
+              }
+              disclosureLabel="Show all services"
+              width="w-[620px]"
+              open={openMenu === "services"}
+              onOpen={setMenu("services")}
+            >
+              {/* Featured row — the product, above the service menu it belongs
+               * to. Full width so it reads as a tier of its own rather than a
+               * thirteenth service. */}
+              <MainSiteLink
+                href={MAIN.leadEngine}
+                className="group mb-3 block rounded-lg border-b-[1.5px] border-mist px-3 pb-3 pt-2 transition-colors duration-200 ease-out hover:bg-indigo-50"
               >
-                {/* max-h: the panel hangs from a STICKY header, so anything it
-                 * can't fit is unreachable. Capped to the space below the header
-                 * (73px bar + 16px pt-4 + breathing room) with internal scroll as
-                 * the last resort on very short viewports. */}
-                <div className="max-h-[calc(100dvh-7rem)] overflow-y-auto rounded-card border-[1.5px] border-ink bg-paper p-6">
-                  {/* Featured row — the product, above the service menu it
-                   * belongs to. Full width so it reads as a tier of its own
-                   * rather than a thirteenth service. */}
-                  <MainSiteLink
-                    href={MAIN.leadEngine}
-                    className="group mb-3 block rounded-lg border-b-[1.5px] border-mist px-3 pb-3 pt-2 transition-colors duration-200 ease-out hover:bg-indigo-50"
-                  >
-                    <span className="font-bold text-ink group-hover:text-indigo-700">
-                      The Lead Engine
-                      <span className="ml-2 whitespace-nowrap rounded-full bg-clay-100 px-2 py-0.5 text-eyebrow uppercase text-clay-900">
-                        Start here
-                      </span>
-                    </span>
-                    <span className="mt-0.5 block text-small text-slate">
-                      One channel, one leak, patched in 7 days.
-                    </span>
-                  </MainSiteLink>
-                  {/* navLine, NOT oneLiner — see lib/nav.ts for the character
-                   * budget. Two spacing rules do the grouping and must stay in
-                   * this relationship: the gap BETWEEN rows (py-2 both sides +
-                   * gap-y-1 = 20px) must dwarf the gap WITHIN a row (mt-1 = 4px).
-                   * The description also steps DOWN a size, borrowing the eyebrow
-                   * step's 13px/16px while cancelling that token's bundled weight
-                   * and tracking, which belong to the uppercase treatment. */}
-                  <ul className="grid grid-cols-2 gap-x-8 gap-y-1">
-                    {services.map(({ slug, name, navLine }) => (
-                      <li key={slug}>
-                        <MainSiteLink
-                          href={MAIN.service(slug)}
-                          className="group block rounded-lg px-3 py-2 transition-colors duration-200 ease-out hover:bg-indigo-50"
-                        >
-                          <span className="font-medium text-ink group-hover:text-indigo-700">
-                            {name}
-                          </span>
-                          <span className="mt-1 block truncate text-eyebrow font-normal tracking-normal text-slate">
-                            {navLine}
-                          </span>
-                        </MainSiteLink>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-4 border-t-[1.5px] border-mist pt-3">
+                <span className="font-bold text-ink group-hover:text-indigo-700">
+                  The Lead Engine
+                  <span className="ml-2 whitespace-nowrap rounded-full bg-clay-100 px-2 py-0.5 text-eyebrow uppercase text-clay-900">
+                    Start here
+                  </span>
+                </span>
+                <span className="mt-0.5 block text-small text-slate">
+                  One channel, one leak, patched in 7 days.
+                </span>
+              </MainSiteLink>
+              {/* navLine, NOT oneLiner — see lib/nav.ts for the character
+               * budget. Two spacing rules do the grouping and must stay in
+               * this relationship: the gap BETWEEN rows (py-2 both sides +
+               * gap-y-1 = 20px) must dwarf the gap WITHIN a row (mt-1 = 4px).
+               * The description also steps DOWN a size, borrowing the eyebrow
+               * step's 13px/16px while cancelling that token's bundled weight
+               * and tracking, which belong to the uppercase treatment. */}
+              <ul className="grid grid-cols-2 gap-x-8 gap-y-1">
+                {services.map(({ slug, name, navLine }) => (
+                  <li key={slug}>
                     <MainSiteLink
-                      href={MAIN.services}
-                      className="px-3 font-medium text-indigo-600 transition-colors duration-200 ease-out hover:text-indigo-700"
+                      href={MAIN.service(slug)}
+                      className={menuRowClass}
                     >
-                      All services →
+                      <MenuRowBody name={name} navLine={navLine} />
                     </MainSiteLink>
-                  </div>
-                </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-4 border-t-[1.5px] border-mist pt-3">
+                <MainSiteLink
+                  href={MAIN.services}
+                  className="px-3 font-medium text-indigo-600 transition-colors duration-200 ease-out hover:text-indigo-700"
+                >
+                  All services →
+                </MainSiteLink>
               </div>
-            </div>
-            {primaryLinks.map(({ label, href, main }) =>
+            </NavMenu>
+            {linksBeforeTools.map(({ label, href, main }) =>
+              main ? (
+                <MainSiteLink key={label} href={href} className={linkClass}>
+                  {label}
+                </MainSiteLink>
+              ) : (
+                <Link
+                  key={label}
+                  href={href}
+                  aria-current="page"
+                  className={activeClass}
+                >
+                  {label}
+                </Link>
+              ),
+            )}            {/* Tools had no panel at all: nine free tools sat behind a single
+             * word, findable only by opening this app's index and reading it.
+             * Grouped rather than flat — nine rows in one list scan as a wall,
+             * four headed groups scan as a menu.
+             *
+             * These are the only panel rows in this file that use next/link
+             * rather than MainSiteLink: the tools ARE this deployment, so
+             * basePath turning "/website-audit" into "/tools/website-audit" is
+             * exactly what is wanted here. */}
+            <NavMenu
+              trigger={
+                <Link href={TOOLS.home} className={linkClass}>
+                  Tools
+                </Link>
+              }
+              disclosureLabel="Show all tools"
+              width="w-[540px]"
+              open={openMenu === "tools"}
+              onOpen={setMenu("tools")}
+            >
+              <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+                {toolGroups.map(({ key, label }) => {
+                  const inGroup = liveTools.filter((t) => t.group === key);
+                  if (inGroup.length === 0) return null;
+                  return (
+                    <div key={key}>
+                      <p className="px-3 text-eyebrow uppercase text-indigo-600">
+                        {label}
+                      </p>
+                      <ul className="mt-1">
+                        {inGroup.map(({ slug, name, navLine }) => (
+                          <li key={slug}>
+                            <Link
+                              href={TOOLS.tool(slug)}
+                              className={menuRowClass}
+                            >
+                              <MenuRowBody name={name} navLine={navLine} />
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 border-t-[1.5px] border-mist pt-3">
+                <Link
+                  href={TOOLS.home}
+                  className="px-3 font-medium text-indigo-600 transition-colors duration-200 ease-out hover:text-indigo-700"
+                >
+                  All {liveTools.length} tools, free, no sign-up →
+                </Link>
+              </div>
+            </NavMenu>
+            {linksAfterTools.map(({ label, href, main }) =>
               main ? (
                 <MainSiteLink key={label} href={href} className={linkClass}>
                   {label}
@@ -427,6 +561,37 @@ export default function Header() {
               </li>
             ))}
           </ul>
+          {/* Tools, mirroring the desktop panel. The Footer's "in tools" band
+           * lists them too, but the footer is where you land after scrolling a
+           * whole page — this is the navigation affordance, and on a phone the
+           * two are not interchangeable. Names only: navLines would double the
+           * length of an already long panel, and this list is scrolled rather
+           * than scanned. Group headings stay, because they are what makes nine
+           * entries navigable. */}
+          <p className="mt-8 text-eyebrow uppercase text-indigo-600">
+            Free tools
+          </p>
+          {toolGroups.map(({ key, label }) => {
+            const inGroup = liveTools.filter((t) => t.group === key);
+            if (inGroup.length === 0) return null;
+            return (
+              <div key={key} className="mt-3">
+                <p className="text-small text-slate">{label}</p>
+                <ul className="mt-1 space-y-1">
+                  {inGroup.map(({ slug, name }) => (
+                    <li key={slug}>
+                      <Link
+                        href={TOOLS.tool(slug)}
+                        className={`block py-1.5 ${linkClass}`}
+                      >
+                        {name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
           <div className="mt-8">
             {/* Shares the primary-pill styling (press-scale + hover) so the
              * CTA behaves identically everywhere — the site-wide standard. */}
