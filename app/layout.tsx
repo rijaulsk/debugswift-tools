@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import ReactDOM from "react-dom";
 import CrossAppPrefetch from "@/components/CrossAppPrefetch";
 import Footer from "@/components/Footer";
+import NavProgress from "@/components/NavProgress";
 import Header from "@/components/Header";
 import StickyMobileBar from "@/components/StickyMobileBar";
 import { canonicalPath, SITE_URL, toolUrl } from "@/lib/links";
@@ -129,6 +130,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: jsonLdScript(siteJsonLd) }}
         />
         <CrossAppPrefetch />
+        <NavProgress />
         <Header />
         <div className="flex-1">{children}</div>
         <Footer />
