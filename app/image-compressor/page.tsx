@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "Shrink photos for your website without uploading them anywhere. Resize, re-encode to WebP or JPEG, and see the real before-and-after sizes. Free, no signup.",
   alternates: { canonical: canonicalPath("/image-compressor") },
   openGraph: {
-    title: "Free Image Compressor — DebugSwift",
+    title: "Free Image Compressor | DebugSwift",
     description:
       "Shrink photos for the web without uploading them anywhere. Real before-and-after sizes.",
     url: toolUrl("/image-compressor"),
@@ -34,7 +34,7 @@ const faqs: FaqItem[] = [
   {
     question: "Do my photos get uploaded?",
     answer:
-      "No. The compressing happens inside this page — your browser decodes, resizes and re-encodes the file, and nothing is sent. The only network request the page makes is the same anonymous page-view counter as every other page on this site, and it happens whether or not you add an image.",
+      "No. The compressing happens inside this page. Your browser decodes, resizes and re-encodes the file, and nothing is sent. The only network request the page makes is the same anonymous page-view counter as every other page on this site, and it happens whether or not you add an image.",
   },
   {
     question: "Why did one of my images get bigger?",
@@ -44,7 +44,7 @@ const faqs: FaqItem[] = [
   {
     question: "What gets lost?",
     answer:
-      "Quality, a little, because re-encoding is always lossy — so keep your originals; this is for the copy that goes on the site. All metadata goes too: EXIF, camera settings, the colour profile, any copyright field, and GPS coordinates. Losing the location out of a phone photo before it goes public is usually a win. Losing a colour profile can shift a wide-gamut photo slightly.",
+      "Quality, a little, because re-encoding is always lossy, so keep your originals; this is for the copy that goes on the site. All metadata goes too: EXIF, camera settings, the colour profile, any copyright field, and GPS coordinates. Losing the location out of a phone photo before it goes public is usually a win. Losing a colour profile can shift a wide-gamut photo slightly.",
   },
   {
     question: "WebP or JPEG?",
@@ -66,7 +66,7 @@ export default function ImageCompressorPage() {
               as="h1"
               eyebrow="Image Compressor"
               title="Photos are why the page is slow."
-              lede="A camera photo is often three or four megabytes. On a website it needs to be a few dozen kilobytes. Drop them here and they're resized and re-encoded on your own device — nothing is uploaded."
+              lede="A camera photo is often three or four megabytes. On a website it needs to be a few dozen kilobytes. Drop them here and they're resized and re-encoded on your own device. Nothing is uploaded."
             />
           </div>
           {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at
@@ -87,7 +87,7 @@ export default function ImageCompressorPage() {
         <SectionHeader
           eyebrow="Why it matters"
           title="The biggest thing on most pages is a photo nobody resized."
-          lede="Not a framework, not a tracking script — a product shot straight off a phone at full resolution, being downloaded in full and then displayed four hundred pixels wide."
+          lede="Not a framework, not a tracking script. A product shot straight off a phone at full resolution, being downloaded in full and then displayed four hundred pixels wide."
         />
         <div className="mt-10 max-w-2xl space-y-4 text-slate">
           <p>
@@ -105,7 +105,7 @@ export default function ImageCompressorPage() {
             </Link>{" "}
             flagged your page weight, this is usually the first thing to try. If
             the page is still slow once the images are sensible, the problem is
-            further in — hosting, database queries, or too much script — and
+            further in (hosting, database queries, or too much script) and
             that&apos;s{" "}
             <MainSiteLink
               href={MAIN.service(tool.relatedService)}
@@ -127,7 +127,7 @@ export default function ImageCompressorPage() {
       <CtaBand
         eyebrow="Still slow?"
         title="Compressing images is the first fix, not the only one."
-        body="If the page still drags once the photos are sensible, something further in is the cause — and guessing at it is expensive."
+        body="If the page still drags once the photos are sensible, something further in is the cause, and guessing at it is expensive."
       />
     </>
   );

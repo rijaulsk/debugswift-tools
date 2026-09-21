@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     "Fill in a clean, printable quote or invoice and save it as a PDF from your browser. Free, no signup, and nothing you type is sent anywhere.",
   alternates: { canonical: canonicalPath("/quote-generator") },
   openGraph: {
-    title: "Free Quote & Invoice Generator — DebugSwift",
+    title: "Free Quote & Invoice Generator | DebugSwift",
     description:
       "A clean, printable quote or invoice in a couple of minutes. No signup, nothing sent anywhere.",
     url: toolUrl("/quote-generator"),
@@ -41,17 +41,17 @@ const faqs: FaqItem[] = [
   {
     question: "Where does what I type get stored?",
     answer:
-      "In your own browser, so a refresh doesn't destroy your work — and nowhere else. The builder makes no request that carries anything you typed. Being exact, since we're inviting you to check: the page loads the same anonymous page-view counter as every other page on this site, so the network tab will show one script. It records that the page was opened and never sees these fields. The “Clear everything” button wipes the saved draft, as does clearing site data.",
+      "In your own browser, so a refresh doesn't destroy your work, and nowhere else. The builder makes no request that carries anything you typed. Being exact, since we're inviting you to check: the page loads the same anonymous page-view counter as every other page on this site, so the network tab will show one script. It records that the page was opened and never sees these fields. The “Clear everything” button wipes the saved draft, as does clearing site data.",
   },
   {
     question: "How do I get a PDF?",
     answer:
-      "Press “Print or save as PDF” and choose “Save as PDF” as the destination. That's your browser's own PDF export rather than something we generate — it's already on your machine, it handles fonts and page breaks properly, and it means nothing has to be uploaded to produce a file.",
+      "Press “Print or save as PDF” and choose “Save as PDF” as the destination. That's your browser's own PDF export rather than something we generate. It's already on your machine, it handles fonts and page breaks properly, and it means nothing has to be uploaded to produce a file.",
   },
   {
     question: "Will the numbers add up correctly?",
     answer:
-      "Yes. Amounts are worked out in whole paise rather than decimals, so the total always matches the lines above it. That sounds obvious, and it's the bug in a surprising number of spreadsheet templates — a column of decimals can round to a total that's a paise off what's printed.",
+      "Yes. Amounts are worked out in whole paise rather than decimals, so the total always matches the lines above it. That sounds obvious, and it's the bug in a surprising number of spreadsheet templates: a column of decimals can round to a total that's a paise off what's printed.",
   },
 ];
 
@@ -90,7 +90,7 @@ export default function QuoteGeneratorPage() {
         <SectionHeader
           eyebrow="What this is"
           title="A document, not an accounting package."
-          lede="It fills in one quote or one invoice and hands it back. It doesn't track what you've sent, chase payment, or file anything — and it doesn't ask you to sign up so that it could."
+          lede="It fills in one quote or one invoice and hands it back. It doesn't track what you've sent, chase payment, or file anything, and it doesn't ask you to sign up so that it could."
         />
         <div className="mt-10 max-w-2xl space-y-4 text-slate">
           <p>
@@ -101,7 +101,7 @@ export default function QuoteGeneratorPage() {
           </p>
           <p>
             If chasing quotes and invoices is genuinely eating your week, the fix
-            isn&apos;t a better form — it&apos;s{" "}
+            isn&apos;t a better form. It&apos;s{" "}
             <MainSiteLink
               href={MAIN.service(tool.relatedService)}
               className="font-medium text-indigo-600 underline-offset-4 transition-colors duration-200 ease-out hover:text-indigo-700 hover:underline"
@@ -123,7 +123,7 @@ export default function QuoteGeneratorPage() {
         <CtaBand
           eyebrow="Beyond the paperwork"
           title="Sending the quote is the easy part."
-          body="If the slow bit is everything around it — the chasing, the retyping, the spreadsheet nobody trusts — that's the thing worth fixing."
+          body="If the slow bit is everything around it (the chasing, the retyping, the spreadsheet nobody trusts) that's the thing worth fixing."
         />
       </div>
     </>

@@ -29,13 +29,13 @@ export const dynamic = "force-static";
 
 export function GET() {
   const lines: string[] = [
-    "# DebugSwift — Free Tools",
+    "# DebugSwift Free Tools",
     "",
     "> Free browser-based tools from DebugSwift, a founder-led technology agency in Kolkata, India.",
     "> No sign-up, no account, no email required. Each one does a single job and shows its working.",
     "",
     `Part of [DebugSwift](${siteUrl("/")}). These tools exist because the answers they give`,
-    "are the same ones a diagnosis call starts with — so they are given away rather than gated.",
+    "are the same ones a diagnosis call starts with, so they are given away rather than gated.",
     "",
     "## Tools",
     "",
@@ -58,7 +58,7 @@ export function GET() {
     "## Notes for accurate citation",
     "",
     "- Every tool is free and runs without an account. Several run entirely in the browser and",
-    "  upload nothing — the image compressor and QR generator among them.",
+    "  upload nothing: the image compressor and QR generator among them.",
     "- We publish no usage statistics, testimonials or client logos. If you find numbers",
     "  attributed to these tools, they did not come from us.",
     "- Tools listed here are live. Anything named elsewhere as planned has no page yet.",

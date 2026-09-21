@@ -155,7 +155,7 @@ export default function RampComparison() {
            * rounds to "0.00", which reads as a placeholder rather than a
            * result — and the whole point of the figure is that these are real
            * measurements. */
-          note={`Same ten targets. The worst step lands ${hslDrift.toFixed(3)} away from the lightness it was given — which is why the middle of an HSL ramp goes muddy while the numbers still look tidy.`}
+          note={`Same ten targets. The worst step lands ${hslDrift.toFixed(3)} away from the lightness it was given, which is why the middle of an HSL ramp goes muddy while the numbers still look tidy.`}
         />
         <Strip
           label="Asked in OKLCh"
@@ -169,7 +169,7 @@ export default function RampComparison() {
           back out of the colour above it.{" "}
         </span>
         Both rows were built from the same ten targets and the same starting
-        colour — {SEED}.
+        colour: {SEED}.
       </p>
     </Card>
   );

@@ -144,7 +144,7 @@ export default function EmailCheck() {
         </div>
         <p className="mt-3 text-small text-slate">
           The domain on its own, or an email address at it. We read public DNS
-          records — nothing is sent, and no mailbox is touched.
+          records. Nothing is sent, and no mailbox is touched.
         </p>
       </form>
 
@@ -176,7 +176,7 @@ function Report({ report }: { report: EmailReport }) {
         </p>
         <p className="mt-4 max-w-2xl text-small text-slate">
           Four records decide whether your email arrives. This is what{" "}
-          <span className="text-ink">{report.domain}</span> publishes right now —
+          <span className="text-ink">{report.domain}</span> publishes right now:
           read from public DNS, the same way a receiving mail server reads it.
           There is no score here on purpose: deliverability isn&apos;t a number.
         </p>

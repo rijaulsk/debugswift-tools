@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   description: `Paste a web address and see ${TOTAL_CHECKS} checks on whether the page can be found, read and acted on. Free, no signup, full result on screen.`,
   alternates: { canonical: canonicalPath("/website-audit") },
   openGraph: {
-    title: "Free Website Audit — DebugSwift",
+    title: "Free Website Audit | DebugSwift",
     description: `${TOTAL_CHECKS} checks on whether a page can be found, read and acted on. No signup.`,
     url: toolUrl("/website-audit"),
   },
@@ -45,7 +45,7 @@ const faqs: FaqItem[] = [
   {
     question: "You said my response time was slow. Is that reliable?",
     answer:
-      "It's one request from one server, at one moment. Treat it as a hint, not a verdict — if it looks bad, confirm it with a proper speed test before spending money on it. We say the same thing in the result itself.",
+      "It's one request from one server, at one moment. Treat it as a hint, not a verdict. If it looks bad, confirm it with a proper speed test before spending money on it. We say the same thing in the result itself.",
   },
   {
     question: "Do you store the pages you check?",
@@ -61,7 +61,7 @@ const faqs: FaqItem[] = [
 const groups: [string, string][] = [
   [
     "Findability",
-    "whether search engines can reach and index it at all — including the leftover rules that quietly keep a page out.",
+    "whether search engines can reach and index it at all, including the leftover rules that quietly keep a page out.",
   ],
   ["On the page", "the title, description, heading structure and alt text."],
   [
@@ -91,7 +91,7 @@ export default function WebsiteAuditPage() {
               as="h1"
               eyebrow="Website Audit"
               title="See your page the way a search engine does."
-              lede={`Paste a web address. We fetch the page once, run ${TOTAL_CHECKS} checks on whether it gets found and whether a visitor can act on it, and show you every answer — including the ones that pass.`}
+              lede={`Paste a web address. We fetch the page once, run ${TOTAL_CHECKS} checks on whether it gets found and whether a visitor can act on it, and show you every answer, including the ones that pass.`}
             />
           </div>
           {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at
@@ -119,7 +119,7 @@ export default function WebsiteAuditPage() {
         <SectionHeader
           eyebrow="What's in the report"
           title={`${TOTAL_CHECKS} checks, in five groups.`}
-          lede="Every one is measured on the page you give us. There are no benchmarks, no scores borrowed from other sites, and no “businesses like yours” — we haven't surveyed them, so we won't pretend we have."
+          lede="Every one is measured on the page you give us. There are no benchmarks, no scores borrowed from other sites, and no “businesses like yours”. We haven't surveyed them, so we won't pretend we have."
         />
         {/* LedgerList, not a hand-rolled list. This page had its own weaker
           * copy — slate numerals in a divide-y row list — of a component the

@@ -23,12 +23,12 @@ import type { FaqItem } from "@/lib/types";
 const tool = getTool("project-scoper")!;
 
 export const metadata: Metadata = {
-  title: "Project Scoper — what a website or app actually involves",
+  title: "Project Scoper: what a website or app actually involves",
   description:
-    "Work out what your project actually includes and get a brief you can send to anyone quoting. No prices, no signup — just the scope, written down so three quotes are finally comparable.",
+    "Work out what your project actually includes and get a brief you can send to anyone quoting. No prices, no signup. Just the scope, written down so three quotes are finally comparable.",
   alternates: { canonical: canonicalPath("/project-scoper") },
   openGraph: {
-    title: "Project Scoper — DebugSwift",
+    title: "Project Scoper | DebugSwift",
     description:
       "Turn a vague idea into a brief you can get comparable quotes on. No prices, no signup.",
     url: toolUrl("/project-scoper"),
@@ -39,17 +39,17 @@ const faqs: FaqItem[] = [
   {
     question: "Why doesn't this tell me a price?",
     answer:
-      "Because any number it gave you would be made up. Two projects with identical tick-lists can differ several times over depending on what your content is like, what your existing systems are, and how quickly decisions get made — none of which a form knows. We quote after a conversation, at a fixed price agreed before work starts. A calculator that guessed would only be useful for making us look cheap until the real number arrived.",
+      "Because any number it gave you would be made up. Two projects with identical tick-lists can differ several times over depending on what your content is like, what your existing systems are, and how quickly decisions get made, none of which a form knows. We quote after a conversation, at a fixed price agreed before work starts. A calculator that guessed would only be useful for making us look cheap until the real number arrived.",
   },
   {
     question: "So what use is it?",
     answer:
-      "It writes down what you're asking for. The reason three quotes come back four times apart is almost never that one agency is greedy — it's that all three were asked a different question, and each filled the gaps with their own assumptions. Send the same brief to all three and the numbers become comparable.",
+      "It writes down what you're asking for. The reason three quotes come back four times apart is almost never that one agency is greedy. It's that all three were asked a different question, and each filled the gaps with their own assumptions. Send the same brief to all three and the numbers become comparable.",
   },
   {
     question: "Where do the build times come from?",
     answer:
-      "They're what we would budget for each piece of work, and the tool shows the days each item adds so the total is something you can check rather than take on trust. They're a statement about how we work, not a survey of the industry — nobody has measured that, and we're not going to pretend otherwise.",
+      "They're what we would budget for each piece of work, and the tool shows the days each item adds so the total is something you can check rather than take on trust. They're a statement about how we work, not a survey of the industry. Nobody has measured that, and we're not going to pretend otherwise.",
   },
   {
     question: "Is the brief any use if I'm not hiring you?",
@@ -71,7 +71,7 @@ export default function ProjectScoperPage() {
               as="h1"
               eyebrow="Project Scoper"
               title="Work out what you're actually asking for."
-              lede="Three quotes that differ by four times usually means three people were asked three different questions. This turns a vague idea into a written brief you can send to all of them unchanged — and tells you what any of them will ask you next."
+              lede="Three quotes that differ by four times usually means three people were asked three different questions. This turns a vague idea into a written brief you can send to all of them unchanged, and it tells you what any of them will ask you next."
             />
           </div>
           {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at
@@ -98,7 +98,7 @@ export default function ProjectScoperPage() {
           <p>
             Two projects with the same tick-list can differ several times over.
             Whether your content exists yet, whether the system it has to connect
-            to has a usable interface, whether decisions take a day or a month —
+            to has a usable interface, whether decisions take a day or a month:
             those move the number far more than the feature list does, and none
             of them fit in a form.
           </p>
@@ -110,7 +110,7 @@ export default function ProjectScoperPage() {
           </p>
           <p>
             If you&apos;re not sure the project is the right one to be doing at
-            all, that&apos;s worth saying out loud too — it&apos;s what{" "}
+            all, that&apos;s worth saying out loud too, and it&apos;s what{" "}
             <MainSiteLink
               href={MAIN.service(tool.relatedService)}
               className="font-medium text-indigo-600 underline-offset-4 transition-colors duration-200 ease-out hover:text-indigo-700 hover:underline"

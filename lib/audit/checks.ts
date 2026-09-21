@@ -75,7 +75,7 @@ export async function auditPage(input: string): Promise<AuditResult> {
     throw new FetchPageError(
       `That page answered with HTTP ${page.status}, so there's nothing to check.`,
       page.status === 404
-        ? "Check the address — that page doesn't exist on the site."
+        ? "Check the address. That page doesn't exist on the site."
         : "The server returned an error. Worth trying again in a moment.",
     );
   }
@@ -373,7 +373,7 @@ function findability({
       status: softFourOhFour === 404 || softFourOhFour === 410 ? OK : "warn",
       found:
         softFourOhFour === 0
-          ? "Couldn't test — the probe request didn't complete."
+          ? "Couldn't test: the probe request didn't complete."
           : softFourOhFour === 404 || softFourOhFour === 410
             ? `A made-up address correctly returned ${softFourOhFour}.`
             : `A made-up address returned ${softFourOhFour} instead of 404.`,
@@ -488,7 +488,7 @@ function onThePage({
       label: "Title tag",
       status: titleStatus,
       found: title
-        ? `“${title}” — ${title.length} characters.`
+        ? `“${title}” is ${title.length} characters.`
         : "The page has no title tag.",
       why: "The title is the clickable line in search results and the label on the browser tab.",
       ...(titleStatus === OK
@@ -497,7 +497,7 @@ function onThePage({
             fix: !title
               ? "Add a <title>. Lead with what the page is about, then the business name."
               : title.length > TITLE_MAX
-                ? `Trim it towards ${TITLE_MAX} characters — past roughly that, Google tends to cut the end off. Character count is a rough guide; Google actually cuts by pixel width.`
+                ? `Trim it towards ${TITLE_MAX} characters. Past roughly that, Google tends to cut the end off. Character count is a rough guide; Google actually cuts by pixel width.`
                 : "It's very short. There's room to say what the page actually offers.",
           }),
       /* Always offered, even on a pass: the character count here is an
@@ -525,9 +525,9 @@ function onThePage({
       label: "Meta description",
       status: descStatus,
       found: description
-        ? `“${description}” — ${description.length} characters.`
+        ? `“${description}” is ${description.length} characters.`
         : "The page has no meta description.",
-      why: "It's the sentence under the link in search results — the one that decides whether anyone clicks.",
+      why: "It's the sentence under the link in search results: the one that decides whether anyone clicks.",
       ...(descStatus === OK
         ? {}
         : {
@@ -558,7 +558,7 @@ function onThePage({
           : h1s === 1
             ? "One <h1>, as it should be."
             : `${h1s} <h1> headings on one page.`,
-      why: "The main heading is the page's one-line answer to “what is this?” — for readers and for crawlers.",
+      why: "The main heading is the page's one-line answer to “what is this?”, for readers and for crawlers.",
       ...(h1s === 1
         ? {}
         : {
@@ -577,7 +577,7 @@ function onThePage({
       why: "Screen-reader users navigate by heading level, and a skipped level reads as a missing section.",
       ...(headingProblem
         ? {
-            fix: "Use heading levels for structure, not for size — style them with CSS instead of picking a bigger tag.",
+            fix: "Use heading levels for structure, not for size. Style them with CSS instead of picking a bigger tag.",
           }
         : {}),
     },
@@ -595,7 +595,7 @@ function onThePage({
       why: "Alt text is what a screen reader announces, and what stands in for the image when it fails to load.",
       ...(missingAlt > 0
         ? {
-            fix: 'Describe what each image shows. Use alt="" — empty, but present — for images that are purely decorative.',
+            fix: 'Describe what each image shows. Use alt="" (empty, but present) for images that are purely decorative.',
           }
         : {}),
     },
@@ -655,7 +655,7 @@ function howItShares({
           ? "No Open Graph tags, so the preview is whatever the app guesses."
           : `Open Graph ${present.join(", ")} present${
               present.length < 3
-                ? ` — missing ${["title", "description", "image"]
+                ? `, missing ${["title", "description", "image"]
                     .filter((k) => !present.includes(k))
                     .join(" and ")}.`
                 : "."
@@ -664,7 +664,7 @@ function howItShares({
       ...(status === OK
         ? {}
         : {
-            fix: "Add og:title, og:description and og:image. The image wants to be 1200×630 — anything else gets cropped unpredictably.",
+            fix: "Add og:title, og:description and og:image. The image wants to be 1200×630; anything else gets cropped unpredictably.",
           }),
     },
     {
@@ -685,7 +685,7 @@ function howItShares({
             : ogImageStatus === 0
               ? "The preview image address couldn't be reached at all."
               : `The preview image returned ${ogImageStatus}.`,
-      why: "A declared preview image that 404s gives you a blank card — worse than declaring none, because you think it's handled.",
+      why: "A declared preview image that 404s gives you a blank card, which is worse than declaring none, because you think it's handled.",
       ...(ogImageStatus !== null && ogImageStatus !== 200
         ? {
             fix: "Point og:image at a full absolute address that loads in a private window. Relative paths and staging URLs are the usual culprits.",
@@ -771,7 +771,7 @@ function gettingInTouch({
           : "No form, and only one way to make contact.",
       why: "Plenty of people will not ring a stranger, and will leave rather than call.",
       ...(!hasForm && channels.length <= 1
-        ? { fix: "Add a short form — a name, a way to reply, and one question about what they need." }
+        ? { fix: "Add a short form: a name, a way to reply, and one question about what they need." }
         : {}),
     },
     {
@@ -782,7 +782,7 @@ function gettingInTouch({
       found: hasMap
         ? "The page links to a map listing."
         : "No link to Google Maps or a business listing.",
-      why: "For a local business, the map listing is often where customers actually arrive from — and where they check you're real.",
+      why: "For a local business, the map listing is often where customers actually arrive from, and where they check you're real.",
       ...(hasMap
         ? {}
         : {
@@ -917,7 +917,7 @@ function delivery({
       group: "Delivery",
       label: "Server response",
       status: ttfbStatus,
-      found: `${(page.ttfbMs / 1000).toFixed(2)}s to the first byte — one request, from our server, just now.`,
+      found: `${(page.ttfbMs / 1000).toFixed(2)}s to the first byte, from one request from our server, just now.`,
       why: "It's how long the server thought before it said anything. Everything else on the page waits behind it.",
       ...(ttfbStatus === OK
         ? {}
@@ -934,10 +934,10 @@ function delivery({
         imageWeight.measured === 0
           ? imageWeight.sampled === 0
             ? "No images to weigh on this page."
-            : "Couldn't measure the images — the server didn't report their sizes."
-          : `${kb(imageWeight.total)} across ${imageWeight.measured} image${imageWeight.measured === 1 ? "" : "s"}${imageWeight.sampled > imageWeight.measured ? ` (of ${imageWeight.sampled} found — we weigh the first ${IMAGE_SAMPLE})` : ""}.${
+            : "Couldn't measure the images: the server didn't report their sizes."
+          : `${kb(imageWeight.total)} across ${imageWeight.measured} image${imageWeight.measured === 1 ? "" : "s"}${imageWeight.sampled > imageWeight.measured ? ` (of ${imageWeight.sampled} found; we weigh the first ${IMAGE_SAMPLE})` : ""}.${
               imageWeight.largest
-                ? ` Largest: ${kb(imageWeight.largest.bytes)} — ${imageWeight.largest.src.slice(0, 70)}`
+                ? ` Largest: ${kb(imageWeight.largest.bytes)}, ${imageWeight.largest.src.slice(0, 70)}`
                 : ""
             }`,
       why: "On most small-business sites the single biggest thing a visitor downloads is a photo nobody resized.",
@@ -1004,7 +1004,7 @@ function delivery({
       why: "Images far down the page compete for bandwidth with the part someone is actually looking at.",
       ...(imgs.length >= 4 && lazy === 0
         ? {
-            fix: 'Add loading="lazy" to images below the fold. Leave it OFF the main image at the top — deferring that one makes the page feel slower.',
+            fix: 'Add loading="lazy" to images below the fold. Leave it OFF the main image at the top; deferring that one makes the page feel slower.',
           }
         : {}),
     },
@@ -1043,7 +1043,7 @@ function delivery({
       status: final.protocol !== "https:" ? "info" : mixed === 0 ? OK : "fail",
       found:
         final.protocol !== "https:"
-          ? "Not applicable — the page itself isn't on HTTPS."
+          ? "Not applicable: the page itself isn't on HTTPS."
           : mixed === 0
             ? "Everything the page loads is over HTTPS."
             : `${mixed} resource${mixed === 1 ? "" : "s"} loaded over plain http://.`,
@@ -1059,15 +1059,15 @@ function delivery({
       status: weightStatus,
       found:
         transferred === null
-          ? `${kb(bytes)} of HTML, sent uncompressed${page.truncated ? " (we stopped reading at 2 MB)" : ""}. This is the document only — images, scripts and fonts are counted separately.`
-          : `About ${kb(transferred)} over the wire, from ${kb(bytes)} of HTML${page.truncated ? " (we stopped reading at 2 MB)" : ""} — the server sends it ${encoding}-compressed. This is the document only; images, scripts and fonts are counted separately.`,
+          ? `${kb(bytes)} of HTML, sent uncompressed${page.truncated ? " (we stopped reading at 2 MB)" : ""}. This is the document only; images, scripts and fonts are counted separately.`
+          : `About ${kb(transferred)} over the wire, from ${kb(bytes)} of HTML${page.truncated ? " (we stopped reading at 2 MB)" : ""}, and the server sends it ${encoding}-compressed. This is the document only; images, scripts and fonts are counted separately.`,
       why: "The compressed size is what a visitor downloads; the full size is what their phone still has to unpack and read before anything appears.",
       ...(weightStatus === OK
         ? {}
         : {
             fix:
               transferred === null
-                ? "Turn on compression first — that alone usually removes most of this. Past that, large HTML tends to mean a page builder emitting inline styles, or a whole catalogue rendered into one document."
+                ? "Turn on compression first; that alone usually removes most of this. Past that, large HTML tends to mean a page builder emitting inline styles, or a whole catalogue rendered into one document."
                 : "Even compressed this is heavy. That usually means a page builder emitting inline styles, or a whole catalogue rendered into one document.",
           }),
     },
@@ -1084,7 +1084,7 @@ function delivery({
       ...(blocking === 0
         ? {}
         : {
-            fix: "Add defer to scripts that don't have to run before the page draws — which is nearly all of them.",
+            fix: "Add defer to scripts that don't have to run before the page draws, which is nearly all of them.",
           }),
     },
     {
@@ -1098,7 +1098,7 @@ function delivery({
           : types.length > 0
             ? `Found: ${types.slice(0, 8).join(", ")}.`
             : "No JSON-LD structured data on the page.",
-      why: "It's how a search engine reads what kind of thing the page describes — a business, a product, a question — rather than guessing from the words.",
+      why: "It's how a search engine reads what kind of thing the page describes (a business, a product, a question) rather than guessing from the words.",
       ...(invalid > 0
         ? { fix: "A JSON syntax error means the block is ignored entirely. Run it through a validator." }
         : types.length > 0
@@ -1125,7 +1125,7 @@ function delivery({
         hops === 0
           ? "The address loaded directly, with no redirect."
           : hops === 1
-            ? "One redirect — normal for http→https or a www rule."
+            ? "One redirect, normal for http→https or a www rule."
             : `${hops} redirects before the page loaded.`,
       why: "Each hop is another round trip the visitor waits through before anything renders.",
       ...(hops <= 1

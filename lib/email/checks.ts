@@ -56,7 +56,7 @@ function unknownFinding(id: string, label: string, why: string, detail: string):
     id,
     label,
     verdict: "unknown",
-    found: `We couldn't check this — ${detail}.`,
+    found: `We couldn't check this: ${detail}.`,
     why,
     fix: "Worth running again in a moment. This is about our lookup, not your domain.",
   };
@@ -238,7 +238,7 @@ async function checkSpf(
       label: "SPF lookup limit",
       verdict: "problem",
       found: `The record needs ${count.capped ? "more than 10" : count.used} DNS lookups. The limit is 10.`,
-      why: "Over ten, the record is invalid and most receivers treat it as though you had no SPF at all — even though it looks perfectly fine in your DNS. The count includes lookups inside your providers' own records, which is why this usually surprises people.",
+      why: "Over ten, the record is invalid and most receivers treat it as though you had no SPF at all, even though it looks perfectly fine in your DNS. The count includes lookups inside your providers' own records, which is why this usually surprises people.",
       fix: "Remove providers you no longer send through, or ask your email provider whether they publish a flattened record.",
     });
   } else {
@@ -286,7 +286,7 @@ async function checkDmarc(domain: string): Promise<Finding> {
       verdict: "problem",
       found: "No DMARC record published.",
       why: "DMARC is what turns SPF from a published opinion into an enforced rule, and it is the only way to find out that somebody is sending mail as you. Google and Yahoo now require it for anyone sending in bulk.",
-      fix: "Publish a TXT record at _dmarc.your-domain starting v=DMARC1; p=none; rua=mailto:you@your-domain — p=none changes nothing on day one and starts the reports.",
+      fix: "Publish a TXT record at _dmarc.your-domain starting v=DMARC1; p=none; rua=mailto:you@your-domain. p=none changes nothing on day one and starts the reports.",
     };
   }
 
@@ -299,10 +299,10 @@ async function checkDmarc(domain: string): Promise<Finding> {
       label: "DMARC record",
       verdict: "attention",
       found: `A DMARC record is published with p=none${hasReporting ? " and a reporting address" : ", and no reporting address"}.`,
-      why: "p=none is monitoring only — it asks receivers to report, but tells them to deliver failing mail anyway. That is the correct place to start and the wrong place to stop.",
+      why: "p=none is monitoring only. It asks receivers to report, but tells them to deliver failing mail anyway. That is the correct place to start and the wrong place to stop.",
       fix: hasReporting
         ? "Once the reports show only your own servers sending, move to p=quarantine."
-        : "Add rua=mailto:you@your-domain so the reports have somewhere to go — without it, p=none does nothing at all.",
+        : "Add rua=mailto:you@your-domain so the reports have somewhere to go. Without it, p=none does nothing at all.",
       record,
     };
   }
@@ -388,7 +388,7 @@ async function checkDkim(domain: string): Promise<Finding> {
     verdict: "unknown",
     found: "No DKIM key found at any of the selectors we know to try.",
     why: "DKIM keys are published under a name your email provider chooses, and DNS gives no way to list them. We tried the dozen selectors the big providers use.",
-    fix: "This does NOT mean you have no DKIM — only that it isn't on a name we can guess. Ask your email provider which selector they use, or check whether DKIM is switched on in their admin settings.",
+    fix: "This does NOT mean you have no DKIM, only that it isn't on a name we can guess. Ask your email provider which selector they use, or check whether DKIM is switched on in their admin settings.",
   };
 }
 
@@ -422,7 +422,7 @@ async function checkMx(domain: string): Promise<Finding> {
     id: "mx",
     label: "Mail servers",
     verdict: "good",
-    found: `${sorted.length} mail server${sorted.length === 1 ? "" : "s"} published — ${sorted.map((r) => r.exchange).join(", ")}.`,
+    found: `${sorted.length} mail server${sorted.length === 1 ? "" : "s"} published: ${sorted.map((r) => r.exchange).join(", ")}.`,
     why: "This is where email addressed to your domain gets delivered.",
   };
 }

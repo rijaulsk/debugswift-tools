@@ -115,7 +115,7 @@ export type Issue = { field: string; message: string };
  */
 export function issuesFor(input: BusinessInput): Issue[] {
   const issues: Issue[] = [];
-  if (!input.name.trim()) issues.push({ field: "name", message: "The business name is required — nothing works without it." });
+  if (!input.name.trim()) issues.push({ field: "name", message: "The business name is required; nothing works without it." });
   if (!input.url.trim()) issues.push({ field: "url", message: "Add your website address so the markup is tied to a real site." });
   if (!input.telephone.trim()) issues.push({ field: "telephone", message: "A phone number is one of the fields most likely to be shown." });
   if (!input.street.trim() || !input.locality.trim()) {

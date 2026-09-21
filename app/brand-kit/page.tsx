@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "Turn one brand colour into a ten-step palette with contrast measured on every step, plus a matching type scale. Copy the CSS and go. Free, no signup.",
   alternates: { canonical: canonicalPath("/brand-kit") },
   openGraph: {
-    title: "Free Brand Kit Generator — DebugSwift",
+    title: "Free Brand Kit Generator | DebugSwift",
     description:
       "One colour into a ten-step palette, with WCAG contrast measured on every step.",
     url: toolUrl("/brand-kit"),
@@ -34,7 +34,7 @@ const faqs: FaqItem[] = [
   {
     question: "What makes this different from other palette generators?",
     answer:
-      "Two things. The ramp is built in a perceptual colour space, so the steps look evenly spaced instead of merely being evenly spaced in numbers — the usual approach produces muddy middles and ends that bunch up. And every step tells you whether black or white text actually passes contrast on it, which is the question you'll hit the moment you try to use the colour.",
+      "Two things. The ramp is built in a perceptual colour space, so the steps look evenly spaced instead of merely being evenly spaced in numbers. The usual approach produces muddy middles and ends that bunch up. And every step tells you whether black or white text actually passes contrast on it, which is the question you'll hit the moment you try to use the colour.",
   },
   {
     question: "Are the contrast numbers reliable?",
@@ -44,7 +44,7 @@ const faqs: FaqItem[] = [
   {
     question: "Is this my brand identity, then?",
     answer:
-      "No. It's a starting palette and a type scale — the mechanical part. A brand is what you sound like and what you're for, and no tool derives that from a hex code. This gets you a coherent set of colours to build with instead of picking shades one at a time until they clash.",
+      "No. It's a starting palette and a type scale: the mechanical part. A brand is what you sound like and what you're for, and no tool derives that from a hex code. This gets you a coherent set of colours to build with instead of picking shades one at a time until they clash.",
   },
   {
     question: "Why does one of my steps say no text colour passes?",
@@ -100,7 +100,7 @@ export default function BrandKitPage() {
             This builds the ramp in OKLCh instead, a space designed so equal
             steps in lightness look like equal steps. When a step would be too
             saturated for a screen to show, the saturation comes down rather than
-            the channels being clipped — clipping is what shifts the hue and
+            the channels being clipped. Clipping is what shifts the hue and
             gives you a ramp that drifts from orange to brown.
           </p>
           <p>
@@ -109,8 +109,8 @@ export default function BrandKitPage() {
             says which is which rather than presenting all of it as fact.
           </p>
           <p>
-            If you need the whole system — logo, type, the rules for using
-            them — that&apos;s{" "}
+            If you need the whole system (logo, type, the rules for using
+            them) that&apos;s{" "}
             <MainSiteLink
               href={MAIN.service(tool.relatedService)}
               className="font-medium text-indigo-600 underline-offset-4 transition-colors duration-200 ease-out hover:text-indigo-700 hover:underline"

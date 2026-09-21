@@ -78,13 +78,13 @@ export const metadata: Metadata = {
    * JSON-LD id would advertise the proxy origin and split the site in two. */
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Free Tools — DebugSwift",
+    default: "Free Tools | DebugSwift",
     /* Matches the main site's template so a tab from any deployment reads the
      * same way. */
-    template: "%s — DebugSwift",
+    template: "%s | DebugSwift",
   },
   description:
-    "Free, no-signup tools for small businesses — audits, generators and calculators that give you a straight answer without asking for an email first.",
+    "Free, no-signup tools for small businesses: audits, generators and calculators that give you a straight answer without asking for an email first.",
   /* The MAIN site's manifest, at the domain root. This repo deliberately ships
    * no manifest.ts: one domain gets one web app manifest, and a second one at
    * /tools/manifest.webmanifest would give the same site two different names and
@@ -105,7 +105,7 @@ export const metadata: Metadata = {
         url: toolUrl("/og.png"),
         width: 1200,
         height: 630,
-        alt: "DebugSwift — Debugging businesses swiftly.",
+        alt: "DebugSwift: debugging businesses swiftly.",
       },
     ],
   },

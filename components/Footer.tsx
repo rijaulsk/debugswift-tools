@@ -67,7 +67,7 @@ export default function Footer() {
               Debugging businesses swiftly.
             </p>
             <p className="mx-auto mt-3 max-w-sm text-small text-mist md:mx-0">
-              Real swifts catch bugs in flight — faster than any bird in level
+              Real swifts catch bugs in flight, faster than any bird in level
               flight. So does Deb. Whatever&apos;s slowing your business down is a
               bug: we find it, fix it, and hand you the keys.
             </p>
@@ -121,7 +121,7 @@ export default function Footer() {
           <div>
             <p className="text-eyebrow uppercase text-cream">Contact</p>
             <p className="mt-4 text-small text-cream">
-              Kolkata, India — working worldwide.
+              Kolkata, India. Working worldwide.
             </p>
             <ul className="mt-2 space-y-2">
               <li>

@@ -114,7 +114,7 @@ export default function MetaGenerator() {
         <p className="mt-4 max-w-2xl text-small text-slate">
           Faded text is the part that gets cut off. Measured in Arial at
           Google&apos;s desktop sizes, so treat the cut-off point as close rather
-          than exact — and remember Google rewrites titles it doesn&apos;t like,
+          than exact, and remember Google rewrites titles it doesn&apos;t like,
           whatever length they are.
         </p>
       </div>
@@ -125,7 +125,7 @@ export default function MetaGenerator() {
           Need a starting point?
         </p>
         <p className="mt-3 max-w-2xl text-slate">
-          Fill these in and you&apos;ll get drafts built from the usual shapes —
+          Fill these in and you&apos;ll get drafts built from the usual shapes,
           specific thing first, business name last, because the end of the line is
           what gets cut. There&apos;s no AI here, and nothing you type is sent
           anywhere. Edit whatever you pick.
@@ -211,7 +211,7 @@ function Field({
           {measured && fit.width !== null ? (
             <>
               {fit.width}px of {fit.budget}px
-              {over && " — being cut"}
+              {over && ", being cut"}
             </>
           ) : (
             <>measuring…</>
@@ -262,7 +262,7 @@ function Field({
  * If that pairing is ever broken — this preview shown without the input beside
  * it — this has to change. */
 function Truncated({ fit, full }: { fit: Fit; full: string }) {
-  if (!full) return <span className="text-slate">—</span>;
+  if (!full) return <span className="text-slate">not set</span>;
   if (!fit.truncated) return <>{full}</>;
   return (
     <>
@@ -337,7 +337,7 @@ function IdeaList({
                 <p className="mt-1 text-small text-slate">{idea.note}</p>
                 <p className="mt-1 text-small tabular-nums text-slate">
                   {measured && fit.width !== null
-                    ? `${fit.width}px${fit.truncated ? " — would be cut" : ""}`
+                    ? `${fit.width}px${fit.truncated ? ", would be cut" : ""}`
                     : "measuring…"}
                 </p>
               </div>

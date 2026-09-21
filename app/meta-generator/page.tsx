@@ -25,12 +25,12 @@ const tool = getTool("meta-generator")!;
 export const metadata: Metadata = {
   title: "Meta Tag & Headline Generator",
   description:
-    "Write a title tag and meta description and see exactly where Google cuts them — measured in pixels, not characters. Free, nothing leaves your browser.",
+    "Write a title tag and meta description and see exactly where Google cuts them, measured in pixels, not characters. Free, nothing leaves your browser.",
   alternates: { canonical: canonicalPath("/meta-generator") },
   openGraph: {
-    title: "Meta Tag & Headline Generator — DebugSwift",
+    title: "Meta Tag & Headline Generator | DebugSwift",
     description:
-      "See exactly where Google cuts your title tag — measured in pixels, not characters.",
+      "See exactly where Google cuts your title tag, measured in pixels, not characters.",
     url: toolUrl("/meta-generator"),
   },
 };
@@ -44,17 +44,17 @@ const faqs: FaqItem[] = [
   {
     question: "So my title will definitely show up like that?",
     answer:
-      "No. Two caveats, both real. Google rewrites titles it judges unhelpful, whatever length they are — a title that fits is not a title that gets used. And the preview measures in Arial at Google's desktop sizes, which is close to their rendering but not identical. Treat the cut-off point as a good guide, not a guarantee.",
+      "No. Two caveats, both real. Google rewrites titles it judges unhelpful, whatever length they are, so a title that fits is not a title that gets used. And the preview measures in Arial at Google's desktop sizes, which is close to their rendering but not identical. Treat the cut-off point as a good guide, not a guarantee.",
   },
   {
     question: "Is there AI behind the drafts?",
     answer:
-      "No. The drafts are four title shapes and two description shapes filled in with what you typed — the specific thing first, the business name last, because the end of the line is what gets cut. It's formatting, not writing, and it's meant to be edited.",
+      "No. The drafts are four title shapes and two description shapes filled in with what you typed: the specific thing first, the business name last, because the end of the line is what gets cut. It's formatting, not writing, and it's meant to be edited.",
   },
   {
     question: "Does anything I type get sent to you?",
     answer:
-      "No. The tool runs entirely in your browser and makes no request that carries anything you typed — paste in unpublished page copy if you want to. Being exact, since we're inviting you to check: the page loads the same anonymous page-view counter as every other page on this site, so the network tab will show one script. It records that the page was opened and never sees these fields.",
+      "No. The tool runs entirely in your browser and makes no request that carries anything you typed, so paste in unpublished page copy if you want to. Being exact, since we're inviting you to check: the page loads the same anonymous page-view counter as every other page on this site, so the network tab will show one script. It records that the page was opened and never sees these fields.",
   },
 ];
 
@@ -71,7 +71,7 @@ export default function MetaGeneratorPage() {
               as="h1"
               eyebrow="Meta & Headline Generator"
               title="See where Google actually cuts your title."
-              lede={`Google truncates search results by pixel width, not by character count — so every tool that counts characters is measuring the wrong thing. This one measures the real width as you type, against ${TITLE_PIXEL_BUDGET}px for the title and ${DESCRIPTION_PIXEL_BUDGET}px for the description.`}
+              lede={`Google truncates search results by pixel width, not by character count, so every tool that counts characters is measuring the wrong thing. This one measures the real width as you type, against ${TITLE_PIXEL_BUDGET}px for the title and ${DESCRIPTION_PIXEL_BUDGET}px for the description.`}
             />
           </div>
           {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at

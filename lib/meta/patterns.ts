@@ -71,7 +71,7 @@ export function titleSuggestions({ subject, business, location }: MetaInput): Su
   if (b) {
     out.push({
       note: "Business name first. Only worth it once people search for you by name.",
-      text: `${b} — ${s}`,
+      text: `${b} | ${s}`,
     });
   }
 
@@ -95,7 +95,7 @@ export function descriptionSuggestions({
   return dedupe([
     {
       note: "Says what, where, and what to do next. The safe structure.",
-      text: `${who} handle ${s}${where}. Tell us what's wrong and we'll tell you what it takes to fix it — no obligation.`,
+      text: `${who} handle ${s}${where}. Tell us what's wrong and we'll tell you what it takes to fix it. No obligation.`,
     },
     {
       note: "Opens on the reader's problem instead of on you.",

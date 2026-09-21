@@ -53,7 +53,7 @@ export const KINDS: { id: ProjectKind; label: string; blurb: string; baseDays: n
   {
     id: "webapp",
     label: "A web app or portal",
-    blurb: "Logins, dashboards, bookings — software rather than pages.",
+    blurb: "Logins, dashboards, bookings: software rather than pages.",
     baseDays: 20,
   },
   {
@@ -175,7 +175,7 @@ export const GOTCHAS: string[] = [
   "Who writes the words, and when they will be ready.",
   "Who supplies photographs, and whether they are licensed for your use.",
   "Whether an existing site's addresses need to keep working afterwards.",
-  "What happens after launch — fixes, changes, hosting, and who pays for them.",
+  "What happens after launch: fixes, changes, hosting, and who pays for them.",
   "Who owns the code and the accounts when it is finished.",
 ];
 
@@ -197,11 +197,11 @@ export function toBrief(kind: ProjectKind, chosenIds: string[]): string {
 
   lines.push(`PROJECT BRIEF`);
   lines.push(``);
-  lines.push(`What we want: ${base.label} — ${base.blurb}`);
+  lines.push(`What we want: ${base.label}. ${base.blurb}`);
   lines.push(``);
   lines.push(`It needs to include:`);
   if (est.chosen.length === 0) {
-    lines.push(`  (nothing beyond the basics yet — see the questions below)`);
+    lines.push(`  (nothing beyond the basics yet, see the questions below)`);
   }
   for (const o of est.chosen) lines.push(`  - ${o.label}`);
 
@@ -222,7 +222,7 @@ export function toBrief(kind: ProjectKind, chosenIds: string[]): string {
 
   lines.push(``);
   lines.push(
-    `(Scope worked out with the free tool at https://debugswift.com/tools/project-scoper — no prices attached, it just writes down what was asked for.)`,
+    `(Scope worked out with the free tool at https://debugswift.com/tools/project-scoper. No prices attached, it just writes down what was asked for.)`,
   );
 
   return lines.join("\n");

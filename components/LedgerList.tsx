@@ -48,7 +48,7 @@ export default function LedgerList({
             }`}
           >
             <h3 className={`font-bold ${dark ? "text-cream" : "text-ink"}`}>
-              {lead?.[i] ? `${lead[i]} — ` : ""}
+              {lead?.[i] ? `${lead[i]}: ` : ""}
               {title}
             </h3>
             <p className={`mt-1.5 ${dark ? "text-mist" : "text-slate"}`}>

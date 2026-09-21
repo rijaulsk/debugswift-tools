@@ -121,7 +121,7 @@ export const tools: Tool[] = [
     slug: "meta-generator",
     name: "Meta & Headline Generator",
     oneLiner:
-      "Shows exactly where Google cuts your title tag — measured in pixels, not characters.",
+      "Shows exactly where Google cuts your title tag, measured in pixels, not characters.",
     navLine: "Where Google cuts your title",
     group: "search",
     status: "live",
@@ -154,7 +154,7 @@ export const tools: Tool[] = [
     slug: "qr-generator",
     name: "QR Code Generator",
     oneLiner:
-      "Makes a vector QR code for your Wi-Fi, a contact card, a link or a chat — with no redirect that can expire.",
+      "Makes a vector QR code for your Wi-Fi, a contact card, a link or a chat, with no redirect that can expire.",
     navLine: "Vector QR with no redirect",
     group: "assets",
     status: "live",

@@ -115,7 +115,7 @@ export default function DeepChecks({ host }: { host: string }) {
               aria-hidden="true"
               className="motion-safe:animate-spin"
             />
-            Google is loading the page in a real browser — up to a minute.
+            Google is loading the page in a real browser, which takes up to a minute.
           </p>
         )}
         {state.phase === "working" && (
@@ -123,7 +123,7 @@ export default function DeepChecks({ host }: { host: string }) {
            * heading over nothing. Someone who prints before these land should
            * be told to wait, not left wondering what was cut. */
           <p className="hidden text-small text-slate print:block">
-            These were still loading when this was saved — run the audit again
+            These were still loading when this was saved. Run the audit again
             and give them a minute before printing.
           </p>
         )}
@@ -255,7 +255,7 @@ function PagespeedBody({ result }: { result: PagespeedResult }) {
       <p className="mt-6 max-w-2xl text-small text-slate">
         Google&apos;s own four Lighthouse scores for the mobile version, out of
         100 each. These are lab measurements on Google&apos;s hardware, not a
-        reading of what your visitors experience — the field figures below are
+        reading of what your visitors experience. The field figures below are
         that, when Google has enough traffic to report them.
       </p>
 
@@ -280,7 +280,7 @@ function PagespeedBody({ result }: { result: PagespeedResult }) {
             * reader spots immediately and then distrusts the rest for. */}
           <p className="mt-3 text-small text-slate">
             Google&apos;s estimate of what each one would save, in whichever unit
-            it measures that audit. Estimates, not promises — and ordered by how
+            it measures that audit. Estimates, not promises, and ordered by how
             much load time each is costing, which is not always the same as the
             size shown.
           </p>
@@ -314,7 +314,7 @@ function PagespeedBody({ result }: { result: PagespeedResult }) {
           </dl>
         ) : (
           <p className="mt-3 text-small text-slate">
-            Google has no field data for this site — too few visitors in Chrome to
+            Google has no field data for this site: too few visitors in Chrome to
             report on, which is normal for a smaller site and is not a fault.
           </p>
         )}
@@ -338,7 +338,7 @@ function Security({ result }: { result: DeepResult["security"] }) {
           </div>
           <p className="mt-3 max-w-2xl text-small text-slate">
             Mozilla&apos;s grade. These are the headers that tell a browser what
-            your page is allowed to do — the kind of thing that costs nothing to
+            your page is allowed to do: the kind of thing that costs nothing to
             add and is almost always simply missing.
           </p>
           <p className="mt-4">
@@ -374,7 +374,7 @@ function Domain({ result }: { result: DeepResult["domain"] }) {
           <p className="mt-3 max-w-2xl text-small text-slate">
             Registered {result.registered}. Age is one of the few things about a
             domain that cannot be bought quickly, which is why it is worth
-            knowing — but it is a fact, not a score, and a young domain is not a
+            knowing, but it is a fact, not a score, and a young domain is not a
             problem to fix.
           </p>
         </>

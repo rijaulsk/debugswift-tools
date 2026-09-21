@@ -285,7 +285,7 @@ export default function QuoteBuilder() {
           />
         </div>
         <p className="mt-4 max-w-2xl text-small text-slate">
-          Leave the rate blank and no tax line appears at all — which is the
+          Leave the rate blank and no tax line appears at all, which is the
           right document if you aren&apos;t registered. Adding a rate does not
           make this a tax invoice; see the note below the preview.
         </p>
@@ -354,7 +354,7 @@ export default function QuoteBuilder() {
 
         <p className="mt-6 max-w-2xl text-small text-slate">
           Your draft is kept in this browser so a refresh doesn&apos;t lose it,
-          and nothing you type here is sent to us — the builder makes no request
+          and nothing you type here is sent to us. The builder makes no request
           that carries it. “Clear everything” wipes the saved draft.
         </p>
       </div>
@@ -503,7 +503,7 @@ export default function QuoteBuilder() {
           This is a plain {isQuote ? "quote" : "invoice"}, not a GST tax invoice.
           If you&apos;re registered for GST, a compliant invoice also needs your
           GSTIN, the customer&apos;s GSTIN, HSN or SAC codes and the place of
-          supply — none of which this produces. Check with your accountant before
+          supply, none of which this produces. Check with your accountant before
           using it for anything you&apos;ll file.
         </p>
       </div>

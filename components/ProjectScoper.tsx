@@ -155,7 +155,7 @@ export default function ProjectScoper() {
         </div>
         <p className="mt-3 max-w-2xl text-slate">
           Send this to everyone you ask. Three quotes are only comparable if all
-          three were asked the same question — which is usually the real reason
+          three were asked the same question, which is usually the real reason
           they come back so far apart.
         </p>
         <pre className="mt-5 overflow-x-auto rounded-card border-[1.5px] border-ink bg-paper p-5 text-small">
@@ -172,7 +172,7 @@ export default function ProjectScoper() {
             {GOTCHAS.map((g) => (
               <li key={g} className="flex gap-3 text-slate">
                 <span aria-hidden="true" className="text-indigo-600">
-                  —
+                  ·
                 </span>
                 {g}
               </li>
@@ -187,7 +187,7 @@ export default function ProjectScoper() {
             {THEY_WILL_ASK.map((q) => (
               <li key={q} className="flex gap-3 text-slate">
                 <span aria-hidden="true" className="text-indigo-600">
-                  —
+                  ·
                 </span>
                 {q}
               </li>

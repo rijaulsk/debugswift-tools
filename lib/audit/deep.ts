@@ -279,7 +279,7 @@ export async function fetchPagespeed(
         ok: false,
         reason:
           error.status === 429
-            ? "We've used up this tool's PageSpeed allowance for the moment. Worth trying again later — nothing is wrong with your site."
+            ? "We've used up this tool's PageSpeed allowance for the moment. Worth trying again later. Nothing is wrong with your site."
             : `Google answered ${error.status} rather than a result.`,
       };
     }
@@ -335,7 +335,7 @@ export async function fetchSecurityGrade(
     if (error instanceof UpstreamError) {
       return {
         ok: false,
-        reason: `Mozilla answered ${error.status} rather than a grade — often that just means the host wasn't reachable from their scanner.`,
+        reason: `Mozilla answered ${error.status} rather than a grade, which often just means the host wasn't reachable from their scanner.`,
       };
     }
     return { ok: false, reason: "Mozilla's scanner couldn't be reached for this one." };
@@ -406,7 +406,7 @@ export async function fetchDomainAge(
     ok: false,
     reason: reached
       ? "The registry answered but published no registration date for that domain."
-      : "The domain registry didn't answer just now — that's about our request, not your domain.",
+      : "The domain registry didn't answer just now. That's about our request, not your domain.",
   };
 }
 

@@ -19,7 +19,7 @@ export default function NotFound() {
           <div>
             <Eyebrow>404</Eyebrow>
             <h1 className="mt-5 max-w-2xl text-h1-mobile md:text-h1">
-              Nothing here — Deb checked twice.
+              Nothing here. Deb checked twice.
             </h1>
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Button variant="secondary" href="/" main={false}>

@@ -91,7 +91,7 @@ export default function BrandKit() {
           <p className="mt-3 max-w-2xl text-slate">
             Ten steps built by walking perceptual lightness, so the gaps look
             even rather than measuring even. Each row says which text colour is
-            legible on it — measured, not guessed.
+            legible on it, measured, not guessed.
           </p>
 
           <ul className="mt-6 divide-y-[1.5px] divide-mist border-y-[1.5px] border-mist">
@@ -102,7 +102,7 @@ export default function BrandKit() {
 
           <p className="mt-6 max-w-2xl text-small text-slate">
             Ratios are WCAG 2.1 contrast, computed on the hex above. AA wants 4.5
-            for body text and 3 for large text — 24px and up, or 19px and up if
+            for body text and 3 for large text: 24px and up, or 19px and up if
             it&apos;s bold. A step with neither black nor white passing is a
             background for shapes, not for words.
           </p>
@@ -115,7 +115,7 @@ export default function BrandKit() {
           <h2 className="text-eyebrow uppercase text-indigo-600">The neutrals</h2>
           <p className="mt-3 max-w-2xl text-slate">
             Greys carrying a trace of your hue. Pure greys next to a saturated
-            brand colour read as dirty — a shared hue is what makes a palette
+            brand colour read as dirty. A shared hue is what makes a palette
             look like one family rather than two projects.
           </p>
           <ul className="mt-6 flex flex-wrap gap-2">
@@ -144,7 +144,7 @@ export default function BrandKit() {
           </h2>
           <p className="mt-3 max-w-2xl text-slate">
             The question a palette never answers: put THIS text on THAT
-            background — does it pass? Every cell is measured. AA needs 4.5 for
+            background: does it pass? Every cell is measured. AA needs 4.5 for
             body text.
           </p>
           <PairMatrix brand={ramp} neutrals={neutrals} />
@@ -269,7 +269,7 @@ function SwatchRow({ swatch }: { swatch: Swatch }) {
           </>
         ) : largeTextOk ? (
           <>
-            Large text only —{" "}
+            Large text only:{" "}
             <span className="font-medium text-ink">{largeTextOk}</span>, 24px and
             up
           </>

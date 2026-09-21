@@ -293,7 +293,7 @@ export default function AuditReport({ result }: { result: AuditResult }) {
         </p>
         <p className="mt-4 max-w-2xl text-small text-slate">
           That&apos;s this tool&apos;s opinion of {result.score.total} specific
-          things, not a grade out of a hundred. The list below is the score —
+          things, not a grade out of a hundred. The list below is the score,
           nothing is hidden.
           {skipped > 0 && (
             <>
@@ -397,7 +397,7 @@ export default function AuditReport({ result }: { result: AuditResult }) {
                       </p>
                       <p className="mt-3 hidden text-small text-slate print:block">
                         <span className="font-medium text-ink">Fix it with: </span>
-                        {check.fixWith.label} — debugswift.com/tools/
+                        {check.fixWith.label}: debugswift.com/tools/
                         {check.fixWith.slug}
                       </p>
                     </>

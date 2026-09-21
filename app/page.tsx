@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     "Free, no-signup tools for small businesses: a website audit, generators and calculators. Straight answers, no email wall.",
   alternates: { canonical: canonicalPath("/") },
   openGraph: {
-    title: "Free Tools — DebugSwift",
+    title: "Free Tools | DebugSwift",
     description:
       "Free, no-signup tools for small businesses. Straight answers, no email wall.",
     url: toolUrl("/"),

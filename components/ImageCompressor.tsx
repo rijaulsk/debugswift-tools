@@ -288,7 +288,7 @@ export default function ImageCompressor() {
                   * only safe direction for a number we are boasting with. */}
                 {totalOut < totalIn
                   ? `${Math.floor(((totalIn - totalOut) / totalIn) * 100)}% smaller across ${done.length} image${done.length === 1 ? "" : "s"}.`
-                  : "No saving on these — they were already well optimised."}
+                  : "No saving on these: they were already well optimised."}
               </p>
             </div>
           )}
@@ -314,7 +314,7 @@ export default function ImageCompressor() {
                       {row.worse ? (
                         <span className="text-ink">
                           {" "}
-                          — already smaller than we can make it, so you get the
+                          , already smaller than we can make it, so you get the
                           original back
                         </span>
                       ) : (
@@ -365,7 +365,7 @@ export default function ImageCompressor() {
       )}
 
       <p className="max-w-2xl text-small text-slate" data-note="loss">
-        Re-encoding is lossy, so keep your originals — this is for the copy that
+        Re-encoding is lossy, so keep your originals; this is for the copy that
         goes on the website, not your only copy. The browser also drops all
         metadata in the process: that removes GPS coordinates from phone photos,
         which is usually a good thing, but it also removes the colour profile and

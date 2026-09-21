@@ -49,7 +49,7 @@ const KINDS: { id: Kind; label: string; blurb: string; fields: Field[] }[] = [
         id: "value",
         label: "Web address",
         placeholder: "example.com",
-        hint: "We'll add https:// if you leave it off — without a scheme, many scanners treat it as plain text and do nothing.",
+        hint: "We'll add https:// if you leave it off. Without a scheme, many scanners treat it as plain text and do nothing.",
       },
     ],
   },
@@ -59,7 +59,7 @@ const KINDS: { id: Kind; label: string; blurb: string; fields: Field[] }[] = [
     blurb: "Joins a network without anyone typing the password.",
     fields: [
       { id: "ssid", label: "Network name", placeholder: "Cafe Guest", hint: "Exactly as it appears in the phone's Wi-Fi list, including capitals." },
-      { id: "password", label: "Password", placeholder: "", optional: true, hint: "Leave blank for an open network. Symbols are fine — they're escaped for you." },
+      { id: "password", label: "Password", placeholder: "", optional: true, hint: "Leave blank for an open network. Symbols are fine; they're escaped for you." },
       {
         id: "security",
         label: "Security",
@@ -103,7 +103,7 @@ const KINDS: { id: Kind; label: string; blurb: string; fields: Field[] }[] = [
     id: "whatsapp",
     label: "WhatsApp",
     blurb: "Opens a chat with you.",
-    fields: [{ id: "value", label: "Number", placeholder: "918585030894", hint: "Country code, digits only — no plus, no spaces." }],
+    fields: [{ id: "value", label: "Number", placeholder: "918585030894", hint: "Country code, digits only. No plus, no spaces." }],
   },
   {
     id: "email",
@@ -112,7 +112,7 @@ const KINDS: { id: Kind; label: string; blurb: string; fields: Field[] }[] = [
     fields: [
       { id: "to", label: "To", placeholder: "hello@example.com" },
       { id: "subject", label: "Subject", placeholder: "Quote request", optional: true },
-      { id: "body", label: "Message", placeholder: "Hi — I'd like a quote for…", optional: true, multiline: true },
+      { id: "body", label: "Message", placeholder: "Hi, I'd like a quote for…", optional: true, multiline: true },
     ],
   },
   {
@@ -303,7 +303,7 @@ export default function QrGenerator() {
         </legend>
         <p className="mt-3 max-w-2xl text-small text-slate">
           How much damage the code can take and still read. More correction means
-          a denser code, not a bigger one — so on a small print, less is often
+          a denser code, not a bigger one, so on a small print, less is often
           more legible.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -334,7 +334,7 @@ export default function QrGenerator() {
         <legend className="text-eyebrow uppercase text-indigo-600">Colours</legend>
         <p className="mt-3 max-w-2xl text-small text-slate">
           A brand-coloured code is fine right up until it isn&apos;t. This checks
-          whether a camera can still separate the two — measured, not assumed.
+          whether a camera can still separate the two, measured, not assumed.
         </p>
         <div className="mt-4 flex flex-wrap gap-6">
           <ColourField label="Code" value={dark} onChange={setDark} />
@@ -361,7 +361,7 @@ export default function QrGenerator() {
             }`}
           >
             <span className="font-medium tabular-nums">
-              {scan.ratio.toFixed(1)}:1 contrast —{" "}
+              {scan.ratio.toFixed(1)}:1 contrast,{" "}
             </span>
             {scan.message}
           </p>
@@ -418,7 +418,7 @@ export default function QrGenerator() {
                 </button>
               </div>
               <p className="mt-6 max-w-md text-small text-slate">
-                Use the SVG wherever you can — it stays sharp at any size. The
+                Use the SVG wherever you can; it stays sharp at any size. The
                 white border around the code is not decoration: scanners need it,
                 and cropping it is the most common reason a printed QR won&apos;t
                 read.

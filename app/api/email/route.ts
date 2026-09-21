@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     return json<EmailError>(
       {
         error: "That doesn't look like a domain.",
-        hint: "Just the domain on its own — example.com — or an email address at it.",
+        hint: "Just the domain on its own (example.com) or an email address at it.",
       },
       422,
     );

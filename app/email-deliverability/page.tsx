@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     "Check the SPF, DKIM, DMARC and MX records that decide whether your email reaches the inbox or the spam folder. Reads public DNS. Free, no signup.",
   alternates: { canonical: canonicalPath("/email-deliverability") },
   openGraph: {
-    title: "Free Email Deliverability Check — DebugSwift",
+    title: "Free Email Deliverability Check | DebugSwift",
     description:
       "The four DNS records that decide whether your email arrives. Free, no signup.",
     url: toolUrl("/email-deliverability"),
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 const records: { title: string; body: string }[] = [
   {
     title: "SPF",
-    body: "The list of servers allowed to send email using your domain name. Without it, anyone can send mail that claims to be from you — and receivers have nothing to check yours against.",
+    body: "The list of servers allowed to send email using your domain name. Without it, anyone can send mail that claims to be from you, and receivers have nothing to check yours against.",
   },
   {
     title: "DKIM",
@@ -42,7 +42,7 @@ const records: { title: string; body: string }[] = [
   },
   {
     title: "DMARC",
-    body: "The instruction that turns the other two from published opinion into an enforced rule — and the only way to find out that somebody else is sending mail as you.",
+    body: "The instruction that turns the other two from published opinion into an enforced rule, and the only way to find out that somebody else is sending mail as you.",
   },
   {
     title: "MX",
@@ -54,27 +54,27 @@ const faqs: FaqItem[] = [
   {
     question: "Why would my email be going to spam without me knowing?",
     answer:
-      "Because nothing tells you. There's no bounce and no error — a receiving server quietly decides your message looks unauthenticated and files it away. The customer says they never got the invoice, you assume they missed it, and you resend it into the same spam folder. It's the most expensive invisible problem a small business has, and it's diagnosable in about ten seconds from public records.",
+      "Because nothing tells you. There's no bounce and no error. A receiving server quietly decides your message looks unauthenticated and files it away. The customer says they never got the invoice, you assume they missed it, and you resend it into the same spam folder. It's the most expensive invisible problem a small business has, and it's diagnosable in about ten seconds from public records.",
   },
   {
     question: "You said you couldn't tell whether I have DKIM. Why not?",
     answer:
-      "DKIM keys are published under a name your email provider picks — a \"selector\" — and DNS gives no way to list what exists under a domain. We try the dozen selectors the big providers use, so finding one is proof you have it, but not finding one only means it isn't on a name we could guess. That's why the result says \"couldn't tell\" rather than \"missing\". Your provider's admin settings will say whether DKIM is switched on.",
+      "DKIM keys are published under a name your email provider picks, a \"selector\", and DNS gives no way to list what exists under a domain. We try the dozen selectors the big providers use, so finding one is proof you have it, but not finding one only means it isn't on a name we could guess. That's why the result says \"couldn't tell\" rather than \"missing\". Your provider's admin settings will say whether DKIM is switched on.",
   },
   {
     question: "What's the SPF lookup limit, and why does it matter so much?",
     answer:
-      "SPF is allowed ten DNS lookups, counted across every record it refers to — not just the ones you wrote. Go over and the record becomes invalid, and most receivers treat it as though you had no SPF at all, even though it looks perfectly correct in your DNS. It usually happens quietly: you add a fourth sending service, and one of your providers' own records changes underneath you. Most free checkers count only your top-level includes and tell you you're fine. This one follows the tree.",
+      "SPF is allowed ten DNS lookups, counted across every record it refers to, not just the ones you wrote. Go over and the record becomes invalid, and most receivers treat it as though you had no SPF at all, even though it looks perfectly correct in your DNS. It usually happens quietly: you add a fourth sending service, and one of your providers' own records changes underneath you. Most free checkers count only your top-level includes and tell you you're fine. This one follows the tree.",
   },
   {
     question: "Do you send a test email, or see any of my mail?",
     answer:
-      "No. Every answer here comes from public DNS records — the same ones any mail server in the world can read before it decides what to do with your message. No mailbox is touched, no message is sent, and nothing is stored. It's the same anonymous page-view counter as every other page on this site, and it never sees the domain you typed.",
+      "No. Every answer here comes from public DNS records: the same ones any mail server in the world can read before it decides what to do with your message. No mailbox is touched, no message is sent, and nothing is stored. It's the same anonymous page-view counter as every other page on this site, and it never sees the domain you typed.",
   },
   {
     question: "It says everything is fine. Does that guarantee delivery?",
     answer:
-      "No, and nothing can. These four records are the part that's mechanical and checkable — they decide whether you're allowed to be believed. Whether you're actually wanted also depends on your sending history, how many people mark you as spam, and what else has been sent from your address in the past. Getting the records right removes the excuse; it doesn't remove the judgement.",
+      "No, and nothing can. These four records are the part that's mechanical and checkable. They decide whether you're allowed to be believed. Whether you're actually wanted also depends on your sending history, how many people mark you as spam, and what else has been sent from your address in the past. Getting the records right removes the excuse; it doesn't remove the judgement.",
   },
 ];
 
@@ -91,7 +91,7 @@ export default function EmailDeliverabilityPage() {
               as="h1"
               eyebrow="Email Deliverability Check"
               title="Find out why your invoices land in spam."
-              lede="Four DNS records decide whether a mail server trusts email sent from your domain. When they're wrong there's no bounce and no error — the message just quietly doesn't arrive. This reads all four and tells you which one to fix."
+              lede="Four DNS records decide whether a mail server trusts email sent from your domain. When they're wrong there's no bounce and no error. The message just quietly doesn't arrive. This reads all four and tells you which one to fix."
             />
           </div>
           {/* Counter-column artifact. Hidden below lg, like the hub's Deb: at

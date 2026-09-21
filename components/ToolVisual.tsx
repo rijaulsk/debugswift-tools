@@ -251,7 +251,7 @@ function QrBlock() {
           )}
         </svg>
         <p className="mt-4 text-center text-[13px] text-slate">
-          No redirect that can expire, and no scan counter — nothing routes
+          No redirect that can expire, and no scan counter, because nothing routes
           through us.
         </p>
       </div>
@@ -338,7 +338,7 @@ function BriefSheet() {
         </ul>
         <p className="mt-5 border-t-[1.5px] border-mist pt-5 text-small text-slate">
           <strong className="font-bold text-ink">5–9 weeks</strong> of build, on
-          our own budgeting. No prices — those come after a conversation.
+          our own budgeting. No prices; those come after a conversation.
         </p>
       </div>
     </div>
@@ -370,7 +370,7 @@ function SchemaCard() {
         ))}
       </ul>
       <p className="border-t-[1.5px] border-mist px-5 py-3.5 text-[13px] text-slate">
-        No star rating — a self-typed one is what earns a manual action.
+        No star rating: a self-typed one is what earns a manual action.
       </p>
     </div>
   );
@@ -410,7 +410,7 @@ function MailRecords() {
         ))}
       </ul>
       <p className="border-t-[1.5px] border-mist px-5 py-3.5 text-[13px] text-slate">
-        No bounce, no error — mail just stops arriving.
+        No bounce, no error. Mail just stops arriving.
       </p>
     </div>
   );

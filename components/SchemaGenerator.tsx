@@ -164,7 +164,7 @@ export default function SchemaGenerator() {
           Your profiles elsewhere
         </label>
         <p className="mt-1 text-small text-slate">
-          One full address per line — Google Business Profile, Facebook,
+          One full address per line: Google Business Profile, Facebook,
           Instagram, a directory listing. This is how a search engine confirms
           you&apos;re the same business it has seen elsewhere.
         </p>
@@ -200,7 +200,7 @@ export default function SchemaGenerator() {
             <ul className="mt-2 space-y-1">
               {issues.map((i) => (
                 <li key={i.field} className="text-small text-slate">
-                  — {i.message}
+                  · {i.message}
                 </li>
               ))}
             </ul>

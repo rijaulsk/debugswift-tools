@@ -44,7 +44,7 @@ export function checkScannability(dark: string, light: string): ScanVerdict | nu
       inverted,
       status: "bad",
       message:
-        "The code is lighter than its background. Many scanners only read dark-on-light and will simply ignore this one — swap the two colours.",
+        "The code is lighter than its background. Many scanners only read dark-on-light and will simply ignore this one. Swap the two colours.",
     };
   }
   if (ratio < MIN_RATIO) {
@@ -62,7 +62,7 @@ export function checkScannability(dark: string, light: string): ScanVerdict | nu
       inverted,
       status: "risky",
       message:
-        "Readable on a screen, marginal in print. Ink spread and poor lighting both eat contrast — fine for a website, risky on a card or a sign.",
+        "Readable on a screen, marginal in print. Ink spread and poor lighting both eat contrast: fine for a website, risky on a card or a sign.",
     };
   }
   return {

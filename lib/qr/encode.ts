@@ -240,7 +240,7 @@ function chooseVersion(text: string, mode: Mode, level: EccLevel): number {
     if (encodeData(text, mode, v).length <= dataCapacityBits(v, level)) return v;
   }
   throw new QrError(
-    "That's too long to fit in a QR code this tool can make. Shorten the link — a redirect or a short domain is the usual fix.",
+    "That's too long to fit in a QR code this tool can make. Shorten the link: a redirect or a short domain is the usual fix.",
   );
 }
 

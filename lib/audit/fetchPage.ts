@@ -287,7 +287,7 @@ export async function fetchPage(input: string): Promise<FetchedPage> {
 
   throw new FetchPageError(
     `That address redirected more than ${MAX_REDIRECTS} times.`,
-    "A redirect loop is itself worth fixing — it's usually a misconfigured www or https rule.",
+    "A redirect loop is itself worth fixing: it's usually a misconfigured www or https rule.",
   );
 }
 
