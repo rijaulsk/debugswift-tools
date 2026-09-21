@@ -452,7 +452,7 @@ export function ToolIcon({
 /* The switch is exhaustive against lib/tools.ts's ArtifactKey, so adding a key
  * there without adding its case here is a compile error rather than a blank
  * column on a live page. */
-export default function ToolVisual({ artifact }: { artifact: ArtifactKey }) {
+function Artifact({ artifact }: { artifact: ArtifactKey }) {
   switch (artifact) {
     case "audit":
       return <AuditLedger />;
@@ -473,4 +473,36 @@ export default function ToolVisual({ artifact }: { artifact: ArtifactKey }) {
     case "email":
       return <MailRecords />;
   }
+}
+
+/* COMPACT: the same artifact, sitting INSIDE a card instead of beside a hero.
+ *
+ * The hub now leads with these rather than with a mascot and three lines of
+ * type, so every card is a picture of what the tool hands you. That only works
+ * if the artifact gives up its own frame: nested at card scale, its 1.5px ink
+ * border and 14px radius sit a few pixels inside the card's identical border
+ * and read as a rendering bug, and its 380px cap leaves a gutter down one side
+ * of a wider card.
+ *
+ * Done as an override on the wrapper rather than by threading a prop through
+ * nine artifacts, because every one of them roots at `<div className={frame}>`
+ * and none of them should have to know where it is being rendered. If a new
+ * artifact ever roots at something other than a single top-level div, this
+ * stops applying to it — that is the one thing to watch.
+ *
+ * The bar's cream fill and the internal mist rules stay: they are what make it
+ * read as a piece of interface rather than decoration. */
+export default function ToolVisual({
+  artifact,
+  compact = false,
+}: {
+  artifact: ArtifactKey;
+  compact?: boolean;
+}) {
+  if (!compact) return <Artifact artifact={artifact} />;
+  return (
+    <div className="[&>div]:max-w-none [&>div]:rounded-none [&>div]:border-0">
+      <Artifact artifact={artifact} />
+    </div>
+  );
 }
