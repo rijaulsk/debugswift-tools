@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import AuditReport from "@/components/AuditReport";
+import AuditSkeleton from "@/components/AuditSkeleton";
 import { variantClasses } from "@/components/Button";
 import { API } from "@/lib/links";
 import { setParamsInUrl, useParam } from "@/lib/params";
@@ -180,8 +181,16 @@ export default function AuditForm() {
         aria-busy={working}
         className="mt-12 outline-none"
       >
+        {/* The message stays, for the live region and for anyone who cannot
+          * see the skeleton; the skeleton is aria-hidden beside it. Between
+          * three and twenty seconds of one grey sentence is long enough that a
+          * visitor starts wondering whether the button worked, and the report
+          * then arrived all at once and shoved the page down. */}
         {state.phase === "working" && (
-          <p className="text-slate">Fetching the page and running the checks…</p>
+          <>
+            <p className="sr-only">Fetching the page and running the checks.</p>
+            <AuditSkeleton />
+          </>
         )}
 
         {state.phase === "failed" && (
