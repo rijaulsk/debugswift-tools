@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
  * the shape is unknown — this page still owns the screen and there is nothing
  * yet to draw. Why not a spinner: a spinner centres attention on the waiting.
  * A 2px bar on the top edge says "your click landed" and gets out of the way.
- * See design system §11.
+ * See design system §10.
  *
  * aria-hidden on purpose: browsers and screen readers already announce a
  * document navigation, and a live region here would say it twice. */

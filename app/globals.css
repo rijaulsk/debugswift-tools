@@ -438,7 +438,7 @@
     }
   }
 
-  /* ── LOADING & PENDING STATES (design system §11) ───────────────────────
+  /* ── LOADING & PENDING STATES (design system §10) ───────────────────────
    *
    * Two patterns, and they are not interchangeable. A SKELETON is a promise
    * about shape: use it only when the shape is known and the content is

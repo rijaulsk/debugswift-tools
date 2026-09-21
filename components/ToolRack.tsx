@@ -15,7 +15,7 @@ import type { ToolGroup } from "@/lib/tools";
  *
  * WHY NO LOADING STATE. Filtering is a class toggle on markup that is already
  * in the DOM; it lands in one frame. A skeleton or spinner here would be
- * slower than the thing it was covering. See design system §11: under about
+ * slower than the thing it was covering. See design system §10: under about
  * 100ms, use nothing.
  *
  * The search input is `type="search"` so a phone keyboard offers the right

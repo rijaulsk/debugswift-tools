@@ -5,7 +5,7 @@
  * starts wondering whether the button worked. Then the whole report appeared at
  * once and shoved the page down.
  *
- * This is the case a skeleton is actually for, per design system §11: the shape
+ * This is the case a skeleton is actually for, per design system §10: the shape
  * is known (a score, a set of group bars, a stat row) and the content is
  * genuinely coming. Compare the two other patterns, which would both be wrong
  * here. A bar says "something is happening" and nothing about what — right for
