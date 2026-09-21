@@ -1,6 +1,7 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import ReactDOM from "react-dom";
+import CrossAppPrefetch from "@/components/CrossAppPrefetch";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import StickyMobileBar from "@/components/StickyMobileBar";
@@ -127,6 +128,7 @@ export default function RootLayout({
            * other JSON-LD block in the app already goes through it. */
           dangerouslySetInnerHTML={{ __html: jsonLdScript(siteJsonLd) }}
         />
+        <CrossAppPrefetch />
         <Header />
         <div className="flex-1">{children}</div>
         <Footer />
