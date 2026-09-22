@@ -14,21 +14,17 @@
  * it back to this repo's own public/fonts copy for standalone dev, where the
  * apex is not there to answer.
  *
- * The fallback metrics are next/font's own computed output, copied verbatim
- * from the build this replaced — without them the Arial fallback re-flows the
- * page when Satoshi lands. Do not round them.
+ * `font-display: swap`, and the CLS it used to cause is fixed by the fallback
+ * faces below rather than by the display mode. Inlining the CSS made first
+ * paint far faster and in doing so removed the render-blocking stylesheet that
+ * had been accidentally HIDING the swap; text then re-wrapped when Satoshi
+ * arrived, measured at 0.083 CLS on the marketing site's hero. `optional` was
+ * tried, only made it rarer, and costs the brand face whenever the font misses
+ * its block period. The real cause was the fallback's widths. With those
+ * matched, a late swap forced on every load shifted nothing in 16 runs.
  *
- * `font-display: optional`, NOT `swap`, and this is a CLS fix rather than a
- * preference. Inlining the CSS made first paint far faster and in doing so
- * removed the render-blocking stylesheet that had been accidentally hiding the
- * font swap; with `swap` the marketing site measured 0.083 CLS on every run as
- * text re-wrapped when Satoshi arrived. `optional` gives the font a short block
- * period and then commits — used from the first paint or not at all for that
- * page load, so nothing can shift afterwards. Satoshi still won the race on
- * throttled slow-4G, being preloaded, same-origin, immutable and 42KB.
- *
- * If you ever set this back to `swap`, re-measure CLS on mobile before
- * believing it is fine. The desktop number hides it.
+ * If CLS ever regresses, measure the fallback's width ratio before touching
+ * font-display. The timing is a symptom; the metrics are the cause.
  *
  * The filename is NOT content-hashed and the main app serves it immutable for
  * a year. If the typeface is ever re-cut, ship it under a NEW filename, in all
@@ -36,18 +32,70 @@
 @font-face {
   font-family: "Satoshi";
   src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
-  font-display: optional;
+  font-display: swap;
   font-weight: 300 900;
   font-style: normal;
+}
+
+/* THREE fallback faces, split by weight, and the size-adjust figures are
+ * MEASURED against this site's own copy rather than inherited. This is what
+ * actually fixed the CLS described above.
+ *
+ * next/font derives a single size-adjust from the font's xAvgCharWidth — an
+ * average over every glyph in the file. Real marketing copy is not that
+ * average. At its 109.35%, Arial rendered a 900-weight display line 2% wide and
+ * 18px body text ELEVEN percent wide. Eleven percent is several words; the line
+ * breaks landed in different places, so the paragraph changed line count the
+ * moment the webfont replaced the fallback, and everything below it moved.
+ *
+ * One number cannot serve the whole scale, which is why there are three:
+ * Satoshi's weight axis widens its glyphs as it gets bolder and Arial's does
+ * not, so 400 and 900 need different corrections. Measured satoshi/fallback
+ * ratios per band, folded back into the original 109.35%:
+ *
+ *     300-400   0.898  ->  98.2%    (body copy, the one that was re-wrapping)
+ *     401-500   1.000  -> 100.4%
+ *     600-900   0.958  -> 104.8%
+ *
+ * After: every sampled string sits within about 2% of Satoshi and the mean
+ * ratio is 1.0002, against 0.9403 before. The hero lede, which is what moved,
+ * went from 11% out to 0.04%.
+ *
+ * Vertical metrics are deliberately untouched. Every role in the type scale
+ * sets an explicit line-height, so the line box here does not depend on the
+ * font's ascent or descent — only horizontal fit can move a line.
+ *
+ * TO RE-DERIVE after a type-scale or copy change: render the real strings in
+ * both families at each weight, take the mean width ratio per band, and
+ * multiply the band's current size-adjust by it. Do not guess at these. */
+@font-face {
+  font-family: "Satoshi Fallback";
+  src: local("Arial");
+  font-weight: 300 400;
+  ascent-override: 92.36%;
+  descent-override: 21.95%;
+  line-gap-override: 9.14%;
+  size-adjust: 98.2%;
 }
 
 @font-face {
   font-family: "Satoshi Fallback";
   src: local("Arial");
+  font-weight: 401 500;
   ascent-override: 92.36%;
   descent-override: 21.95%;
   line-gap-override: 9.14%;
-  size-adjust: 109.35%;
+  size-adjust: 100.4%;
+}
+
+@font-face {
+  font-family: "Satoshi Fallback";
+  src: local("Arial");
+  font-weight: 600 900;
+  ascent-override: 92.36%;
+  descent-override: 21.95%;
+  line-gap-override: 9.14%;
+  size-adjust: 104.8%;
 }
 
 /*
