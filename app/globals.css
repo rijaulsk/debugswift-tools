@@ -14,23 +14,30 @@
  * it back to this repo's own public/fonts copy for standalone dev, where the
  * apex is not there to answer.
  *
- * `font-display: swap`, and the CLS it used to cause is fixed by the fallback
- * faces below rather than by the display mode. Inlining the CSS made first
- * paint far faster and in doing so removed the render-blocking stylesheet that
- * had been accidentally HIDING the swap; text then re-wrapped when Satoshi
- * arrived, measured at 0.083 CLS on the marketing site's hero. `optional` was
- * tried, only made it rarer, and costs the brand face whenever the font misses
- * its block period. The real cause was the fallback's widths. With those
- * matched, a late swap forced on every load shifted nothing in 16 runs.
+ * `font-display: block`, and the CLS it used to cause is fixed by the fallback
+ * faces below AND by the display mode. Both are needed; neither is sufficient.
+ * Inlining the CSS made first paint far faster and in doing so removed the
+ * render-blocking stylesheet that had been accidentally HIDING the swap; text
+ * then re-wrapped when Satoshi arrived, measured at 0.083 CLS on the marketing
+ * site's hero.
  *
- * If CLS ever regresses, measure the fallback's width ratio before touching
- * font-display. The timing is a symptom; the metrics are the cause.
+ * Matching the fallback's widths fixed that on any machine that HAS a
+ * metric-compatible font, and there it still does. PageSpeed's runner has none
+ * of Arial, Liberation Sans, Arimo, Nimbus Sans, Helvetica, Helvetica Neue or
+ * Roboto, so every face below fails to load, text falls through to an untuned
+ * system font and the re-wrap returns — 0.112 on mobile, while the same
+ * Lighthouse run from a Windows machine reported 0.003. Measured against a
+ * reproduction of that condition, one build per variant:
  *
- * AND THE FALLBACK HAS TO EXIST. PageSpeed still reported 0.112 on mobile
- * after the widths were matched, while the same Lighthouse run from a Windows
- * machine reported 0.003 — because PageSpeed runs on Linux, where
- * `local("Arial")` resolves to nothing and every matched face failed to load.
- * Hence the wider src lists and the Android family below.
+ *     swap  0.0579     optional  0.0579     block  0.0000
+ *
+ * `block` is the one that holds, for a reason independent of what the runner
+ * has installed: text is not painted during the block period, so there is no
+ * fallback rendering for Satoshi to re-wrap.
+ *
+ * The full derivation, what it costs in LCP, and how to measure this without
+ * fooling yourself are in the marketing repo's copy of this comment. Keep all
+ * three files in sync.
  *
  * The filename is NOT content-hashed and the main app serves it immutable for
  * a year. If the typeface is ever re-cut, ship it under a NEW filename, in all
@@ -38,7 +45,7 @@
 @font-face {
   font-family: "Satoshi";
   src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
-  font-display: swap;
+  font-display: block;
   font-weight: 300 900;
   font-style: normal;
 }
