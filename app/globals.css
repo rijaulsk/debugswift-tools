@@ -18,13 +18,25 @@
  * from the build this replaced — without them the Arial fallback re-flows the
  * page when Satoshi lands. Do not round them.
  *
+ * `font-display: optional`, NOT `swap`, and this is a CLS fix rather than a
+ * preference. Inlining the CSS made first paint far faster and in doing so
+ * removed the render-blocking stylesheet that had been accidentally hiding the
+ * font swap; with `swap` the marketing site measured 0.083 CLS on every run as
+ * text re-wrapped when Satoshi arrived. `optional` gives the font a short block
+ * period and then commits — used from the first paint or not at all for that
+ * page load, so nothing can shift afterwards. Satoshi still won the race on
+ * throttled slow-4G, being preloaded, same-origin, immutable and 42KB.
+ *
+ * If you ever set this back to `swap`, re-measure CLS on mobile before
+ * believing it is fine. The desktop number hides it.
+ *
  * The filename is NOT content-hashed and the main app serves it immutable for
  * a year. If the typeface is ever re-cut, ship it under a NEW filename, in all
  * three repos at once. */
 @font-face {
   font-family: "Satoshi";
   src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
-  font-display: swap;
+  font-display: optional;
   font-weight: 300 900;
   font-style: normal;
 }
