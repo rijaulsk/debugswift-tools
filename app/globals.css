@@ -26,6 +26,12 @@
  * If CLS ever regresses, measure the fallback's width ratio before touching
  * font-display. The timing is a symptom; the metrics are the cause.
  *
+ * AND THE FALLBACK HAS TO EXIST. PageSpeed still reported 0.112 on mobile
+ * after the widths were matched, while the same Lighthouse run from a Windows
+ * machine reported 0.003 — because PageSpeed runs on Linux, where
+ * `local("Arial")` resolves to nothing and every matched face failed to load.
+ * Hence the wider src lists and the Android family below.
+ *
  * The filename is NOT content-hashed and the main app serves it immutable for
  * a year. If the typeface is ever re-cut, ship it under a NEW filename, in all
  * three repos at once. */
@@ -70,7 +76,8 @@
  * multiply the band's current size-adjust by it. Do not guess at these. */
 @font-face {
   font-family: "Satoshi Fallback";
-  src: local("Arial");
+  src: local("Arial"), local("Liberation Sans"), local("Arimo"),
+    local("Nimbus Sans"), local("Helvetica Neue"), local("Helvetica");
   font-weight: 300 400;
   ascent-override: 92.36%;
   descent-override: 21.95%;
@@ -80,7 +87,8 @@
 
 @font-face {
   font-family: "Satoshi Fallback";
-  src: local("Arial");
+  src: local("Arial"), local("Liberation Sans"), local("Arimo"),
+    local("Nimbus Sans"), local("Helvetica Neue"), local("Helvetica");
   font-weight: 401 500;
   ascent-override: 92.36%;
   descent-override: 21.95%;
@@ -90,12 +98,70 @@
 
 @font-face {
   font-family: "Satoshi Fallback";
-  src: local("Arial");
+  src: local("Arial"), local("Liberation Sans"), local("Arimo"),
+    local("Nimbus Sans"), local("Helvetica Neue"), local("Helvetica");
   font-weight: 600 900;
   ascent-override: 92.36%;
   descent-override: 21.95%;
   line-gap-override: 9.14%;
   size-adjust: 104.8%;
+}
+
+/* A SECOND fallback family, for Android — which has none of the above.
+ *
+ * The faces above are all metrically Arial: Liberation Sans and Arimo are
+ * deliberate Arial clones with identical advance widths, Nimbus Sans and
+ * Helvetica are close enough, so one set of numbers serves Windows, macOS, iOS
+ * and Linux. Android has NONE of them. Its system font is Roboto, so on a
+ * phone every face above fails to load, the family is skipped entirely, and
+ * text renders in Roboto with no correction at all.
+ *
+ * Measured over 566 real strings: unadjusted Roboto is 8 to 10 percent
+ * NARROWER than Satoshi. That is the same class of mismatch that caused the
+ * original 0.136, pointing the other way, and it is aimed squarely at the
+ * audience this site is actually for.
+ *
+ * When a family has no usable face the browser moves to the next family in the
+ * stack, so listing this after "Satoshi Fallback" in --font-sans is what picks
+ * it up on Android and nowhere else. Verified by making the first family
+ * unresolvable and letting the second carry the metrics: CLS stayed at 0.003,
+ * against 0.058 with no second family.
+ *
+ * CAVEAT, stated plainly: these three numbers are arithmetic from a measured
+ * ratio, not an end-to-end measurement. Roboto is not installed on the machine
+ * they were derived on, so the tier could not be rendered and re-measured the
+ * way the Arial tier was. The arithmetic is the same linear relation that was
+ * verified there — changing 109.35% to 98.2% moved the measured ratio from
+ * 0.898 to 1.0004, exactly as predicted. Re-check on a real Android before
+ * treating them as settled. */
+@font-face {
+  font-family: "Satoshi Fallback Android";
+  src: local("Roboto");
+  font-weight: 300 400;
+  ascent-override: 92.36%;
+  descent-override: 21.95%;
+  line-gap-override: 9.14%;
+  size-adjust: 108.1%;
+}
+
+@font-face {
+  font-family: "Satoshi Fallback Android";
+  src: local("Roboto");
+  font-weight: 401 500;
+  ascent-override: 92.36%;
+  descent-override: 21.95%;
+  line-gap-override: 9.14%;
+  size-adjust: 109.7%;
+}
+
+@font-face {
+  font-family: "Satoshi Fallback Android";
+  src: local("Roboto");
+  font-weight: 600 900;
+  ascent-override: 92.36%;
+  descent-override: 21.95%;
+  line-gap-override: 9.14%;
+  size-adjust: 108%;
 }
 
 /*
@@ -164,7 +230,9 @@
    * than through a --font-satoshi variable, because that variable was set by
    * next/font on <html>; the @font-face rules at the top of this file replaced
    * it. "Satoshi Fallback" carries the metric overrides. */
-  --font-sans: "Satoshi", "Satoshi Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    "Satoshi", "Satoshi Fallback", "Satoshi Fallback Android", ui-sans-serif,
+    system-ui, sans-serif;
 
   --text-display: 4.5rem; /* 72px */
   --text-display--line-height: 4.75rem; /* 76px */
